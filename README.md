@@ -466,3 +466,7 @@ CREATE TABLE bookmarks (
     
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-----------------------
+Apy key, muy importante
+-----------------------
+ALTER TABLE users ADD COLUMN api_key VARCHAR(64) UNIQUE DEFAULT NULL;
