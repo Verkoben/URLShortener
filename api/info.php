@@ -1,59 +1,36 @@
 <?php
-include_once __DIR__ . '/log.php';
-// api/info.php - Información del usuario
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Credentials: true');
 
-session_start();
-require_once '../conf.php';
+require_once '../includes/config.php';
+require_once '../includes/db.php';
 
-// Verificar autenticación
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Not authenticated']);
+$code = $_GET['code'] ?? '';
+$code = preg_replace('/[^a-zA-Z0-9_-]/', '', $code);
+
+if (!$code) {
+    echo json_encode(['error' => 'Código no válido']);
     exit;
 }
 
-// Conectar a BD
-try {
-    $db = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Database error']);
-    exit;
-}
+$db = getDB();
 
-// Obtener información del usuario
-$user_id = $_SESSION['user_id'] ?? 1;
+$stmt = $db->prepare("
+    SELECT original_url, clicks 
+    FROM urls 
+    WHERE short_code = ? AND active = 1
+");
+$stmt->execute([$code]);
+$url = $stmt->fetch();
 
-try {
-    // Estadísticas del usuario
-    $stmt = $db->prepare("
-        SELECT COUNT(*) as total_urls, 
-               COALESCE(SUM(clicks), 0) as total_clicks 
-        FROM urls 
-        WHERE user_id = ?
-    ");
-    $stmt->execute([$user_id]);
-    $stats = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    // Responder con información
+if ($url) {
     echo json_encode([
-        'user' => [
-            'id' => $user_id,
-            'username' => $_SESSION['username'] ?? 'Usuario',
-            'role' => $_SESSION['role'] ?? 'user'
-        ],
-        'stats' => [
-            'total_urls' => (int)$stats['total_urls'],
-            'total_clicks' => (int)$stats['total_clicks']
-        ]
+        'original_url' => $url['original_url'],
+        'clicks' => intval($url['clicks']),
+        'title' => parse_url($url['original_url'], PHP_URL_HOST)
     ]);
-    
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Failed to fetch user info']);
+} else {
+    http_response_code(404);
+    echo json_encode(['error' => 'No encontrado']);
 }
 ?>

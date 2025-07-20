@@ -7,6 +7,7 @@ header('Access-Control-Allow-Credentials: true');
 require_once '../includes/config.php';
 require_once '../includes/db.php';
 
+// Verificar autenticación
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode(['error' => 'No autenticado']);
@@ -15,26 +16,14 @@ if (!isset($_SESSION['user_id'])) {
 
 $db = getDB();
 
-// NUEVO: Registrar actividad de sincronización
-$stmt = $db->prepare("
-    INSERT INTO sync_logs (user_id, action, ip_address, user_agent, created_at) 
-    VALUES (?, 'import_from_extension', ?, ?, NOW())
-");
-$stmt->execute([
-    $_SESSION['user_id'],
-    $_SERVER['REMOTE_ADDR'] ?? null,
-    $_SERVER['HTTP_USER_AGENT'] ?? null
-]);
-
 // Obtener URLs del usuario
 $stmt = $db->prepare("
     SELECT 
-        u.id,
         u.short_code,
         u.original_url,
         u.created_at,
         u.clicks,
-        u.is_custom,
+        u.active,
         COALESCE(cd.domain, ?) as domain
     FROM urls u
     LEFT JOIN custom_domains cd ON u.domain_id = cd.id
@@ -55,20 +44,9 @@ foreach ($urls as $url) {
         'original_url' => $url['original_url'],
         'created_at' => $url['created_at'],
         'clicks' => intval($url['clicks']),
-        'is_custom' => (bool)$url['is_custom'],
         'title' => $url['short_code'] // Puedes mejorar esto
     ];
 }
-
-// NUEVO: Actualizar última sincronización
-$stmt = $db->prepare("
-    UPDATE users 
-    SET 
-        last_extension_sync = NOW(),
-        extension_sync_count = COALESCE(extension_sync_count, 0) + 1
-    WHERE id = ?
-");
-$stmt->execute([$_SESSION['user_id']]);
 
 echo json_encode($response);
 ?>
