@@ -1,20 +1,25 @@
 <?php
 session_start();
 require_once 'conf.php';
+
 // CONFIGURACIÓN DE SEGURIDAD - Cambia esto según necesites
 define('REQUIRE_LOGIN_TO_SHORTEN', true); // true = requiere login, false = público
 define('ALLOW_ANONYMOUS_VIEW', true);      // true = permite ver la página sin login
+
 // Verificar si el usuario está logueado
 $is_logged_in = isset($_SESSION['user_id']) || isset($_SESSION['admin_logged_in']);
 $user_id = $_SESSION['user_id'] ?? 1;
 $username = $_SESSION['username'] ?? 'Invitado';
+
 // Verificar si es superadmin
 $is_superadmin = ($user_id == 1);
+
 // Si se requiere login y no está logueado, redirigir
 if (REQUIRE_LOGIN_TO_SHORTEN && !$is_logged_in && !ALLOW_ANONYMOUS_VIEW) {
     header('Location: ' . rtrim(BASE_URL, '/') . '/admin/login.php');
     exit;
 }
+
 // Conexión a la base de datos
 try {
     $db = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
@@ -22,6 +27,7 @@ try {
 } catch(PDOException $e) {
     die("Error de conexión: " . $e->getMessage());
 }
+
 $message = '';
 $messageType = 'info';
 $shortened_url = '';
@@ -177,6 +183,7 @@ if ($is_logged_in) {
         // Ignorar si no existe la tabla
     }
 }
+
 // Obtener estadísticas generales
 try {
     $stmt = $db->query("SELECT COUNT(*) as total FROM urls");
@@ -210,6 +217,7 @@ try {
     $total_clicks = 0;
     $recent_urls = [];
 }
+
 // Si el usuario está logueado, obtener sus estadísticas
 $user_stats = null;
 if ($is_logged_in && $user_id > 1) {
@@ -235,6 +243,7 @@ if ($is_logged_in && $user_id > 1) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 Acortador de URLs - Acorta y Comparte</title>
     <meta name="description" content="Acorta tus URLs largas de forma rápida y gratuita. Estadísticas en tiempo real, códigos personalizados y más.">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -340,6 +349,106 @@ if ($is_logged_in && $user_id > 1) {
             max-width: 1200px;
             margin: 0 auto;
             padding: 120px 20px 40px;
+        }
+        
+        /* ANALYTICS SUMMARY WIDGET */
+        .analytics-summary {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .analytics-card {
+            text-align: center;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .analytics-card:hover {
+            transform: translateY(-2px);
+            background: rgba(102, 126, 234, 0.15);
+        }
+
+        .analytics-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .analytics-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .analytics-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-analytics {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-analytics:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn-analytics.secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-analytics.secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-analytics:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         /* Hero Section */
@@ -916,6 +1025,14 @@ if ($is_logged_in && $user_id > 1) {
                 gap: 10px;
                 text-align: center;
             }
+            
+            .analytics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .analytics-actions {
+                flex-direction: column;
+            }
         }
         
         /* Loading animation */
@@ -953,6 +1070,7 @@ if ($is_logged_in && $user_id > 1) {
                 <?php if ($is_logged_in): ?>
                 <div class="user-info">
                     <span>👤 <?php echo htmlspecialchars($username); ?></span>
+                    <a href="marcadores/" class="btn-login">📊 Gestor URLs</a>
                     <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/panel_simple.php" class="btn-login">Panel Admin</a>
                     <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/logout.php" class="btn-logout">Cerrar Sesión</a>
                 </div>
@@ -976,6 +1094,42 @@ if ($is_logged_in && $user_id > 1) {
             <?php endif; ?>
             </p>
         </div>
+        
+        <!-- Analytics Summary Widget -->
+        <?php if ($is_logged_in): ?>
+        <div class="analytics-summary" id="analyticsSummary" style="display: none;">
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <div class="analytics-number" id="totalClicks">0</div>
+                    <div class="analytics-label">Total Clicks</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-number" id="uniqueVisitors">0</div>
+                    <div class="analytics-label">Visitantes Únicos</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-number" id="urlsClicked">0</div>
+                    <div class="analytics-label">URLs Clickeadas</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-number" id="topUrlClicks">0</div>
+                    <div class="analytics-label" id="topUrlLabel">Top URL</div>
+                </div>
+            </div>
+            
+            <div class="analytics-actions">
+                <a href="marcadores/analytics_dashboard.php" class="btn-analytics">
+                    <i class="fas fa-chart-line"></i> Dashboard Completo
+                </a>
+                <a href="marcadores/export_bookmarks.php?format=html&download=1" class="btn-analytics secondary">
+                    <i class="fas fa-bookmark"></i> Exportar Marcadores
+                </a>
+                <button onclick="refreshAnalytics()" class="btn-analytics secondary" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+            </div>
+        </div>
+        <?php endif; ?>
         
         <!-- Stats Grid -->
         <div class="stats-grid" id="stats">
@@ -1178,6 +1332,9 @@ if ($is_logged_in && $user_id > 1) {
                             <th>URL Corta</th>
                             <th>Clicks</th>
                             <th>Creada</th>
+                            <?php if ($is_logged_in): ?>
+                            <th>Analytics</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -1202,6 +1359,16 @@ if ($is_logged_in && $user_id > 1) {
                                 </span>
                             </td>
                             <td><?php echo date('d/m H:i', strtotime($url['created_at'])); ?></td>
+                            <?php if ($is_logged_in): ?>
+                            <td>
+                                <a href="marcadores/analytics_url.php?url_id=<?php echo $url['id']; ?>" 
+                                   class="btn-analytics" 
+                                   style="font-size: 12px; padding: 4px 8px;" 
+                                   title="Ver Analytics">
+                                    <i class="fas fa-chart-bar"></i>
+                                </a>
+                            </td>
+                            <?php endif; ?>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -1216,12 +1383,80 @@ if ($is_logged_in && $user_id > 1) {
         <p>
             © <?php echo date('Y'); ?> URL Shortener | 
             <a href="/privacy">Privacidad</a> | 
-            <a href="/terms">Términos</a> | 
+            <a href="https://chromewebstore.google.com/detail/gestor-de-urls-cortas/hagbihnnkefflikhbdpnafpeamlocnmi">Extensión</a> | 
             <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin">Admin</a>
         </p>
     </footer>
     
     <script>
+        // =====================================================
+        // ANALYTICS INTEGRATION
+        // =====================================================
+
+        // Cargar resumen de analytics al cargar página
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php if ($is_logged_in): ?>
+            loadAnalyticsSummary();
+            <?php endif; ?>
+        });
+
+        // Función para cargar resumen de analytics
+        async function loadAnalyticsSummary() {
+            try {
+                const response = await fetch('marcadores/api.php?action=analytics_summary');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Mostrar el widget
+                    document.getElementById('analyticsSummary').style.display = 'block';
+                    
+                    // Actualizar números
+                    document.getElementById('totalClicks').textContent = formatNumber(data.summary.total_clicks);
+                    document.getElementById('uniqueVisitors').textContent = formatNumber(data.summary.unique_visitors);
+                    document.getElementById('urlsClicked').textContent = formatNumber(data.summary.urls_clicked);
+                    
+                    // Top URL
+                    if (data.top_url) {
+                        document.getElementById('topUrlClicks').textContent = formatNumber(data.top_url.clicks);
+                        document.getElementById('topUrlLabel').textContent = `${data.top_url.short_code} (${data.top_url.clicks} clicks)`;
+                    }
+                    
+                    console.log('✅ Analytics summary loaded');
+                } else {
+                    console.log('No analytics data available');
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                // No mostrar error al usuario, simplemente no mostrar analytics
+            }
+        }
+
+        // Función para refrescar analytics
+        async function refreshAnalytics() {
+            const btn = document.getElementById('refreshBtn');
+            const originalHTML = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando...';
+            btn.disabled = true;
+            
+            await loadAnalyticsSummary();
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        // Función para formatear números
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+        
         // Toggle advanced options
         function toggleAdvanced() {
             const content = document.getElementById('advanced-content');
