@@ -441,3 +441,28 @@ CREATE TABLE url_analytics (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE INDEX idx_analytics_date_range ON url_analytics (clicked_at, user_id);
 CREATE INDEX idx_analytics_url_date ON url_analytics (url_id, clicked_at);
+------------------------
+Crear tabla de bookmarks, para la extensión
+-------------------------
+CREATE TABLE bookmarks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    url VARCHAR(2048) NOT NULL,
+    title VARCHAR(255) DEFAULT NULL,
+    description TEXT DEFAULT NULL,
+    tags VARCHAR(500) DEFAULT NULL,
+    category VARCHAR(100) DEFAULT 'general',
+    is_favorite BOOLEAN DEFAULT FALSE,
+    short_code VARCHAR(20) DEFAULT NULL,
+    url_id INT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_user_id (user_id),
+    INDEX idx_category (category),
+    INDEX idx_short_code (short_code),
+    INDEX idx_url_id (url_id),
+    INDEX idx_created_at (created_at),
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
