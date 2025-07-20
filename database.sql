@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 19-07-2025 a las 16:06:23
+-- Tiempo de generación: 20-07-2025 a las 15:15:01
 -- Versión del servidor: 8.0.42-0ubuntu0.22.04.1
 -- Versión de PHP: 8.4.10
 
@@ -150,8 +150,8 @@ CREATE TABLE `api_tokens` (
 INSERT INTO `api_tokens` (`id`, `user_id`, `token`, `name`, `permissions`, `last_used`, `created_at`, `expires_at`, `is_active`) VALUES
 (5, 12, '7367c5ca87ed0e0af14d7f11cd7ae1953c50f3712df6d96f1e19c9fd7923e65e', 'Extension Chrome', 'read', NULL, '2025-07-17 10:15:22', NULL, 1),
 (6, 12, 'ff996a3ed7a793de69ef7701776fdbaef0ebf502832fee71ab186321dd008c46', 'Extension chrome', 'read', NULL, '2025-07-17 10:41:26', NULL, 1),
-(7, 13, 'e1c4dc39f3be84ce975eb9d91bd52e252dac1a829fbcbd91fafd7c0211fa58c9', 'API Token', NULL, NULL, '2025-07-17 10:45:08', NULL, 1),
-(8, 1, '7744acde093889f2ad9066868227ecfc846b2a0295873d05d2a8666326422b77', 'API Token', NULL, NULL, '2025-07-17 10:57:46', NULL, 1);
+(8, 1, '7744acde093889f2ad9066868227ecfc846b2a0295873d05d2a8666326422b77', 'API Token', NULL, NULL, '2025-07-17 10:57:46', NULL, 1),
+(9, 13, '978e02b674a5798455d98cec73ffd6c0e3ac83f9b0dbcc1cb3890283c8385d9f', 'API Token', 'read', NULL, '2025-07-19 22:07:39', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -830,7 +830,38 @@ INSERT INTO `click_stats` (`id`, `url_id`, `user_id`, `session_id`, `clicked_at`
 (756, 92, NULL, NULL, '2025-07-19 15:13:42', '54.85.32.163', 'help@dataminr.com', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (757, 92, NULL, NULL, '2025-07-19 15:14:14', '34.83.114.211', '', 'https://t.co/3koa3VkmQn', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (758, 92, NULL, NULL, '2025-07-19 15:21:30', '104.28.88.133', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1', 'https://t.co/3koa3VkmQn', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(759, 92, NULL, NULL, '2025-07-19 15:34:26', '35.199.164.197', '', 'https://t.co/3koa3VkmQn', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(759, 92, NULL, NULL, '2025-07-19 15:34:26', '35.199.164.197', '', 'https://t.co/3koa3VkmQn', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(760, 112, NULL, NULL, '2025-07-19 16:12:01', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(761, 111, NULL, NULL, '2025-07-19 16:29:30', '35.203.150.228', '', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(762, 111, NULL, NULL, '2025-07-19 16:29:30', '35.203.150.228', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(763, 111, NULL, NULL, '2025-07-19 16:29:30', '35.203.150.228', 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(764, 111, NULL, NULL, '2025-07-19 16:29:30', '35.203.150.228', '', 'https://t.co/b2Fhgbxe4F', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(765, 111, NULL, NULL, '2025-07-19 16:57:37', '54.198.55.229', 'Mozilla/5.0 (compatible)', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(766, 111, NULL, NULL, '2025-07-19 16:57:37', '54.156.251.192', 'Mozilla/5.0 (compatible)', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(767, 112, NULL, NULL, '2025-07-19 17:00:46', '20.171.207.134', 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(768, 57, NULL, NULL, '2025-07-19 17:37:20', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(769, 111, NULL, NULL, '2025-07-19 18:48:35', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(770, 92, NULL, NULL, '2025-07-19 19:55:36', '54.85.32.163', 'help@dataminr.com', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(771, 92, NULL, NULL, '2025-07-19 19:56:08', '35.203.150.228', '', 'https://t.co/3koa3VkmQn', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(772, 92, NULL, NULL, '2025-07-19 19:59:08', '176.82.134.66', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36', 'https://t.co/rSjeywjWzU', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(773, 92, NULL, NULL, '2025-07-19 20:16:58', '54.85.32.163', 'help@dataminr.com', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(774, 92, NULL, NULL, '2025-07-19 20:17:14', '3.235.122.148', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(775, 92, NULL, NULL, '2025-07-19 20:17:14', '3.235.122.148', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(776, 92, NULL, NULL, '2025-07-19 20:17:15', '34.203.135.93', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(777, 92, NULL, NULL, '2025-07-19 20:17:15', '34.203.135.93', 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(778, 92, NULL, NULL, '2025-07-19 20:17:15', '34.203.135.93', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(779, 92, NULL, NULL, '2025-07-19 20:17:15', '3.235.122.148', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(780, 92, NULL, NULL, '2025-07-19 20:17:15', '34.203.135.93', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(781, 92, NULL, NULL, '2025-07-19 20:17:15', '3.235.122.148', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(782, 92, NULL, NULL, '2025-07-19 20:17:30', '34.168.69.118', '', 'https://t.co/3koa3VkmQn', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(783, 112, NULL, NULL, '2025-07-19 21:30:46', '37.114.33.6', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/118.0.0.0', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(784, 119, NULL, NULL, '2025-07-19 22:24:06', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(785, 117, NULL, NULL, '2025-07-20 01:16:59', '43.133.139.6', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(786, 120, NULL, NULL, '2025-07-20 01:26:56', '49.51.253.26', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(787, 116, NULL, NULL, '2025-07-20 01:33:12', '43.166.244.192', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(788, 119, NULL, NULL, '2025-07-20 01:46:16', '43.153.74.75', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(789, 118, NULL, NULL, '2025-07-20 01:56:59', '101.32.52.164', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(790, 111, NULL, NULL, '2025-07-20 06:01:37', '88.9.171.142', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1044,66 +1075,86 @@ CREATE TABLE `urls` (
   `active` tinyint(1) DEFAULT '1',
   `is_public` tinyint(1) DEFAULT '1',
   `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `urls`
 --
 
-INSERT INTO `urls` (`id`, `user_id`, `domain_id`, `short_code`, `original_url`, `created_at`, `clicks`, `last_click`, `ip_address`, `user_agent`, `active`, `is_public`, `title`, `description`) VALUES
-(13, NULL, NULL, 'test123', 'https://www.google.com', '2025-07-09 06:44:52', 82, NULL, '127.0.0.1', NULL, 1, 1, NULL, NULL),
-(20, NULL, NULL, '160orw', 'https://abc.es', '2025-07-09 13:23:29', 73, '2025-07-09 13:23:51', '62.99.100.233', NULL, 1, 1, NULL, NULL),
-(21, NULL, NULL, 'nGpCr0', 'https://youtube.com', '2025-07-09 13:31:19', 75, '2025-07-09 15:15:32', '62.99.100.233', NULL, 1, 1, NULL, NULL),
-(22, NULL, NULL, 'vop545', 'https://google.es', '2025-07-10 16:00:28', 8, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(23, NULL, NULL, 'X9k7IN', 'https://adunti.net', '2025-07-10 20:41:22', 7, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(25, NULL, NULL, 'hoQdJs', 'https://biblioteca.store', '2025-07-10 20:54:54', 6, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(29, 1, NULL, 'guZSnU', 'https://www.elespanol.com/espana/politica/20250711/feijoo-no-critica-cronica-sanchez-admita-prostitucion-vino-bien-patrimonial/1003743843638_0.html', '2025-07-11 15:18:14', 25, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(30, 1, NULL, 'A3wBd6', 'https://adunti.net', '2025-07-11 15:35:36', 9, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(34, 1, NULL, '1yVssT', 'https://adunti.org/biblioteca', '2025-07-11 19:03:20', 4, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(35, 1, NULL, '5iY9DD', 'https://adunti.net/biblioteca', '2025-07-11 19:28:02', 5, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(36, 1, NULL, 'aGCvU7', 'https://amazon.com', '2025-07-11 20:56:14', 5, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(37, 1, NULL, 'yCvdMr', 'https://www.elespanol.com/espana/politica/20250712/pp-reprocha-sanchez-pacte-vertedero-moral-bildu-lleva-asesinos-listas-dirige-secuestrador/1003743845104_0.html', '2025-07-12 12:34:22', 7, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(40, 13, NULL, 'yhfdTJ', 'https://amzn.to/3R2pzir', '2025-07-12 17:00:46', 1, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(41, 13, NULL, 'kvB1gX', 'https://adunti.net', '2025-07-12 18:29:26', 2, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(42, 13, NULL, '6dhxRG', 'https://adunti.org/biblioteca', '2025-07-12 21:19:12', 0, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(43, 1, NULL, 'gxSn1V', 'https://www.google.fr', '2025-07-12 22:05:46', 0, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(44, 1, 14, 'rE2JMu', 'https://hola.es', '2025-07-13 03:39:37', 1, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(45, 1, NULL, '7Mmc3X', 'https://hola.es', '2025-07-13 07:03:52', 1, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(46, 1, 14, 'ool8LN', 'https://adunti.net', '2025-07-13 08:21:39', 0, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(47, 1, 14, 'g7AHKg', 'https://adunti.org/biblioteca', '2025-07-13 08:34:25', 1, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(48, 1, 14, 'zRkhFR', 'https://amzn.to/3R2pzir', '2025-07-13 08:50:27', 0, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(49, 1, 14, 'ZZUj2G', 'https://amzn.to/3R2pzir', '2025-07-13 08:58:45', 0, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(50, 1, 14, 'md4CYW', 'https://amzn.to/3R2pzir', '2025-07-13 08:59:22', 0, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(51, 1, 14, 'IezPkI', 'https://amzn.to/3R2pzir', '2025-07-13 09:10:01', 2, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(52, 1, 14, 'CgsEuL', 'https://adunti.net/biblioteca', '2025-07-13 09:11:06', 2, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(53, 1, 0, '2Dtjhy', 'https://adunti.net', '2025-07-13 09:36:36', 3, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(54, 1, 0, 'lpBDcU', 'https://adunti.net', '2025-07-13 09:56:47', 2, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(55, 1, 14, 'fdeSit', 'https://adunti.net', '2025-07-13 09:57:09', 3, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(56, 1, 14, '8zaHZF', 'https://adunti.net', '2025-07-13 11:39:16', 2, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(57, 1, 14, 'vosNy7', 'https://adunti.net', '2025-07-13 11:39:43', 3, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(58, 1, 0, 'EVYDFU', 'https://adunti.net', '2025-07-13 12:32:02', 2, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(59, 1, 14, 'KnIyVp', 'https://adunti.net', '2025-07-13 12:42:57', 1, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(60, 1, 14, 'liL38N', 'https://adunti.org/biblioteca', '2025-07-13 12:47:55', 1, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(61, 1, 0, 'WOTLK', 'https://mega.nz/file/xqcxybJB#VLjNK5cSqfD0j-PmCeSha6YYay86tXJuO4HtEaqdJ84', '2025-07-13 14:13:12', 7, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(64, 1, 0, 'nextcloud', 'http://0ln.eu/nextcloud', '2025-07-13 15:31:29', 0, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(65, 1, 0, 'u6hcLr', 'https://adunti.net', '2025-07-13 16:43:57', 2, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(66, 1, 14, 'Va6G9N', 'https://adunti.net', '2025-07-13 16:46:54', 8, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(67, 1, 16, 'b82sAz', 'https://hola.es', '2025-07-13 20:10:00', 0, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(68, 1, 0, '3CdrZH', 'https://x.com/ROSAMARI_5/status/1944496601868943834', '2025-07-13 20:45:32', 13, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(79, 1, 14, 'dgjC0o', 'https://www.elespanol.com/espana/politica/20250714/gobierno-acuerda-illa-cataluna-recaude-irpf-junts-amenaza-tumbarlo-congreso/1003743846793_0.html', '2025-07-14 21:09:00', 14, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(82, 11, 14, 'gVXjHh', 'https://hola.es', '2025-07-16 10:46:11', 3, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(83, 1, NULL, 'dX5KCK', 'https://example.com', '2025-07-16 11:57:59', 4, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(88, 1, 14, 'jsxH3O', 'https://adunti.org/biblioteca', '2025-07-17 19:48:36', 1, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(89, 17, 0, 'NyKMCD', 'https://www.vanitatis.elconfidencial.com/famosos/2025-07-17/georgina-rodriguez-compras-mansion-pisos-hipoteca_4173235/', '2025-07-17 20:49:38', 3, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(90, 17, 0, 'HBHXj6', 'https://computerhoy.20minutos.es/moviles/expertos-tienen-claro-razon-siempre-deberias-apagar-movil-vacaciones-1472836?utm_source=firefox-newtab-es-es', '2025-07-17 20:51:59', 3, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(91, 17, 0, 'PhuVeJ', 'https://www.vanitatis.elconfidencial.com/famosos/2025-07-17/georgina-rodriguez-compras-mansion-pisos-hipoteca_4173235/', '2025-07-17 20:55:56', 4, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(92, 17, 0, 'PerdidoCaT', 'https://www.elespanol.com/edicion/20250717/gobierno-da-perdido-septimo-intento-oficializar-catalan-ue-pese-carta-conjunta-illa-pradales/1003743853036_16.html', '2025-07-17 21:45:29', 34, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(94, 1, 0, 'ElGobirno', 'https://www.elespanol.com/edicion/20250717/gobierno-da-perdido-septimo-intento-oficializar-catalan-ue-pese-carta-conjunta-illa-pradales/1003743853036_16.html', '2025-07-17 22:06:03', 3, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(96, 1, 0, 'Mi-Biblioteca_personal', 'https://adunti.org/biblioteca', '2025-07-18 10:42:53', 2, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(97, 1, 0, 'la_biblioteca_personal', 'https://adunti.org/biblioteca', '2025-07-18 11:24:26', 6, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(111, 1, 14, 'ElGobiernoLoDaPorPerdidoElCat', 'https://orange-hawk-291552.hostingersite.com/wp-content/uploads/2025/03/1003743853036_16.html', '2025-07-18 15:50:27', 178, NULL, NULL, NULL, 1, 1, NULL, NULL),
-(112, 1, 14, 'PasoAtrasDeSanchezConElCatEnLaUE', 'https://orange-hawk-291552.hostingersite.com/wp-content/uploads/2025/03/1003743854826_16-1.html', '2025-07-18 22:14:31', 16, NULL, NULL, NULL, 1, 1, NULL, NULL);
+INSERT INTO `urls` (`id`, `user_id`, `domain_id`, `short_code`, `original_url`, `created_at`, `clicks`, `last_click`, `ip_address`, `user_agent`, `active`, `is_public`, `title`, `description`, `deleted_at`) VALUES
+(13, NULL, NULL, 'test123', 'https://www.google.com', '2025-07-09 06:44:52', 82, NULL, '127.0.0.1', NULL, 1, 1, NULL, NULL, NULL),
+(20, NULL, NULL, '160orw', 'https://abc.es', '2025-07-09 13:23:29', 73, '2025-07-09 13:23:51', '62.99.100.233', NULL, 1, 1, NULL, NULL, NULL),
+(21, NULL, NULL, 'nGpCr0', 'https://youtube.com', '2025-07-09 13:31:19', 75, '2025-07-09 15:15:32', '62.99.100.233', NULL, 1, 1, NULL, NULL, NULL),
+(22, NULL, NULL, 'vop545', 'https://google.es', '2025-07-10 16:00:28', 8, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(23, NULL, NULL, 'X9k7IN', 'https://adunti.net', '2025-07-10 20:41:22', 7, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(25, NULL, NULL, 'hoQdJs', 'https://biblioteca.store', '2025-07-10 20:54:54', 6, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(29, 1, NULL, 'guZSnU', 'https://www.elespanol.com/espana/politica/20250711/feijoo-no-critica-cronica-sanchez-admita-prostitucion-vino-bien-patrimonial/1003743843638_0.html', '2025-07-11 15:18:14', 25, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(30, 1, NULL, 'A3wBd6', 'https://adunti.net', '2025-07-11 15:35:36', 9, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(34, 1, NULL, '1yVssT', 'https://adunti.org/biblioteca', '2025-07-11 19:03:20', 4, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(35, 1, NULL, '5iY9DD', 'https://adunti.net/biblioteca', '2025-07-11 19:28:02', 5, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(36, 1, NULL, 'aGCvU7', 'https://amazon.com', '2025-07-11 20:56:14', 5, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(37, 1, NULL, 'yCvdMr', 'https://www.elespanol.com/espana/politica/20250712/pp-reprocha-sanchez-pacte-vertedero-moral-bildu-lleva-asesinos-listas-dirige-secuestrador/1003743845104_0.html', '2025-07-12 12:34:22', 7, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(40, 13, NULL, 'yhfdTJ', 'https://amzn.to/3R2pzir', '2025-07-12 17:00:46', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(41, 13, NULL, 'kvB1gX', 'https://adunti.net', '2025-07-12 18:29:26', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(42, 13, NULL, '6dhxRG', 'https://adunti.org/biblioteca', '2025-07-12 21:19:12', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(43, 1, NULL, 'gxSn1V', 'https://www.google.fr', '2025-07-12 22:05:46', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(44, 1, 14, 'rE2JMu', 'https://hola.es', '2025-07-13 03:39:37', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(45, 1, NULL, '7Mmc3X', 'https://hola.es', '2025-07-13 07:03:52', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(46, 1, 14, 'ool8LN', 'https://adunti.net', '2025-07-13 08:21:39', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(47, 1, 14, 'g7AHKg', 'https://adunti.org/biblioteca', '2025-07-13 08:34:25', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(48, 1, 14, 'zRkhFR', 'https://amzn.to/3R2pzir', '2025-07-13 08:50:27', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(49, 1, 14, 'ZZUj2G', 'https://amzn.to/3R2pzir', '2025-07-13 08:58:45', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(50, 1, 14, 'md4CYW', 'https://amzn.to/3R2pzir', '2025-07-13 08:59:22', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(51, 1, 14, 'IezPkI', 'https://amzn.to/3R2pzir', '2025-07-13 09:10:01', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(52, 1, 14, 'CgsEuL', 'https://adunti.net/biblioteca', '2025-07-13 09:11:06', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(53, 1, 0, '2Dtjhy', 'https://adunti.net', '2025-07-13 09:36:36', 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(54, 1, 0, 'lpBDcU', 'https://adunti.net', '2025-07-13 09:56:47', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(55, 1, 14, 'fdeSit', 'https://adunti.net', '2025-07-13 09:57:09', 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(56, 1, 14, '8zaHZF', 'https://adunti.net', '2025-07-13 11:39:16', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(57, 1, 14, 'vosNy7', 'https://adunti.net', '2025-07-13 11:39:43', 4, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(58, 1, 0, 'EVYDFU', 'https://adunti.net', '2025-07-13 12:32:02', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(59, 1, 14, 'KnIyVp', 'https://adunti.net', '2025-07-13 12:42:57', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(60, 1, 14, 'liL38N', 'https://adunti.org/biblioteca', '2025-07-13 12:47:55', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(61, 1, 0, 'WOTLK', 'https://mega.nz/file/xqcxybJB#VLjNK5cSqfD0j-PmCeSha6YYay86tXJuO4HtEaqdJ84', '2025-07-13 14:13:12', 7, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(64, 1, 0, 'nextcloud', 'http://0ln.eu/nextcloud', '2025-07-13 15:31:29', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(65, 1, 0, 'u6hcLr', 'https://adunti.net', '2025-07-13 16:43:57', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(66, 1, 14, 'Va6G9N', 'https://adunti.net', '2025-07-13 16:46:54', 8, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(67, 1, 16, 'b82sAz', 'https://hola.es', '2025-07-13 20:10:00', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(68, 1, 0, '3CdrZH', 'https://x.com/ROSAMARI_5/status/1944496601868943834', '2025-07-13 20:45:32', 13, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(79, 1, 14, 'dgjC0o', 'https://www.elespanol.com/espana/politica/20250714/gobierno-acuerda-illa-cataluna-recaude-irpf-junts-amenaza-tumbarlo-congreso/1003743846793_0.html', '2025-07-14 21:09:00', 14, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(82, 11, 14, 'gVXjHh', 'https://hola.es', '2025-07-16 10:46:11', 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(83, 1, NULL, 'dX5KCK', 'https://example.com', '2025-07-16 11:57:59', 4, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(88, 1, 14, 'jsxH3O', 'https://adunti.org/biblioteca', '2025-07-17 19:48:36', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(89, 17, 0, 'NyKMCD', 'https://www.vanitatis.elconfidencial.com/famosos/2025-07-17/georgina-rodriguez-compras-mansion-pisos-hipoteca_4173235/', '2025-07-17 20:49:38', 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(90, 17, 0, 'HBHXj6', 'https://computerhoy.20minutos.es/moviles/expertos-tienen-claro-razon-siempre-deberias-apagar-movil-vacaciones-1472836?utm_source=firefox-newtab-es-es', '2025-07-17 20:51:59', 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(91, 17, 0, 'PhuVeJ', 'https://www.vanitatis.elconfidencial.com/famosos/2025-07-17/georgina-rodriguez-compras-mansion-pisos-hipoteca_4173235/', '2025-07-17 20:55:56', 4, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(92, 17, 0, 'PerdidoCaT', 'https://www.elespanol.com/edicion/20250717/gobierno-da-perdido-septimo-intento-oficializar-catalan-ue-pese-carta-conjunta-illa-pradales/1003743853036_16.html', '2025-07-17 21:45:29', 47, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(94, 1, 0, 'ElGobirno', 'https://www.elespanol.com/edicion/20250717/gobierno-da-perdido-septimo-intento-oficializar-catalan-ue-pese-carta-conjunta-illa-pradales/1003743853036_16.html', '2025-07-17 22:06:03', 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(96, 1, 0, 'Mi-Biblioteca_personal', 'https://adunti.org/biblioteca', '2025-07-18 10:42:53', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(97, 1, 0, 'la_biblioteca_personal', 'https://adunti.org/biblioteca', '2025-07-18 11:24:26', 6, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(111, 1, 14, 'ElGobiernoLoDaPorPerdidoElCat', 'https://orange-hawk-291552.hostingersite.com/wp-content/uploads/2025/03/1003743853036_16.html', '2025-07-18 15:50:27', 186, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(112, 1, 14, 'PasoAtrasDeSanchezConElCatEnLaUE', 'https://orange-hawk-291552.hostingersite.com/wp-content/uploads/2025/03/1003743854826_16-1.html', '2025-07-18 22:14:31', 19, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(116, 13, 14, 'Gobierno-CAT2', 'https://www.elespanol.com/edicion/20250717/gobierno-da-perdido-septimo-intento-oficializar-catalan-ue-pese-carta-conjunta-illa-pradales/1003743853036_16.html', '2025-07-19 22:06:57', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(117, 13, 14, 'TsMYj9', 'https://hola.es', '2025-07-19 22:08:15', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(118, 13, 14, 'Y0fLh4', 'https://hola.es', '2025-07-19 22:17:54', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(119, 13, 14, 'IlXugI', 'https://hola.es', '2025-07-19 22:23:25', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
+(120, 12, 14, 'UnitcY', 'https://proton.me', '2025-07-19 23:06:30', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `urls_deleted_history`
+--
+
+CREATE TABLE `urls_deleted_history` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `short_code` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `deleted_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `deleted_from` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'unknown'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -1163,10 +1214,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `full_name`, `status`, `role`, `created_at`, `updated_at`, `last_login`, `email_verified`, `verification_token`, `password_reset_token`, `password_reset_expires`, `banned_reason`, `banned_at`, `banned_by`, `failed_login_attempts`, `locked_until`, `is_active`) VALUES
-(1, 'admin', 'admin@localhost', '$2y$12$N4bcRGiENYKgWCNgs993LuFV8RCEiuUsMfe.hXq1upgqwxLRUSrmm', 'Administrador', 'active', 'admin', '2025-07-09 20:22:44', '2025-07-19 14:35:27', '2025-07-19 14:35:27', 1, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1),
+(1, 'admin', 'admin@localhost', '$2y$12$N4bcRGiENYKgWCNgs993LuFV8RCEiuUsMfe.hXq1upgqwxLRUSrmm', 'Administrador', 'active', 'admin', '2025-07-09 20:22:44', '2025-07-19 22:02:15', '2025-07-19 22:02:15', 1, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1),
 (11, 'capitan', 'b@a.net', '$2y$12$pdzYpwYF/L8z7dSXiPvRQu6akfe4cmCfyVqNacFZGJiDl14496Hj6', '', 'active', 'user', '2025-07-12 12:45:21', '2025-07-16 13:37:34', '2025-07-16 13:37:34', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1),
-(12, 'Chino', 'chino@china.org', '$2y$12$oOLzbxiw22kZJ8hkVJxS9.lrEA1mLcQq7DyvN3dqZ0/Qa5FedgHUG', '', 'active', 'user', '2025-07-12 13:22:13', '2025-07-17 17:06:06', '2025-07-17 17:06:06', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1),
-(13, 'Antonio', 'budino@antonio.org', '$2y$12$JhsrPDK3gAIzt0kDV9523esjTotHnay7sPBmhQRnRUybR.oBrjcg6', '', 'active', 'admin', '2025-07-12 16:55:32', '2025-07-17 10:45:04', '2025-07-17 10:45:04', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1),
+(12, 'Chino', 'chino@china.org', '$2y$12$oOLzbxiw22kZJ8hkVJxS9.lrEA1mLcQq7DyvN3dqZ0/Qa5FedgHUG', '', 'active', 'user', '2025-07-12 13:22:13', '2025-07-20 01:40:30', '2025-07-20 01:40:30', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1),
+(13, 'Antonio', 'budino@antonio.org', '$2y$12$JhsrPDK3gAIzt0kDV9523esjTotHnay7sPBmhQRnRUybR.oBrjcg6', '', 'active', 'admin', '2025-07-12 16:55:32', '2025-07-19 22:04:51', '2025-07-19 22:04:51', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1),
 (16, 'Pollito', 'Pollo@avecrem.com', '$2y$12$7br9tFiyw0hpE3ncgBMpyu0GelrM6hi4MoIklfDo00fE3jUPhi3La', 'Pollo perez', 'active', 'user', '2025-07-15 18:00:14', '2025-07-16 06:18:10', '2025-07-16 06:18:10', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1),
 (17, 'anaaaa', 'mondalironda@hotmail.com', '$2y$12$WujXjVZQj4zuM5rGFmZnDOgcYWYib.q4nTS7UgCRHqks9HlLscH8W', 'anaaaa', 'active', 'user', '2025-07-17 20:27:35', '2025-07-17 21:43:31', '2025-07-17 21:43:31', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1);
 
@@ -1446,7 +1497,15 @@ ALTER TABLE `urls`
   ADD KEY `idx_short_code` (`short_code`),
   ADD KEY `idx_urls_user_status` (`user_id`,`active`),
   ADD KEY `idx_domain_id` (`domain_id`),
-  ADD KEY `idx_urls_short_code_active` (`short_code`,`active`);
+  ADD KEY `idx_urls_short_code_active` (`short_code`,`active`),
+  ADD KEY `idx_user_deleted` (`user_id`,`deleted_at`);
+
+--
+-- Indices de la tabla `urls_deleted_history`
+--
+ALTER TABLE `urls_deleted_history`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user_history` (`user_id`,`deleted_at`);
 
 --
 -- Indices de la tabla `url_analytics`
@@ -1542,13 +1601,13 @@ ALTER TABLE `api_keys`
 -- AUTO_INCREMENT de la tabla `api_tokens`
 --
 ALTER TABLE `api_tokens`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `click_stats`
 --
 ALTER TABLE `click_stats`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=760;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=791;
 
 --
 -- AUTO_INCREMENT de la tabla `config`
@@ -1590,7 +1649,13 @@ ALTER TABLE `system_settings`
 -- AUTO_INCREMENT de la tabla `urls`
 --
 ALTER TABLE `urls`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=121;
+
+--
+-- AUTO_INCREMENT de la tabla `urls_deleted_history`
+--
+ALTER TABLE `urls_deleted_history`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `url_analytics`
