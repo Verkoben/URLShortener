@@ -561,6 +561,33 @@ $totalPages = ceil($total / $limit);
                 padding: 10px 8px;
             }
         }
+        
+        /* Animaciones para el toast */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .copy-toast {
+            transition: all 0.3s ease-out;
+        }
     </style>
 </head>
 <body>
@@ -739,7 +766,7 @@ $totalPages = ceil($total / $limit);
                                    title="Ver Analytics">
                                     <i class="fas fa-chart-bar"></i>
                                 </a>
-                                <button onclick="copyToClipboard('<?= htmlspecialchars($url['short_url']) ?>')" 
+                                <button onclick="copyToClipboard('<?= htmlspecialchars($url['short_url']) ?>', event)" 
                                         class="btn btn-sm btn-secondary" 
                                         title="Copiar URL">
                                     <i class="fas fa-copy"></i>
@@ -819,20 +846,125 @@ $totalPages = ceil($total / $limit);
             }
         });
         
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(function() {
-                const button = event.target.closest('button');
-                const originalHTML = button.innerHTML;
+        // FUNCIÓN CORREGIDA - Copiar al portapapeles
+        function copyToClipboard(text, event) {
+            // Si no se pasa el evento, intentar obtenerlo
+            const e = event || window.event;
+            const button = e ? e.target.closest('button') : document.activeElement;
+            const originalHTML = button ? button.innerHTML : '';
+            
+            // Método moderno con fallback
+            if (navigator.clipboard && window.isSecureContext) {
+                // API del portapapeles moderna
+                navigator.clipboard.writeText(text).then(function() {
+                    // Éxito
+                    showCopySuccess(button, originalHTML);
+                }).catch(function(err) {
+                    // Si falla, usar método alternativo
+                    console.error('Error con clipboard API:', err);
+                    copyFallback(text, button, originalHTML);
+                });
+            } else {
+                // Usar método alternativo para navegadores antiguos
+                copyFallback(text, button, originalHTML);
+            }
+        }
+        
+        // Método alternativo para copiar
+        function copyFallback(text, button, originalHTML) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // Hacer el textarea invisible
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopySuccess(button, originalHTML);
+                } else {
+                    showCopyError();
+                }
+            } catch (err) {
+                console.error('Error al copiar:', err);
+                showCopyError();
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+        
+        // Mostrar feedback de éxito
+        function showCopySuccess(button, originalHTML) {
+            if (button) {
                 button.innerHTML = '<i class="fas fa-check"></i>';
                 button.style.background = '#28a745';
+                button.style.color = 'white';
                 
                 setTimeout(() => {
                     button.innerHTML = originalHTML;
                     button.style.background = '';
+                    button.style.color = '';
                 }, 1500);
-            }).catch(function(err) {
-                alert('Error al copiar: ' + err);
-            });
+            }
+            
+            // Mostrar toast notification
+            showToast('✅ URL copiada al portapapeles');
+        }
+        
+        // Mostrar error
+        function showCopyError() {
+            showToast('❌ No se pudo copiar la URL', 'error');
+        }
+        
+        // Sistema de notificaciones toast
+        function showToast(message, type = 'success') {
+            // Remover toast anterior si existe
+            const existingToast = document.querySelector('.copy-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            // Crear nuevo toast
+            const toast = document.createElement('div');
+            toast.className = 'copy-toast';
+            toast.textContent = message;
+            
+            // Estilos según el tipo
+            const styles = {
+                position: 'fixed',
+                bottom: '20px',
+                right: '20px',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                fontWeight: '500',
+                fontSize: '14px',
+                zIndex: '10000',
+                animation: 'slideInRight 0.3s ease-out',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+            };
+            
+            if (type === 'success') {
+                styles.background = '#28a745';
+                styles.color = 'white';
+            } else if (type === 'error') {
+                styles.background = '#dc3545';
+                styles.color = 'white';
+            }
+            
+            Object.assign(toast.style, styles);
+            document.body.appendChild(toast);
+            
+            // Auto-remover después de 3 segundos
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
         
         document.querySelector('.search-input').addEventListener('keypress', function(e) {
