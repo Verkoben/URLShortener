@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de URLs Cortas - 0ln.eu</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="URL Manager">
+</head>
+<body>
+    <div class="header">
+        <h3>🚀 Gestor de URLs Cortas - 0ln.eu</h3>
+    </div>
+
+    <div class="container">
+        <div class="stats" id="stats">
+            📊 Cargando estadísticas...
+        </div>
+
+        <div class="controls">
+            <div class="button-group">
+                <button class="btn btn-primary" id="toggleAddBtn">
+                    ➕ Agregar URL
+                </button>
+                <button class="btn btn-success" id="importApiBtn">
+                    📥 Importar de 0ln.eu
+                </button>
+                <button class="btn btn-info" id="importFileBtn">
+                    📁 Importar JSON
+                </button>
+                <button class="btn btn-secondary" id="exportBtn">
+                    💾 Exportar JSON
+                </button>
+                <button class="btn btn-danger" id="clearAllBtn">
+                    🗑️ Limpiar todo
+                </button>
+            </div>
+
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar URLs..." />
+            </div>
+        </div>
+
+        <div class="add-form" id="addForm">
+            <div class="form-group">
+                <label for="shortUrlInput">URL corta de 0ln.eu:</label>
+                <input type="text" id="shortUrlInput" placeholder="https://0ln.eu/abc123" />
+            </div>
+            <div class="form-group">
+                <label for="titleInput">Título (opcional):</label>
+                <input type="text" id="titleInput" placeholder="Mi enlace importante" />
+            </div>
+            <div class="button-group">
+                <button class="btn btn-success" id="saveUrlBtn">💾 Guardar</button>
+                <button class="btn btn-secondary" id="cancelBtn">❌ Cancelar</button>
+            </div>
+            <div id="errorMsg" class="error hidden"></div>
+        </div>
+
+        <div class="url-list" id="urlList">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <div>Cargando URLs...</div>
+            </div>
+        </div>
+
+        <input type="file" id="fileInput" accept=".json" />
+    </div>
+
+    <script src="app.js"></script>
+    
+    <!-- NO Service Worker por ahora -->
+</body>
+</html>

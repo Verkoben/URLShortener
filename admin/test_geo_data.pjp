@@ -1,0 +1,71 @@
+<?php
+session_start();
+if (!isset($_SESSION['admin_logged_in'])) {
+    header('Location: login.php');
+    exit;
+}
+
+require_once '../conf.php';
+
+try {
+    $db = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    // Obtener primera URL
+    $stmt = $db->query("SELECT id FROM urls LIMIT 1");
+    $url = $stmt->fetch();
+    
+    if ($url) {
+        // Datos de prueba de ciudades famosas
+        $test_locations = [
+            ['ip' => '8.8.8.8', 'country' => 'United States', 'city' => 'New York', 'lat' => 40.7128, 'lon' => -74.0060],
+            ['ip' => '8.8.4.4', 'country' => 'United States', 'city' => 'Los Angeles', 'lat' => 34.0522, 'lon' => -118.2437],
+            ['ip' => '1.1.1.1', 'country' => 'Spain', 'city' => 'Madrid', 'lat' => 40.4168, 'lon' => -3.7038],
+            ['ip' => '1.1.1.2', 'country' => 'Spain', 'city' => 'Barcelona', 'lat' => 41.3851, 'lon' => 2.1734],
+            ['ip' => '2.2.2.2', 'country' => 'France', 'city' => 'Paris', 'lat' => 48.8566, 'lon' => 2.3522],
+            ['ip' => '3.3.3.3', 'country' => 'United Kingdom', 'city' => 'London', 'lat' => 51.5074, 'lon' => -0.1278],
+            ['ip' => '4.4.4.4', 'country' => 'Germany', 'city' => 'Berlin', 'lat' => 52.5200, 'lon' => 13.4050],
+            ['ip' => '5.5.5.5', 'country' => 'Italy', 'city' => 'Rome', 'lat' => 41.9028, 'lon' => 12.4964],
+            ['ip' => '6.6.6.6', 'country' => 'Japan', 'city' => 'Tokyo', 'lat' => 35.6762, 'lon' => 139.6503],
+            ['ip' => '7.7.7.7', 'country' => 'Brazil', 'city' => 'São Paulo', 'lat' => -23.5505, 'lon' => -46.6333],
+            ['ip' => '9.9.9.9', 'country' => 'Australia', 'city' => 'Sydney', 'lat' => -33.8688, 'lon' => 151.2093],
+            ['ip' => '10.10.10.10', 'country' => 'Canada', 'city' => 'Toronto', 'lat' => 43.6532, 'lon' => -79.3832],
+            ['ip' => '11.11.11.11', 'country' => 'Mexico', 'city' => 'Mexico City', 'lat' => 19.4326, 'lon' => -99.1332],
+            ['ip' => '12.12.12.12', 'country' => 'Argentina', 'city' => 'Buenos Aires', 'lat' => -34.6037, 'lon' => -58.3816],
+            ['ip' => '13.13.13.13', 'country' => 'China', 'city' => 'Beijing', 'lat' => 39.9042, 'lon' => 116.4074]
+        ];
+        
+        $count = 0;
+        foreach ($test_locations as $loc) {
+            // Insertar varios clicks por ubicación
+            $clicks = rand(1, 5);
+            for ($i = 0; $i < $clicks; $i++) {
+                $stmt = $db->prepare("
+                    INSERT INTO click_stats (url_id, ip_address, user_agent, clicked_at, country, city, latitude, longitude) 
+                    VALUES (?, ?, ?, NOW() - INTERVAL ? HOUR, ?, ?, ?, ?)
+                ");
+                $stmt->execute([
+                    $url['id'],
+                    $loc['ip'],
+                    'Mozilla/5.0 Test Browser',
+                    rand(0, 72), // Últimas 72 horas
+                    $loc['country'],
+                    $loc['city'],
+                    $loc['lat'],
+                    $loc['lon']
+                ]);
+                $count++;
+            }
+        }
+        
+        $_SESSION['message'] = "✅ Se insertaron $count clicks de prueba con geolocalización";
+    } else {
+        $_SESSION['message'] = "❌ No hay URLs en la base de datos. Crea una URL primero.";
+    }
+} catch (Exception $e) {
+    $_SESSION['message'] = "❌ Error: " . $e->getMessage();
+}
+
+header('Location: panel_simple.php?section=geo');
+exit;
+?>

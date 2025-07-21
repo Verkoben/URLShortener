@@ -1,0 +1,322 @@
+// Variables globales
+let urls = [];
+let draggedElement = null;
+
+// Inicializar la aplicación
+document.addEventListener('DOMContentLoaded', function() {
+    loadUrls();
+    setupEventListeners();
+});
+
+// Event listeners
+function setupEventListeners() {
+    document.getElementById('toggleAddBtn').addEventListener('click', toggleAddForm);
+    document.getElementById('saveUrlBtn').addEventListener('click', addUrl);
+    document.getElementById('cancelBtn').addEventListener('click', toggleAddForm);
+    document.getElementById('searchInput').addEventListener('input', filterUrls);
+    
+    // Botones de importación/exportación
+    document.getElementById('importApiBtn').addEventListener('click', importFromAPI);
+    document.getElementById('importFileBtn').addEventListener('click', () => {
+        document.getElementById('fileInput').click();
+    });
+    document.getElementById('fileInput').addEventListener('change', handleFileImport);
+    document.getElementById('exportBtn').addEventListener('click', exportUrls);
+    document.getElementById('clearAllBtn').addEventListener('click', clearAllUrls);
+    
+    // Enter para guardar
+    document.getElementById('shortUrlInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') addUrl();
+    });
+    document.getElementById('titleInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') addUrl();
+    });
+}
+
+// Cargar URLs desde localStorage
+function loadUrls() {
+    const stored = localStorage.getItem('urlShortenerUrls');
+    urls = stored ? JSON.parse(stored) : [];
+    renderUrls();
+    updateStats();
+}
+
+// Guardar URLs en localStorage
+function saveUrls() {
+    localStorage.setItem('urlShortenerUrls', JSON.stringify(urls));
+}
+
+// Actualizar estadísticas
+function updateStats() {
+    const totalUrls = urls.length;
+    const domains = [...new Set(urls.map(u => extractDomain(u.shortUrl)))];
+    document.getElementById('stats').textContent = 
+        `📊 ${totalUrls} URLs guardadas | 🌐 ${domains.length} dominios`;
+}
+
+// Renderizar lista de URLs
+function renderUrls(urlsToRender = urls) {
+    const list = document.getElementById('urlList');
+    
+    if (urlsToRender.length === 0) {
+        list.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <h3>No hay URLs guardadas</h3>
+                <p>Agrega tu primera URL corta o importa desde 0ln.eu</p>
+            </div>
+        `;
+        return;
+    }
+    
+    list.innerHTML = urlsToRender.map((url, index) => {
+        const realIndex = urls.indexOf(url);
+        const favicon = url.favicon || `https://www.google.com/s2/favicons?domain=${extractDomain(url.originalUrl || url.shortUrl)}`;
+        const domain = extractDomain(url.shortUrl);
+        
+        return `
+            <div class="url-item" data-index="${realIndex}" onclick="openUrl(${realIndex})">
+                <div class="url-actions" onclick="event.stopPropagation()">
+                    <button class="btn-action" onclick="copyUrl(${realIndex})" title="Copiar URL">📋</button>
+                    <button class="btn-action delete" onclick="deleteUrl(${realIndex})" title="Eliminar">🗑️</button>
+                </div>
+                
+                <div class="url-header">
+                    <img src="${favicon}" class="favicon" onerror="this.style.display='none'" />
+                    <div class="url-title">${escapeHtml(url.title)}</div>
+                </div>
+                
+                <div class="url-short">
+                    🔗 ${escapeHtml(url.shortUrl)}
+                    <span class="domain-tag">${escapeHtml(domain)}</span>
+                </div>
+                
+                ${url.originalUrl ? `
+                    <div class="url-original" title="${escapeHtml(url.originalUrl)}">
+                        ➡️ ${escapeHtml(url.originalUrl)}
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+// Toggle formulario de agregar
+function toggleAddForm() {
+    const form = document.getElementById('addForm');
+    const btn = document.getElementById('toggleAddBtn');
+    
+    if (form.classList.contains('show')) {
+        form.classList.remove('show');
+        btn.textContent = '➕ Agregar URL';
+        hideError();
+    } else {
+        form.classList.add('show');
+        btn.textContent = '❌ Cancelar';
+        document.getElementById('shortUrlInput').focus();
+    }
+}
+
+// Agregar nueva URL
+function addUrl() {
+    const shortUrlInput = document.getElementById('shortUrlInput');
+    const titleInput = document.getElementById('titleInput');
+    const shortUrl = shortUrlInput.value.trim();
+    const title = titleInput.value.trim();
+    
+    if (!shortUrl) {
+        showError('Por favor ingresa una URL');
+        return;
+    }
+    
+    if (!isValidUrl(shortUrl)) {
+        showError('Por favor ingresa una URL válida');
+        return;
+    }
+    
+    const exists = urls.some(u => u.shortUrl === shortUrl);
+    if (exists) {
+        showError('Esta URL ya está guardada');
+        return;
+    }
+    
+    const newUrl = {
+        shortUrl: shortUrl,
+        title: title || extractTitle(shortUrl),
+        originalUrl: null,
+        favicon: null,
+        date: new Date().toISOString()
+    };
+    
+    urls.unshift(newUrl);
+    saveUrls();
+    
+    shortUrlInput.value = '';
+    titleInput.value = '';
+    toggleAddForm();
+    renderUrls();
+    updateStats();
+    showToast('✅ URL guardada');
+}
+
+// Acciones de URLs
+function openUrl(index) {
+    const url = urls[index];
+    if (url) {
+        window.open(url.shortUrl, '_blank');
+    }
+}
+
+function copyUrl(index) {
+    const url = urls[index];
+    if (url) {
+        navigator.clipboard.writeText(url.shortUrl).then(() => {
+            showToast('✅ URL copiada');
+        }).catch(() => {
+            const textArea = document.createElement('textarea');
+            textArea.value = url.shortUrl;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showToast('✅ URL copiada');
+        });
+    }
+}
+
+function deleteUrl(index) {
+    const url = urls[index];
+    if (!url) return;
+    
+    if (confirm(`¿Eliminar "${url.title}"?`)) {
+        urls.splice(index, 1);
+        saveUrls();
+        renderUrls();
+        updateStats();
+        showToast('🗑️ URL eliminada');
+    }
+}
+
+// Funciones auxiliares
+function isValidUrl(string) {
+    try {
+        new URL(string);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+function extractDomain(url) {
+    try {
+        return new URL(url).hostname;
+    } catch (_) {
+        return '';
+    }
+}
+
+function extractTitle(url) {
+    try {
+        return new URL(url).hostname.replace('www.', '');
+    } catch (_) {
+        return url.substring(0, 30) + '...';
+    }
+}
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+function showError(message) {
+    const errorMsg = document.getElementById('errorMsg');
+    errorMsg.textContent = message;
+    errorMsg.classList.remove('hidden');
+}
+
+function hideError() {
+    document.getElementById('errorMsg').classList.add('hidden');
+}
+
+function showToast(message) {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textConte
+nt = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Funciones placeholder para características avanzadas
+function importFromAPI() {
+    showToast('Para importar desde 0ln.eu, debes estar logeado en otra pestaña');
+}
+
+function handleFileImport() {
+    showToast('Importar JSON - Próximamente');
+}
+
+function exportUrls() {
+    if (urls.length === 0) {
+        showToast('No hay URLs para exportar');
+        return;
+    }
+    
+    const exportData = {
+        exported_at: new Date().toISOString(),
+        total: urls.length,
+        urls: urls
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `0ln_eu_backup_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    
+    showToast(`✅ ${urls.length} URLs exportadas`);
+}
+
+function clearAllUrls() {
+    if (urls.length === 0) {
+        showToast('No hay URLs para eliminar');
+        return;
+    }
+    
+    if (confirm(`¿Eliminar todas las ${urls.length} URLs?\n\n⚠️ Esta acción no se puede deshacer`)) {
+        urls = [];
+        saveUrls();
+        renderUrls();
+        updateStats();
+        showToast('🗑️ Todas las URLs eliminadas');
+    }
+}
+
+function filterUrls(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    
+    if (!searchTerm) {
+        renderUrls();
+        return;
+    }
+    
+    const filtered = urls.filter(url => 
+        url.title.toLowerCase().includes(searchTerm) ||
+        url.shortUrl.toLowerCase().includes(searchTerm) ||
+        (url.originalUrl && url.originalUrl.toLowerCase().includes(searchTerm))
+    );
+    
+    renderUrls(filtered);
+}

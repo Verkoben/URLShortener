@@ -3,27 +3,17 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
-
 // Verificar si está logueado
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header('Location: login.php');
     exit;
 }
-
-// VERIFICACIÓN CRÍTICA: Asegurar que tenemos user_id
-if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    session_destroy();
-    header('Location: login.php?error=invalid_session');
-    exit;
-}
-
 // Incluir configuración
 $config_file = '../conf.php';
 if (!file_exists($config_file)) {
     die("Error: No se encuentra el archivo de configuración conf.php");
 }
 require_once $config_file;
-
 // Conexión a la base de datos
 try {
     $db = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
@@ -31,23 +21,19 @@ try {
 } catch(PDOException $e) {
     die("Error de conexión: " . $e->getMessage());
 }
-
 $message = '';
 $messageType = 'info';
 $section = $_GET['section'] ?? 'dashboard';
-
-// Obtener información del usuario actual - SIN DEFAULT A 1
-$user_id = $_SESSION['user_id'];
+// Obtener información del usuario actual
+$user_id = $_SESSION['user_id'] ?? 1;
 $username = $_SESSION['username'] ?? 'Usuario';
 $user_role = $_SESSION['role'] ?? 'user';
 $is_admin = ($user_role === 'admin');
-
 // VERIFICACIÓN ESTRICTA: Solo el usuario con ID 1 es superadmin
 $is_superadmin = false;
 if ($user_id == 1) {
     $is_superadmin = true;
 }
-
 // Verificar acceso a dominios - SOLO SUPERADMIN
 if ($section == 'domains' && !$is_superadmin) {
     $message = "⛔ Acceso denegado. Solo el superadministrador puede gestionar dominios.";
@@ -148,13 +134,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'regenerate_token') {
         $messageType = 'danger';
     }
 }
-
 // Mostrar mensaje si viene de regeneración
 if (isset($_GET['msg']) && $_GET['msg'] == 'token_regenerated') {
     $message = "✅ Token API regenerado correctamente";
     $messageType = 'success';
 }
-
 // Función para registrar actividades
 function logActivity($db, $user_id, $action, $details) {
     try {
@@ -167,7 +151,6 @@ function logActivity($db, $user_id, $action, $details) {
         // Si no existe la tabla, ignorar
     }
 }
-
 // Función optimizada para geolocalización con caché
 function getGeoLocation($ip, $db) {
     // Primero buscar en caché (tabla click_stats)
@@ -251,7 +234,6 @@ function getGeoLocation($ip, $db) {
     
     return null;
 }
-
 // Procesar eliminación de URL
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_url_id'])) {
     $id = (int)$_POST['delete_url_id'];
@@ -261,14 +243,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_url_id'])) {
         $stmt->execute([$id]);
         $url_info = $stmt->fetch();
         
-        if ($is_superadmin) {  // SOLO EL SUPERADMIN puede eliminar cualquier URL
+        if ($is_admin) {
             $stmt = $db->prepare("DELETE FROM click_stats WHERE url_id = ?");
             $stmt->execute([$id]);
             
             $stmt = $db->prepare("DELETE FROM urls WHERE id = ?");
             $stmt->execute([$id]);
         } else {
-            // Todos los demás (incluidos admins) solo pueden eliminar sus propias URLs
             $stmt = $db->prepare("DELETE FROM click_stats WHERE url_id IN (SELECT id FROM urls WHERE id = ? AND user_id = ?)");
             $stmt->execute([$id, $user_id]);
             
@@ -286,7 +267,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_url_id'])) {
         $messageType = 'danger';
     }
 }
-
 // Crear nueva URL desde el panel
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_url'])) {
     $original_url = trim($_POST['original_url']);
@@ -301,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_url'])) {
         $messageType = 'danger';
     } else {
         // Verificar que el usuario tiene permiso para usar este dominio
-        if ($domain_id && !$is_superadmin) {
+        if ($domain_id && !$is_admin) {
             $stmt = $db->prepare("
                 SELECT id FROM custom_domains 
                 WHERE id = ? AND status = 'active' 
@@ -359,7 +339,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_url'])) {
         }
     }
 }
-
 // Procesar acciones de dominios - SOLO SUPERADMIN
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
     if (!$is_superadmin) {
@@ -1410,7 +1389,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                     <span class="nav-icon">📊</span> Dashboard
                 </a>
                 <a href="?section=urls" class="nav-item <?php echo $section === 'urls' ? 'active' : ''; ?>">
-                    <span class="nav-icon">🔗</span> <?php echo $is_superadmin ? 'Todas las URLs' : 'Mis URLs'; ?>
+                    <span class="nav-icon">🔗</span> <?php echo $is_admin ? 'Gestión URLs' : 'Mis URLs'; ?>
                 </a>
                 <a href="?section=tokens" class="nav-item <?php echo $section === 'tokens' ? 'active' : ''; ?>">
                     <span class="nav-icon">🔑</span> Tokens API
@@ -1456,7 +1435,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                     <?php 
                     switch($section) {
                         case 'dashboard': echo '📊 Dashboard'; break;
-                        case 'urls': echo '🔗 ' . ($is_superadmin ? 'Todas las URLs' : 'Mis URLs'); break;
+                        case 'urls': echo '🔗 ' . ($is_admin ? 'Gestión de URLs' : 'Mis URLs'); break;
                         case 'tokens': echo '🔑 Tokens API'; break;
                         case 'stats': echo '📈 Estadísticas'; break;
                         case 'geo': echo '🌍 Geolocalización'; break;
@@ -1480,10 +1459,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
             <!-- Dashboard -->
             <?php if ($section === 'dashboard'): ?>
                 <?php
-                // Obtener estadísticas - MODIFICADO PARA QUE ADMINS SOLO VEAN SUS DATOS
+                // Obtener estadísticas
                 try {
-                    if ($is_superadmin) {
-                        // Solo el superadmin ve estadísticas globales
+                    if ($is_admin) {
                         $stmt = $db->query("SELECT COUNT(*) as total FROM urls");
                         $total_urls = $stmt->fetch()['total'];
                         
@@ -1504,7 +1482,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                         $stmt = $db->query("SELECT COUNT(*) as total FROM click_stats WHERE DATE(clicked_at) = CURDATE()");
                         $today_clicks = $stmt->fetch()['total'];
                     } else {
-                        // Admins y usuarios solo ven SUS estadísticas
                         $stmt = $db->prepare("SELECT COUNT(*) as total FROM urls WHERE user_id = ?");
                         $stmt->execute([$user_id]);
                         $total_urls = $stmt->fetch()['total'];
@@ -1518,8 +1495,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                         $today_urls = $stmt->fetch()['total'];
                         
                         $today_clicks = 0;
-                        $total_users = 0;
-                        $active_users = 0;
                     }
                     
                     $avg_clicks = $total_urls > 0 ? round($total_clicks / $total_urls, 1) : 0;
@@ -1541,7 +1516,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                             🔗
                         </div>
                         <div class="stat-value"><?php echo number_format($total_urls); ?></div>
-                        <div class="stat-label"><?php echo $is_superadmin ? 'URLs Totales' : 'Mis URLs'; ?></div>
+                        <div class="stat-label"><?php echo $is_admin ? 'URLs Totales' : 'Mis URLs'; ?></div>
                         <?php if ($today_urls > 0): ?>
                         <span class="stat-trend trend-up">
                             ⬆️ +<?php echo $today_urls; ?> hoy
@@ -1554,7 +1529,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                             👆
                         </div>
                         <div class="stat-value"><?php echo number_format($total_clicks); ?></div>
-                        <div class="stat-label"><?php echo $is_superadmin ? 'Clicks Totales' : 'Mis Clicks'; ?></div>
+                        <div class="stat-label"><?php echo $is_admin ? 'Clicks Totales' : 'Mis Clicks'; ?></div>
                         <?php if ($today_clicks > 0): ?>
                         <span class="stat-trend trend-up">
                             ⬆️ +<?php echo $today_clicks; ?> hoy
@@ -1570,7 +1545,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                         <div class="stat-label">Promedio Clicks/URL</div>
                     </div>
                     
-                    <?php if ($is_superadmin): ?>
+                    <?php if ($is_admin): ?>
                     <div class="stat-card">
                         <div class="stat-icon purple">
                             👥
@@ -1615,8 +1590,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                     </h3>
                     <?php
                     try {
-                        if ($is_superadmin) {
-                            // Solo el superadmin ve todas las URLs
+                        if ($is_admin) {
                             $stmt = $db->query("
                                 SELECT u.*, cd.domain as custom_domain 
                                 FROM urls u 
@@ -1625,7 +1599,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                                 LIMIT 5
                             ");
                         } else {
-                            // Admins y usuarios solo ven SUS URLs
                             $stmt = $db->prepare("
                                 SELECT u.*, cd.domain as custom_domain 
                                 FROM urls u 
@@ -2037,15 +2010,15 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                 </div>
                 
                 <?php
-                // Obtener URLs CON BÚSQUEDA - MODIFICADO PARA QUE SOLO SUPERADMIN VEA TODO
+                // Obtener URLs CON BÚSQUEDA
                 $search_term = $_GET['search'] ?? '';
                 $urls = [];
                 $total_results = 0;
                 
                 try {
-                    if ($is_superadmin) {  // CAMBIO IMPORTANTE: Solo el superadmin ve todas las URLs
+                    if ($is_admin) {
                         if (!empty($search_term)) {
-                            // Búsqueda para superadmin - ve todo
+                            // Búsqueda para admin
                             $search_param = '%' . $search_term . '%';
                             $stmt = $db->prepare("
                                 SELECT u.*, users.username, cd.domain as custom_domain,
@@ -2072,9 +2045,8 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                             ");
                         }
                     } else {
-                        // TODOS LOS DEMÁS (incluidos admins normales) solo ven SUS URLs
                         if (!empty($search_term)) {
-                            // Búsqueda para usuarios y admins normales
+                            // Búsqueda para usuario normal
                             $search_param = '%' . $search_term . '%';
                             $stmt = $db->prepare("
                                 SELECT u.*, users.username, cd.domain as custom_domain,
@@ -2119,7 +2091,7 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                 
                 <div class="data-table">
                     <h3>
-                        <span>🔗 <?php echo $is_superadmin ? 'Todas las URLs' : 'Mis URLs'; ?></span>
+                        <span>🔗 <?php echo $is_admin ? 'Todas las URLs' : 'Mis URLs'; ?></span>
                         <?php if (!empty($search_term)): ?>
                             <span class="badge badge-info"><?php echo $total_results; ?> resultados</span>
                         <?php else: ?>
@@ -2135,7 +2107,7 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                                 <th>URL Original</th>
                                 <th>URL Corta</th>
                                 <th>Dominio</th>
-                                <?php if ($is_superadmin): ?>  <!-- SOLO EL SUPERADMIN VE LA COLUMNA USUARIO -->
+                                <?php if ($is_admin): ?>
                                 <th>Usuario</th>
                                 <?php endif; ?>
                                 <th>Clicks</th>
@@ -2198,7 +2170,7 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                                         🌐 <?php echo $domain_display; ?>
                                     </span>
                                 </td>
-                                <?php if ($is_superadmin): ?>  <!-- SOLO EL SUPERADMIN VE EL USUARIO -->
+                                <?php if ($is_admin): ?>
                                 <td>
                                     <span class="badge badge-secondary">
                                         👤 <?php echo $url['username'] ?? 'Sistema'; ?>
@@ -2273,9 +2245,9 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
             <!-- Estadísticas -->
             <?php elseif ($section === 'stats'): ?>
                 <?php
-                // Estadísticas por día - MODIFICADO PARA QUE ADMINS SOLO VEAN SUS DATOS
+                // Estadísticas por día
                 try {
-                    if ($is_superadmin) {
+                    if ($is_admin) {
                         $stmt = $db->query("
                             SELECT DATE(clicked_at) as date, COUNT(*) as clicks
                             FROM click_stats
@@ -2284,7 +2256,6 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                             ORDER BY date DESC
                         ");
                     } else {
-                        // Admins y usuarios solo ven SUS estadísticas
                         $stmt = $db->prepare("
                             SELECT DATE(cs.clicked_at) as date, COUNT(*) as clicks
                             FROM click_stats cs
@@ -2358,10 +2329,10 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                     <?php endif; ?>
                 </div>
                 
-                <!-- Estadísticas por navegador - MODIFICADO PARA QUE ADMINS SOLO VEAN SUS DATOS -->
+                <!-- Estadísticas por navegador -->
                 <?php
                 try {
-                    if ($is_superadmin) {
+                    if ($is_admin) {
                         $stmt = $db->query("
                             SELECT 
                                 CASE 
@@ -2377,7 +2348,6 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                             ORDER BY count DESC
                         ");
                     } else {
-                        // Admins y usuarios solo ven SUS estadísticas
                         $stmt = $db->prepare("
                             SELECT 
                                 CASE 
@@ -2444,7 +2414,7 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
                 
                 <?php
-                // Obtener datos con geolocalización - CORREGIDO PARA FILTRAR POR USUARIO
+                // Obtener datos con geolocalización
                 $geo_stats = [];
                 $total_countries = 0;
                 $total_cities = 0;
@@ -2453,33 +2423,16 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                 $top_countries = [];
                 
                 try {
-                    if ($is_superadmin) {  // SOLO EL SUPERADMIN VE TODAS LAS GEOLOCALIZACIONES
-                        $stmt = $db->query("
-                            SELECT country, city, latitude, longitude, COUNT(*) as clicks
-                            FROM click_stats 
-                            WHERE country IS NOT NULL 
-                            AND latitude IS NOT NULL 
-                            AND longitude IS NOT NULL
-                            GROUP BY country, city, latitude, longitude
-                            ORDER BY clicks DESC
-                            LIMIT 50
-                        ");
-                    } else {
-                        // Admins y usuarios solo ven SUS geolocalizaciones
-                        $stmt = $db->prepare("
-                            SELECT cs.country, cs.city, cs.latitude, cs.longitude, COUNT(*) as clicks
-                            FROM click_stats cs
-                            INNER JOIN urls u ON cs.url_id = u.id
-                            WHERE u.user_id = ?
-                            AND cs.country IS NOT NULL 
-                            AND cs.latitude IS NOT NULL 
-                            AND cs.longitude IS NOT NULL
-                            GROUP BY cs.country, cs.city, cs.latitude, cs.longitude
-                            ORDER BY clicks DESC
-                            LIMIT 50
-                        ");
-                        $stmt->execute([$user_id]);
-                    }
+                    $stmt = $db->query("
+                        SELECT country, city, latitude, longitude, COUNT(*) as clicks
+                        FROM click_stats 
+                        WHERE country IS NOT NULL 
+                        AND latitude IS NOT NULL 
+                        AND longitude IS NOT NULL
+                        GROUP BY country, city, latitude, longitude
+                        ORDER BY clicks DESC
+                        LIMIT 50
+                    ");
                     $geo_stats = $stmt->fetchAll();
                     
                     // Calcular estadísticas

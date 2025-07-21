@@ -49,56 +49,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         if (empty($username) || empty($password)) {
             $error = 'Por favor, completa todos los campos';
         } else {
-            $login_success = false;
-            $user_data = null;
-            
             try {
-                // PRIMERO: Verificar si es el admin principal de conf.php
-                if ($username === ADMIN_USERNAME && $password === ADMIN_PASSWORD) {
-                    // Buscar si existe en la BD para obtener el ID
-                    $stmt = $db->prepare("SELECT id FROM users WHERE username = ?");
-                    $stmt->execute([ADMIN_USERNAME]);
-                    $admin_user = $stmt->fetch();
-                    
-                    $user_data = [
-                        'id' => $admin_user ? $admin_user['id'] : 1,
-                        'username' => ADMIN_USERNAME,
-                        'role' => 'admin'
-                    ];
-                    $login_success = true;
-                } 
-                // SEGUNDO: Verificar otros usuarios en la BD
-                else {
-                    $stmt = $db->prepare("SELECT * FROM users WHERE username = ? AND status = 'active'");
-                    $stmt->execute([$username]);
-                    $user = $stmt->fetch();
-                    
-                    if ($user && password_verify($password, $user['password'])) {
-                        $user_data = [
-                            'id' => $user['id'],
-                            'username' => $user['username'],
-                            'role' => $user['role']
-                        ];
-                        $login_success = true;
-                    }
-                }
+                // Buscar usuario en la tabla users
+                $stmt = $db->prepare("SELECT * FROM users WHERE username = ? AND status = 'active'");
+                $stmt->execute([$username]);
+                $user = $stmt->fetch();
                 
-                if ($login_success && $user_data) {
-                    // Establecer sesión
+                // Verificación especial para admin usando conf.php
+                if ($username === ADMIN_USERNAME && $password === ADMIN_PASSWORD) {
+                    // Login con credenciales de conf.php
                     $_SESSION['admin_logged_in'] = true;
-                    $_SESSION['user_id'] = $user_data['id'];
-                    $_SESSION['username'] = $user_data['username'];
-                    $_SESSION['role'] = $user_data['role'];
-                    
-                    // Mejorar compatibilidad con API (sin perder sesión)
-                    mejorSesionParaAPI($db, $user_data['id']);
+                    $_SESSION['user_id'] = $user ? $user['id'] : 1;
+                    $_SESSION['username'] = ADMIN_USERNAME;
+                    $_SESSION['role'] = 'admin';
                     
                     // Actualizar último login si existe en BD
-                    $stmt = $db->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
-                    $stmt->execute([$user_data['id']]);
+                    if ($user) {
+                        $db->exec("UPDATE users SET last_login = NOW() WHERE id = " . $user['id']);
+                    }
+                    
+                    header('Location: panel_simple.php');
+                    exit();
+                } 
+                // Para otros usuarios, usar la verificación normal de la BD
+                elseif ($user && $user['username'] !== ADMIN_USERNAME && password_verify($password, $user['password'])) {
+                    // Login normal para otros usuarios
+                    $_SESSION['admin_logged_in'] = true;
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['role'] = $user['role'];
+                    
+                    // Actualizar último login
+                    $db->exec("UPDATE users SET last_login = NOW() WHERE id = " . $user['id']);
                     
                     // Redirigir según el rol
-                    if ($user_data['role'] === 'admin') {
+                    if ($user['role'] === 'admin') {
                         header('Location: panel_simple.php');
                     } else {
                         header('Location: ../index.php?welcome=1');
@@ -107,7 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                 } else {
                     $error = 'Usuario o contraseña incorrectos';
                 }
-                
             } catch (PDOException $e) {
                 $error = 'Error al procesar el login: ' . $e->getMessage();
             }
@@ -170,16 +154,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                         $stmt->execute([$username, $email, $hashed_password]);
                     }
                     
-                    $new_user_id = $db->lastInsertId();
-                    
                     // Auto-login después del registro exitoso
                     $_SESSION['admin_logged_in'] = true;
-                    $_SESSION['user_id'] = $new_user_id;
+                    $_SESSION['user_id'] = $db->lastInsertId();
                     $_SESSION['username'] = $username;
                     $_SESSION['role'] = 'user';
-                    
-                    // Mejorar compatibilidad con API
-                    mejorSesionParaAPI($db, $new_user_id);
                     
                     // Redirigir al index con mensaje de bienvenida
                     header('Location: ../index.php?welcome=1');
@@ -189,72 +168,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                 $error = 'Error al crear la cuenta: ' . $e->getMessage();
             }
         }
-    }
-}
-
-/**
- * FUNCIÓN CORREGIDA: Mejorar la sesión para compatibilidad con la API
- */
-function mejorSesionParaAPI($db, $user_id) {
-    // Configurar cookies de sesión para subdominios ANTES de cualquier manipulación
-    $cookie_domain = '.' . preg_replace('/^www\./', '', parse_url(BASE_URL, PHP_URL_HOST));
-    
-    // Aplicar configuración de cookies
-    ini_set('session.cookie_domain', $cookie_domain);
-    ini_set('session.cookie_samesite', 'None');
-    ini_set('session.cookie_secure', 'true');
-    ini_set('session.cookie_httponly', 'false');
-    
-    // Crear cookie adicional de respaldo para la API
-    try {
-        // Crear tabla si no existe
-        $db->exec("
-            CREATE TABLE IF NOT EXISTS user_sessions (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                user_id INT NOT NULL,
-                token VARCHAR(64) UNIQUE,
-                ip_address VARCHAR(45),
-                user_agent TEXT,
-                expires DATETIME,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                INDEX idx_token (token),
-                INDEX idx_expires (expires),
-                INDEX idx_user (user_id)
-            )
-        ");
-        
-        // Limpiar sesiones expiradas
-        $db->exec("DELETE FROM user_sessions WHERE expires < NOW()");
-        
-        // Generar nuevo token
-        $auth_token = bin2hex(random_bytes(32));
-        
-        // Guardar en BD
-        $stmt = $db->prepare("
-            INSERT INTO user_sessions (user_id, token, ip_address, user_agent, expires) 
-            VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 30 DAY))
-        ");
-        $stmt->execute([
-            $user_id, 
-            $auth_token,
-            $_SERVER['REMOTE_ADDR'] ?? '',
-            $_SERVER['HTTP_USER_AGENT'] ?? ''
-        ]);
-        
-        // Crear cookie adicional
-        setcookie(
-            'user_auth_token', 
-            $auth_token, 
-            time() + (86400 * 30), // 30 días
-            '/',                   // Path raíz
-            $cookie_domain,        // Dominio con punto para subdominios
-            true,                  // Solo HTTPS  
-            false                  // HttpOnly = false para que JS pueda leerla
-        );
-        
-    } catch (Exception $e) {
-        // No es crítico si falla, solo log del error
-        error_log("Error al crear sesión adicional para API: " . $e->getMessage());
     }
 }
 ?>
@@ -488,16 +401,6 @@ function mejorSesionParaAPI($db, $user_id) {
                 padding: 30px 20px;
             }
         }
-        
-        /* Debug mode */
-        .debug-info {
-            background: #f0f0f0;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 8px;
-            font-size: 0.85em;
-            font-family: monospace;
-        }
     </style>
 </head>
 <body>
@@ -672,18 +575,6 @@ function mejorSesionParaAPI($db, $user_id) {
                                 Volver al inicio
                             </a>
                         </div>
-                        
-                        <?php
-                        // DEBUG MODE - Solo para desarrollo
-                        if (isset($_GET['debug'])) {
-                            echo '<div class="debug-info">';
-                            echo '<strong>DEBUG INFO:</strong><br>';
-                            echo 'ADMIN_USERNAME (conf.php): ' . ADMIN_USERNAME . '<br>';
-                            echo 'Session: <pre>' . print_r($_SESSION, true) . '</pre>';
-                            echo 'POST data: <pre>' . print_r($_POST, true) . '</pre>';
-                            echo '</div>';
-                        }
-                        ?>
                     </div>
                 </div>
                 
