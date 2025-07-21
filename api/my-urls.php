@@ -1,74 +1,67 @@
 <?php
+// api/my-urls.php
 session_start();
+
+// Headers CORS
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: chrome-extension://*');
+header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Credentials: true');
 
-require_once '../includes/config.php';
-require_once '../includes/db.php';
+// Handle OPTIONS
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
+}
 
+// Verificar login
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
-    echo json_encode(['error' => 'No autenticado']);
+    echo json_encode(['error' => 'Not logged in']);
     exit;
 }
 
-$db = getDB();
+// Incluir config con ruta absoluta
+require_once '/var/www/html/conf.php';
 
-// NUEVO: Registrar actividad de sincronización
-$stmt = $db->prepare("
-    INSERT INTO sync_logs (user_id, action, ip_address, user_agent, created_at) 
-    VALUES (?, 'import_from_extension', ?, ?, NOW())
-");
-$stmt->execute([
-    $_SESSION['user_id'],
-    $_SERVER['REMOTE_ADDR'] ?? null,
-    $_SERVER['HTTP_USER_AGENT'] ?? null
-]);
-
-// Obtener URLs del usuario
-$stmt = $db->prepare("
-    SELECT 
-        u.id,
-        u.short_code,
-        u.original_url,
-        u.created_at,
-        u.clicks,
-        u.is_custom,
-        COALESCE(cd.domain, ?) as domain
-    FROM urls u
-    LEFT JOIN custom_domains cd ON u.domain_id = cd.id
-    WHERE u.user_id = ? AND u.active = 1
-    ORDER BY u.created_at DESC
-    LIMIT 1000
-");
-
-$stmt->execute([$_SERVER['HTTP_HOST'], $_SESSION['user_id']]);
-$urls = $stmt->fetchAll();
-
-// Formatear respuesta
-$response = [];
-foreach ($urls as $url) {
-    $response[] = [
-        'short_code' => $url['short_code'],
-        'short_url' => 'https://' . $url['domain'] . '/' . $url['short_code'],
-        'original_url' => $url['original_url'],
-        'created_at' => $url['created_at'],
-        'clicks' => intval($url['clicks']),
-        'is_custom' => (bool)$url['is_custom'],
-        'title' => $url['short_code'] // Puedes mejorar esto
-    ];
+// Conexión DB
+try {
+    $pdo = new PDO(
+        "mysql:host=localhost;dbname=url_shortener;charset=utf8mb4",
+        'root',
+        'trapisonda'
+    );
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'DB error']);
+    exit;
 }
 
-// NUEVO: Actualizar última sincronización
-$stmt = $db->prepare("
-    UPDATE users 
-    SET 
-        last_extension_sync = NOW(),
-        extension_sync_count = COALESCE(extension_sync_count, 0) + 1
-    WHERE id = ?
-");
-$stmt->execute([$_SESSION['user_id']]);
-
-echo json_encode($response);
+// Obtener URLs
+try {
+    $stmt = $pdo->prepare("
+        SELECT short_code, original_url, title, clicks, created_at
+        FROM urls 
+        WHERE user_id = ? 
+        ORDER BY created_at DESC
+    ");
+    $stmt->execute([$_SESSION['user_id']]);
+    $urls = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $result = [];
+    foreach ($urls as $url) {
+        $result[] = [
+            'short_code' => $url['short_code'],
+            'short_url' => 'https://0ln.eu/' . $url['short_code'],
+            'original_url' => $url['original_url'],
+            'title' => $url['title'] ?: 'Sin título',
+            'clicks' => (int)$url['clicks'],
+            'created_at' => $url['created_at']
+        ];
+    }
+    
+    echo json_encode($result);
+    
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Query error']);
+}
 ?>

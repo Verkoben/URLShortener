@@ -1,325 +1,607 @@
 <?php
-// api.php - API completa usando usuario real
-ob_start();
+// api.php - API endpoints COMPLETOS con analytics_summary CORREGIDO
 header('Content-Type: application/json');
-header('Cache-Control: no-cache, must-revalidate');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
-header('Access-Control-Allow-Headers: Content-Type');
+require_once 'config.php';
+require_once 'functions.php';
 
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
+// Verificar que sea una petición válida
+if (!isset($_GET['action'])) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Acción requerida']);
+    exit;
+}
 
-try {
-    require_once 'config.php';
-    require_once 'functions.php';
-    
-    ob_clean();
-    
-    // Usar usuario real autenticado
+$action = $_GET['action'];
+
+// =================================================
+// ENDPOINTS DE BOOKMARKS/URLs
+// =================================================
+
+// Exportar bookmarks del usuario (API formato original)
+if ($action === 'export_bookmarks') {
     $user_id = getCurrentUserId();
-    
     if (!$user_id) {
-        echo json_encode([
-            'success' => false, 
-            'message' => 'Usuario no autenticado', 
-            'redirect' => '../login.php'
-        ]);
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'No autenticado']);
         exit;
     }
     
-    $action = $_GET['action'] ?? $_POST['action'] ?? '';
-    error_log("🔥 API Action: {$action} - User: {$user_id}");
-    
-    switch ($action) {
-        case 'get_urls':
-            try {
-                $category = $_GET['category'] ?? null;
-                $urls = getUserUrls($user_id, $category);
-                
-                error_log("📊 get_urls: " . count($urls) . " URLs found for user {$user_id}");
-                
-                echo json_encode([
-                    'success' => true, 
-                    'urls' => $urls,
-                    'count' => count($urls),
-                    'user_id' => $user_id
-                ]);
-                
-            } catch (Exception $e) {
-                error_log("❌ get_urls error: " . $e->getMessage());
-                echo json_encode(['success' => false, 'message' => 'Error al obtener URLs: ' . $e->getMessage()]);
-            }
-            break;
-            
-        case 'add_url':
-            try {
-                $shortUrl = $_POST['shortUrl'] ?? '';
-                $title = $_POST['title'] ?? '';
-                $category = $_POST['category'] ?? null;
-                $notes = $_POST['notes'] ?? null;
-                
-                error_log("➕ add_url: {$shortUrl} - {$title} - User: {$user_id}");
-                
-                if (!$shortUrl || !$title) {
-                    echo json_encode(['success' => false, 'message' => 'Datos incompletos']);
-                    break;
-                }
-                
-                $result = addUrlToManager($user_id, $shortUrl, $title, $category, $notes);
-                error_log("➕ add_url result: " . json_encode($result));
-                
-                echo json_encode($result);
-                
-            } catch (Exception $e) {
-                error_log("❌ add_url error: " . $e->getMessage());
-                echo json_encode(['success' => false, 'message' => 'Error al agregar URL: ' . $e->getMessage()]);
-            }
-            break;
-            
-        case 'remove_url':
-            try {
-                $url_id = $_POST['url_id'] ?? 0;
-                
-                error_log("➖ remove_url: ID {$url_id} - User: {$user_id}");
-                
-                if (!$url_id) {
-                    echo json_encode(['success' => false, 'message' => 'ID de URL no válido']);
-                    break;
-                }
-                
-                $result = removeUrlFromManager($user_id, $url_id);
-                error_log("➖ remove_url result: " . json_encode($result));
-                
-                echo json_encode($result);
-                
-            } catch (Exception $e) {
-                error_log("❌ remove_url error: " . $e->getMessage());
-                echo json_encode(['success' => false, 'message' => 'Error al eliminar URL: ' . $e->getMessage()]);
-            }
-            break;
-            
-        case 'update_url':
-            try {
-                $url_id = $_POST['url_id'] ?? 0;
-                $title = $_POST['title'] ?? '';
-                $category = $_POST['category'] ?? null;
-                $notes = $_POST['notes'] ?? null;
-                
-                error_log("✏️ update_url: ID {$url_id} - {$title} - User: {$user_id}");
-                
-                if (!$url_id || !$title) {
-                    echo json_encode(['success' => false, 'message' => 'Datos incompletos']);
-                    break;
-                }
-                
-                $result = updateUrlInManager($user_id, $url_id, $title, $category, $notes);
-                error_log("✏️ update_url result: " . json_encode($result));
-                
-                echo json_encode($result);
-                
-            } catch (Exception $e) {
-                error_log("❌ update_url error: " . $e->getMessage());
-                echo json_encode(['success' => false, 'message' => 'Error al actualizar URL: ' . $e->getMessage()]);
-            }
-            break;
-            
-        case 'sync_system':
-            try {
-                error_log("🔄 sync_system: Starting sync for user {$user_id}");
-                
-                $result = syncWithMainSystem($user_id);
-                error_log("🔄 sync_system result: " . json_encode($result));
-                
-                echo json_encode($result);
-                
-            } catch (Exception $e) {
-                error_log("❌ sync_system error: " . $e->getMessage());
-                echo json_encode(['success' => false, 'message' => 'Error en sincronización: ' . $e->getMessage()]);
-            }
-            break;
-            
-        case 'export_json':
-            try {
-                error_log("📤 export_json: Starting export for user {$user_id}");
-                
-                $data = exportToJson($user_id);
-                error_log("📤 export_json: " . count($data['urls']) . " URLs exported");
-                
-                ob_clean();
-                
-                header('Content-Type: application/json; charset=UTF-8');
-                header('Content-Disposition: attachment; filename="urls_backup_' . date('Y-m-d') . '.json"');
-                header('Cache-Control: no-cache, must-revalidate');
-                
-                echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-                exit;
-                
-            } catch (Exception $e) {
-                error_log("❌ export_json error: " . $e->getMessage());
-                ob_clean();
-                echo json_encode(['success' => false, 'message' => 'Error al exportar JSON: ' . $e->getMessage()]);
-            }
-            break;
-            
-        case 'export_bookmarks':
-            try {
-                error_log("🌐 export_bookmarks: Starting export for user {$user_id}");
-                
-                $urls = getUserUrls($user_id);
-                error_log("🌐 export_bookmarks: " . count($urls) . " URLs found");
-                
-                if (empty($urls)) {
-                    $html = '<!DOCTYPE NETSCAPE-Bookmark-file-1>
-<!--This is an automatically generated file.-->
-<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
-<TITLE>Bookmarks</TITLE>
-<H1>Bookmarks</H1>
-<DL><p>
-    <DT><H3>Sin URLs</H3>
-    <DL><p>
-        <DT><A HREF="#">No se encontraron URLs para exportar</A>
-        <DT><A HREF="../">Ir al acortador</A>
-    </DL><p>
-</DL><p>';
-                    
-                    error_log("🌐 export_bookmarks: No URLs found for user {$user_id}");
-                    
-                } else {
-                    $html = convertToBookmarksHTML($urls);
-                    error_log("🌐 export_bookmarks: HTML generated, length: " . strlen($html));
-                }
-                
-                ob_clean();
-                
-                header('Content-Type: text/html; charset=UTF-8');
-                header('Content-Disposition: attachment; filename="bookmarks_' . date('Y-m-d') . '.html"');
-                header('Cache-Control: no-cache, must-revalidate');
-                
-                echo $html;
-                exit;
-                
-            } catch (Exception $e) {
-                error_log("❌ export_bookmarks error: " . $e->getMessage());
-                ob_clean();
-                echo "Error al exportar favoritos: " . $e->getMessage();
-            }
-            break;
-            
-        case 'import_json':
-            try {
-                error_log("📥 import_json: Starting import for user {$user_id}");
-                
-                if (!isset($_FILES['json_file'])) {
-                    echo json_encode(['success' => false, 'message' => 'No se subió archivo']);
-                    break;
-                }
-                
-                $file = $_FILES['json_file'];
-                error_log("📥 import_json: File uploaded - " . $file['name'] . " (" . $file['size'] . " bytes)");
-                
-                if ($file['error'] !== UPLOAD_ERR_OK) {
-                    echo json_encode(['success' => false, 'message' => 'Error al subir archivo: ' . $file['error']]);
-                    break;
-                }
-                
-                if ($file['size'] > 5000000) {
-                    echo json_encode(['success' => false, 'message' => 'Archivo muy grande (máx 5MB)']);
-                    break;
-                }
-                
-                $fileContent = file_get_contents($file['tmp_name']);
-                if (!$fileContent) {
-                    echo json_encode(['success' => false, 'message' => 'No se pudo leer el archivo']);
-                    break;
-                }
-                
-                error_log("📥 import_json: File content length: " . strlen($fileContent));
-                
-                $jsonData = json_decode($fileContent, true);
-                if (!$jsonData) {
-                    $jsonError = json_last_error_msg();
-                    error_log("❌ import_json: JSON error: " . $jsonError);
-                    echo json_encode(['success' => false, 'message' => 'JSON inválido: ' . $jsonError]);
-                    break;
-                }
-                
-                $result = importFromJson($user_id, $jsonData);
-                error_log("📥 import_json result: " . json_encode($result));
-                
-                echo json_encode($result);
-                
-            } catch (Exception $e) {
-                error_log("❌ import_json error: " . $e->getMessage());
-                echo json_encode(['success' => false, 'message' => 'Error al importar: ' . $e->getMessage()]);
-            }
-            break;
-            
-        case 'clear_manager':
-            try {
-                error_log("🗑️ clear_manager: Clearing manager for user {$user_id}");
-                
-                $stmt = $pdo->prepare("DELETE FROM user_urls WHERE user_id = :user_id");
-                $result = $stmt->execute([':user_id' => $user_id]);
-                
-                $deletedCount = $stmt->rowCount();
-                error_log("🗑️ clear_manager: Deleted {$deletedCount} URLs for user {$user_id}");
-                
-                if ($result) {
-                    echo json_encode(['success' => true, 'message' => "Gestor limpiado ({$deletedCount} URLs eliminadas)"]);
-                } else {
-                    echo json_encode(['success' => false, 'message' => 'Error al limpiar gestor']);
-                }
-                
-            } catch (Exception $e) {
-                error_log("❌ clear_manager error: " . $e->getMessage());
-                echo json_encode(['success' => false, 'message' => 'Error al limpiar: ' . $e->getMessage()]);
-            }
-            break;
-            
-        case 'get_stats':
-            try {
-                $stats = getStats($user_id);
-                error_log("📊 get_stats for user {$user_id}: " . json_encode($stats));
-                
-                echo json_encode(['success' => true, 'stats' => $stats]);
-                
-            } catch (Exception $e) {
-                error_log("❌ get_stats error: " . $e->getMessage());
-                echo json_encode(['success' => false, 'message' => 'Error al obtener estadísticas: ' . $e->getMessage()]);
-            }
-            break;
-            
-        case 'test_auth':
-            try {
-                $userInfo = getCurrentUserInfo();
-                echo json_encode([
-                    'success' => true,
-                    'user_id' => $user_id,
-                    'user_info' => $userInfo,
-                    'session' => $_SESSION
-                ]);
-            } catch (Exception $e) {
-                echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
-            }
-            break;
-            
-        default:
-            error_log("❌ Unknown action: {$action}");
-            echo json_encode(['success' => false, 'message' => 'Acción no válida: ' . $action]);
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 
+                u.short_code,
+                u.title,
+                u.original_url,
+                u.clicks,
+                u.created_at,
+                u.is_public,
+                cd.domain as custom_domain
+            FROM urls u
+            LEFT JOIN custom_domains cd ON u.domain_id = cd.id
+            WHERE u.user_id = ?
+            ORDER BY u.created_at DESC
+        ");
+        $stmt->execute([$user_id]);
+        $urls = $stmt->fetchAll();
+        
+        // Construir URLs completas
+        foreach ($urls as &$url) {
+            $domain = $url['custom_domain'] ?? '0ln.org';
+            $url['short_url'] = "https://{$domain}/{$url['short_code']}";
+            $url['created_date'] = date('Y-m-d H:i:s', strtotime($url['created_at']));
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'count' => count($urls),
+            'urls' => $urls,
+            'exported_at' => date('Y-m-d H:i:s')
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Error exportando: ' . $e->getMessage()]);
     }
-    
-} catch (Exception $e) {
-    error_log("💥 API Fatal Error: " . $e->getMessage());
-    ob_clean();
-    echo json_encode([
-        'success' => false, 
-        'message' => 'Error del servidor: ' . $e->getMessage(),
-        'file' => $e->getFile(),
-        'line' => $e->getLine()
-    ]);
+    exit;
 }
 
-ob_end_flush();
-exit;
+// Exportar en formato JSON estructurado (nueva acción)
+if ($action === 'export_json') {
+    $user_id = getCurrentUserId();
+    if (!$user_id) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'No autenticado']);
+        exit;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 
+                u.id,
+                u.short_code,
+                u.title,
+                u.original_url,
+                u.clicks,
+                u.created_at,
+                u.updated_at,
+                u.is_public,
+                u.user_id,
+                cd.domain as custom_domain
+            FROM urls u
+            LEFT JOIN custom_domains cd ON u.domain_id = cd.id
+            WHERE u.user_id = ?
+            ORDER BY u.created_at DESC
+        ");
+        $stmt->execute([$user_id]);
+        $urls = $stmt->fetchAll();
+        
+        // Construir URLs completas y agregar metadatos
+        foreach ($urls as &$url) {
+            $domain = $url['custom_domain'] ?? '0ln.org';
+            $url['short_url'] = "https://{$domain}/{$url['short_code']}";
+            $url['created_date'] = date('Y-m-d H:i:s', strtotime($url['created_at']));
+            $url['created_timestamp'] = strtotime($url['created_at']);
+            
+            // Agregar información adicional
+            $url['url_length'] = strlen($url['original_url']);
+            $url['code_length'] = strlen($url['short_code']);
+            $url['is_custom_code'] = !preg_match('/^[A-Za-z0-9]{6}$/', $url['short_code']);
+            $url['domain_type'] = $url['custom_domain'] ? 'custom' : 'default';
+        }
+        
+        // Obtener estadísticas del usuario
+        $userInfo = getCurrentUserInfo();
+        
+        // Stats adicionales
+        $totalClicks = array_sum(array_column($urls, 'clicks'));
+        $activeUrls = count(array_filter($urls, function($url) { return $url['clicks'] > 0; }));
+        $customCodes = count(array_filter($urls, function($url) { return $url['is_custom_code']; }));
+        
+        // Retornar JSON estructurado completo
+        echo json_encode([
+            'success' => true,
+            'export_metadata' => [
+                'user_id' => $user_id,
+                'username' => $userInfo['username'] ?? 'Unknown',
+                'exported_at' => date('Y-m-d H:i:s'),
+                'export_timestamp' => time(),
+                'total_urls' => count($urls),
+                'format' => 'structured_json',
+                'version' => '1.0'
+            ],
+            'statistics' => [
+                'total_clicks' => $totalClicks,
+                'active_urls' => $activeUrls,
+                'inactive_urls' => count($urls) - $activeUrls,
+                'custom_codes' => $customCodes,
+                'generated_codes' => count($urls) - $customCodes,
+                'average_clicks_per_url' => count($urls) > 0 ? round($totalClicks / count($urls), 2) : 0
+            ],
+            'urls' => $urls
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Error exportando JSON: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// Obtener URLs del usuario (para el gestor con paginación)
+if ($action === 'get_urls') {
+    $user_id = getCurrentUserId();
+    if (!$user_id) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'No autenticado']);
+        exit;
+    }
+    
+    $page = max(1, intval($_GET['page'] ?? 1));
+    $limit = max(10, min(100, intval($_GET['limit'] ?? 20)));
+    $offset = ($page - 1) * $limit;
+    $search = $_GET['search'] ?? '';
+    
+    try {
+        // Construir query con búsqueda opcional
+        $whereClause = "WHERE u.user_id = ?";
+        $params = [$user_id];
+        
+        if (!empty($search)) {
+            $whereClause .= " AND (u.short_code LIKE ? OR u.original_url LIKE ? OR u.title LIKE ?)";
+            $searchTerm = "%{$search}%";
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+            $params[] = $searchTerm;
+        }
+        
+        // Contar total
+        $countQuery = "SELECT COUNT(*) FROM urls u " . $whereClause;
+        $stmt = $pdo->prepare($countQuery);
+        $stmt->execute($params);
+        $total = $stmt->fetchColumn();
+        
+        // Obtener URLs
+        $dataQuery = "
+            SELECT 
+                u.*,
+                cd.domain as custom_domain
+            FROM urls u
+            LEFT JOIN custom_domains cd ON u.domain_id = cd.id
+            {$whereClause}
+            ORDER BY u.created_at DESC
+            LIMIT ? OFFSET ?
+        ";
+        $params[] = $limit;
+        $params[] = $offset;
+        
+        $stmt = $pdo->prepare($dataQuery);
+        $stmt->execute($params);
+        $urls = $stmt->fetchAll();
+        
+        // Agregar URLs completas
+        foreach ($urls as &$url) {
+            $domain = $url['custom_domain'] ?? '0ln.org';
+            $url['short_url'] = "https://{$domain}/{$url['short_code']}";
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'urls' => $urls,
+            'pagination' => [
+                'page' => $page,
+                'limit' => $limit,
+                'total' => $total,
+                'pages' => ceil($total / $limit),
+                'has_next' => $page < ceil($total / $limit),
+                'has_prev' => $page > 1
+            ],
+            'search' => $search
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// =================================================
+// ENDPOINTS DE ANALYTICS (SOLO LECTURA)
+// =================================================
+
+// Obtener estadísticas generales del usuario
+if ($action === 'get_user_stats') {
+    $user_id = getCurrentUserId();
+    if (!$user_id) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'No autenticado']);
+        exit;
+    }
+    
+    $days = $_GET['days'] ?? 30;
+    $days = in_array($days, [7, 30, 90, 365]) ? $days : 30;
+    
+    try {
+        require_once 'analytics.php';
+        $analytics = new UrlAnalytics($pdo);
+        $stats = $analytics->getUserStats($user_id, $days);
+        
+        echo json_encode([
+            'success' => true,
+            'stats' => $stats,
+            'period_days' => $days,
+            'generated_at' => date('Y-m-d H:i:s')
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// Obtener estadísticas de una URL específica
+if ($action === 'get_url_stats') {
+    $user_id = getCurrentUserId();
+    if (!$user_id) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'No autenticado']);
+        exit;
+    }
+    
+    $url_id = $_GET['url_id'] ?? null;
+    $days = $_GET['days'] ?? 30;
+    
+    if (!$url_id) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'URL ID requerido']);
+        exit;
+    }
+    
+    try {
+        require_once 'analytics.php';
+        $analytics = new UrlAnalytics($pdo);
+        $stats = $analytics->getUrlStats($url_id, $user_id, $days);
+        
+        if (!$stats) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'URL no encontrada']);
+            exit;
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'stats' => $stats,
+            'period_days' => $days,
+            'generated_at' => date('Y-m-d H:i:s')
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// Obtener resumen rápido de analytics (para el widget del index) - CORREGIDO
+if ($action === 'analytics_summary') {
+    $user_id = getCurrentUserId();
+    if (!$user_id) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'No autenticado']);
+        exit;
+    }
+    
+    try {
+        // PRIMERO: Intentar obtener datos de url_analytics
+        $stmt = $pdo->prepare("
+            SELECT 
+                COUNT(*) as total_clicks,
+                COUNT(DISTINCT session_id) as unique_visitors,
+                COUNT(DISTINCT url_id) as urls_clicked
+            FROM url_analytics 
+            WHERE user_id = ? 
+            AND clicked_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        ");
+        $stmt->execute([$user_id]);
+        $analytics_summary = $stmt->fetch();
+        
+        // FALLBACK: Si no hay datos de analytics, usar datos de la tabla urls
+        if ($analytics_summary['total_clicks'] == 0) {
+            $stmt = $pdo->prepare("
+                SELECT 
+                    SUM(clicks) as total_clicks,
+                    COUNT(*) as urls_clicked,
+                    COUNT(CASE WHEN clicks > 0 THEN 1 END) as active_urls
+                FROM urls 
+                WHERE user_id = ?
+            ");
+            $stmt->execute([$user_id]);
+            $urls_summary = $stmt->fetch();
+            
+            // Usar datos de URLs si no hay analytics
+            $summary = [
+                'total_clicks' => (int)($urls_summary['total_clicks'] ?? 0),
+                'unique_visitors' => (int)($urls_summary['total_clicks'] ?? 0), // Aproximación
+                'urls_clicked' => (int)($urls_summary['urls_clicked'] ?? 0)
+            ];
+            
+            $source = 'urls_table';
+        } else {
+            $summary = [
+                'total_clicks' => (int)$analytics_summary['total_clicks'],
+                'unique_visitors' => (int)$analytics_summary['unique_visitors'],
+                'urls_clicked' => (int)$analytics_summary['urls_clicked']
+            ];
+            
+            $source = 'analytics_table';
+        }
+        
+        // Top URL del mes (intentar analytics primero, luego urls)
+        $topUrl = null;
+        try {
+            if ($source === 'analytics_table') {
+                $stmt = $pdo->prepare("
+                    SELECT 
+                        u.short_code, 
+                        u.title, 
+                        COUNT(*) as clicks
+                    FROM url_analytics ua
+                    JOIN urls u ON ua.url_id = u.id
+                    WHERE ua.user_id = ? 
+                    AND ua.clicked_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                    GROUP BY ua.url_id
+                    ORDER BY clicks DESC
+                    LIMIT 1
+                ");
+                $stmt->execute([$user_id]);
+                $topUrl = $stmt->fetch();
+            }
+            
+            // Fallback: usar datos de tabla urls
+            if (!$topUrl) {
+                $stmt = $pdo->prepare("
+                    SELECT 
+                        short_code, 
+                        title, 
+                        clicks
+                    FROM urls 
+                    WHERE user_id = ? 
+                    AND clicks > 0
+                    ORDER BY clicks DESC
+                    LIMIT 1
+                ");
+                $stmt->execute([$user_id]);
+                $topUrl = $stmt->fetch();
+            }
+        } catch (Exception $e) {
+            // Ignorar errores de top URL
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'summary' => $summary,
+            'top_url' => $topUrl,
+            'period' => 'Últimos 30 días',
+            'data_source' => $source,
+            'generated_at' => date('Y-m-d H:i:s')
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Error: ' . $e->getMessage(),
+            'fallback_data' => [
+                'total_clicks' => 0,
+                'unique_visitors' => 0, 
+                'urls_clicked' => 0
+            ]
+        ]);
+    }
+    exit;
+}
+
+// =================================================
+// ENDPOINTS DE ADMINISTRACIÓN
+// =================================================
+
+// Limpiar datos de analytics (solo admin)
+if ($action === 'clean_analytics') {
+    $user_id = getCurrentUserId();
+    if (!$user_id || $user_id != 1) { // Solo superadmin
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'No autorizado - Solo administradores']);
+        exit;
+    }
+    
+    $hours = max(1, min(48, intval($_GET['hours'] ?? 2)));
+    
+    try {
+        require_once 'analytics.php';
+        $analytics = new UrlAnalytics($pdo);
+        $deleted = $analytics->cleanSpamClicks($hours);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => "Limpieza completada: {$deleted} registros eliminados",
+            'deleted_count' => $deleted,
+            'hours_cleaned' => $hours,
+            'cleaned_at' => date('Y-m-d H:i:s')
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// Obtener estado del sistema
+if ($action === 'system_status') {
+    $user_id = getCurrentUserId();
+    if (!$user_id) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'No autenticado']);
+        exit;
+    }
+    
+    try {
+        // Verificar estado del tracking
+        $tracking_disabled = file_exists('tracking_disabled.flag');
+        
+        // Stats generales del sistema
+        $stmt = $pdo->query("SELECT COUNT(*) FROM urls");
+        $total_urls = $stmt->fetchColumn();
+        
+        $stmt = $pdo->query("SELECT COUNT(*) FROM url_analytics");
+        $total_analytics = $stmt->fetchColumn();
+        
+        // Stats del usuario actual
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM urls WHERE user_id = ?");
+        $stmt->execute([$user_id]);
+        $user_urls = $stmt->fetchColumn();
+        
+        echo json_encode([
+            'success' => true,
+            'system' => [
+                'tracking_enabled' => !$tracking_disabled,
+                'total_urls' => (int)$total_urls,
+                'total_analytics' => (int)$total_analytics,
+                'user_urls' => (int)$user_urls,
+                'server_time' => date('Y-m-d H:i:s'),
+                'server_timestamp' => time(),
+                'php_version' => PHP_VERSION,
+                'mysql_version' => $pdo->query('SELECT VERSION()')->fetchColumn()
+            ]
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// =================================================
+// ENDPOINTS ESPECIALES
+// =================================================
+
+// Buscar URLs
+if ($action === 'search_urls') {
+    $user_id = getCurrentUserId();
+    if (!$user_id) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'No autenticado']);
+        exit;
+    }
+    
+    $query = $_GET['q'] ?? '';
+    $limit = max(1, min(50, intval($_GET['limit'] ?? 10)));
+    
+    if (strlen($query) < 2) {
+        echo json_encode(['success' => false, 'message' => 'Query debe tener al menos 2 caracteres']);
+        exit;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("
+            SELECT 
+                u.id,
+                u.short_code,
+                u.title,
+                u.original_url,
+                u.clicks,
+                cd.domain as custom_domain
+            FROM urls u
+            LEFT JOIN custom_domains cd ON u.domain_id = cd.id
+            WHERE u.user_id = ? 
+            AND (u.short_code LIKE ? OR u.original_url LIKE ? OR u.title LIKE ?)
+            ORDER BY u.clicks DESC, u.created_at DESC
+            LIMIT ?
+        ");
+        
+        $searchTerm = "%{$query}%";
+        $stmt->execute([$user_id, $searchTerm, $searchTerm, $searchTerm, $limit]);
+        $results = $stmt->fetchAll();
+        
+        // Agregar URLs completas
+        foreach ($results as &$result) {
+            $domain = $result['custom_domain'] ?? '0ln.org';
+            $result['short_url'] = "https://{$domain}/{$result['short_code']}";
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'query' => $query,
+            'results' => $results,
+            'count' => count($results),
+            'searched_at' => date('Y-m-d H:i:s')
+        ]);
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Error en búsqueda: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// =================================================
+// ENDPOINT DESHABILITADO: track_click
+// =================================================
+
+// ⚠️ DESHABILITADO: Track manual de click (CAUSA PROBLEMAS)
+if ($action === 'track_click') {
+    http_response_code(410);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Endpoint deshabilitado para prevenir tracking automático',
+        'note' => 'El tracking se hace solo en redirects reales',
+        'alternative' => 'Usa las estadísticas existentes en analytics_summary'
+    ]);
+    exit;
+}
+
+// =================================================
+// ACCIÓN NO ENCONTRADA
+// =================================================
+
+http_response_code(404);
+echo json_encode([
+    'success' => false, 
+    'message' => 'Acción no encontrada: ' . $action,
+    'available_actions' => [
+        'export_bookmarks',
+        'export_json',
+        'get_urls', 
+        'search_urls',
+        'get_user_stats',
+        'get_url_stats',
+        'analytics_summary',
+        'system_status',
+        'clean_analytics'
+    ],
+    'api_version' => '1.0',
+    'documentation' => 'Consulta la documentación para más detalles sobre cada endpoint'
+], JSON_PRETTY_PRINT);
 ?>
