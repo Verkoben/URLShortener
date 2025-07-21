@@ -55,6 +55,9 @@ if ($section == 'domains' && !$is_superadmin) {
     $section = 'dashboard'; // Redirigir al dashboard
 }
 
+// Variable para el token recién creado
+$new_token_created = null;
+
 // SECCIÓN DE TOKENS - Procesar acciones
 if ($section === 'tokens') {
     // Generar nuevo token
@@ -77,7 +80,9 @@ if ($section === 'tokens') {
             
             $message = "✅ Token creado exitosamente. ¡Cópialo ahora, no podrás verlo de nuevo!";
             $messageType = 'success';
-            $_SESSION['new_token'] = $token; // Guardar temporalmente para mostrarlo
+            
+            // IMPORTANTE: Guardar el token para mostrarlo
+            $new_token_created = $token;
             
             logActivity($db, $user_id, 'create_token', "Creó token: $token_name");
         } catch (Exception $e) {
@@ -140,19 +145,13 @@ if (isset($_GET['action']) && $_GET['action'] === 'regenerate_token') {
         $messageType = 'success';
         logActivity($db, $user_id, 'regenerate_token', "Regeneró su token API");
         
-        // Redirigir para limpiar la URL
-        header('Location: panel_simple.php?section=tokens&msg=token_regenerated');
-        exit;
+        // Guardar el token para mostrarlo
+        $new_token_created = $newToken;
+        
     } catch (Exception $e) {
         $message = "❌ Error al regenerar token: " . $e->getMessage();
         $messageType = 'danger';
     }
-}
-
-// Mostrar mensaje si viene de regeneración
-if (isset($_GET['msg']) && $_GET['msg'] == 'token_regenerated') {
-    $message = "✅ Token API regenerado correctamente";
-    $messageType = 'success';
 }
 
 // Función para registrar actividades
@@ -1105,6 +1104,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
             font-family: monospace;
             word-break: break-all;
             margin-bottom: 10px;
+            font-size: 16px;
+            color: #333;
+            border: 1px solid #c8e6c9;
         }
         
         /* Ejemplo de código */
@@ -1713,21 +1715,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                 ");
                 $stmt->execute([$user_id]);
                 $tokens = $stmt->fetchAll();
-                
-                // Mostrar nuevo token si se acaba de crear
-                $show_new_token = isset($_SESSION['new_token']);
-                $new_token = $_SESSION['new_token'] ?? '';
-                unset($_SESSION['new_token']);
                 ?>
                 
-                <?php if ($show_new_token): ?>
+                <?php if ($new_token_created): ?>
                 <div class="new-token-display">
                     <h4>🎉 ¡Nuevo Token Creado!</h4>
-                    <div class="token-value">
-                        <?php echo htmlspecialchars($new_token); ?>
+                    <div class="token-value" id="newTokenValue">
+                        <?php echo htmlspecialchars($new_token_created); ?>
                     </div>
                     <div class="token-actions">
-                        <button class="btn btn-success" onclick="copyNewToken('<?php echo $new_token; ?>')">
+                        <button class="btn btn-success" onclick="copyNewToken()">
                             📋 Copiar Token
                         </button>
                     </div>
@@ -1903,7 +1900,10 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                 </div>
                 
                 <script>
-                function copyNewToken(token) {
+                function copyNewToken() {
+                    const tokenElement = document.getElementById('newTokenValue');
+                    const token = tokenElement.textContent.trim();
+                    
                     if (navigator.clipboard && window.isSecureContext) {
                         navigator.clipboard.writeText(token).then(function() {
                             showToast('✅ Token copiado al portapapeles');
@@ -1933,6 +1933,7 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                     toast.style.top = '20px';
                     toast.style.right = '20px';
                     toast.style.zIndex = '9999';
+                    toast.style.minWidth = '300px';
                     toast.innerHTML = message;
                     document.body.appendChild(toast);
                     
