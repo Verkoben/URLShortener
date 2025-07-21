@@ -470,3 +470,14 @@ CREATE TABLE bookmarks (
 Apy key, muy importante
 -----------------------
 ALTER TABLE users ADD COLUMN api_key VARCHAR(64) UNIQUE DEFAULT NULL;
+------------------------
+Black list
+------------------------
+CREATE TABLE url_blacklist (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    short_code VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_user_code (user_id, short_code),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
