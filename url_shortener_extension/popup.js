@@ -1,51 +1,87 @@
-// Variables globales
+// Estado global
 let urls = [];
-let draggedElement = null;
+let apiToken = null;
 
-// Esperar a que el DOM esté listo
-document.addEventListener('DOMContentLoaded', function() {
+// DOMINIO DE LA API - SIEMPRE 0ln.eu
+const API_DOMAIN = '0ln.eu';
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', init);
+
+async function init() {
+    console.log('Iniciando extensión...');
+    await loadApiToken();
     loadUrls();
-    
-    // Event listeners principales
+    setupEventListeners();
+}
+
+async function loadApiToken() {
+    const result = await chrome.storage.local.get(['apiToken']);
+    apiToken = result.apiToken || null;
+    if (apiToken) {
+        console.log('Token API cargado');
+    }
+}
+
+function setupEventListeners() {
     document.getElementById('toggleBtn').addEventListener('click', toggleForm);
     document.getElementById('saveBtn').addEventListener('click', addUrl);
     document.getElementById('searchInput').addEventListener('input', filterUrls);
-    
-    // Botones de importación/exportación
     document.getElementById('importApiBtn').addEventListener('click', importFromAPI);
-    document.getElementById('importFileBtn').addEventListener('click', () => {
-        document.getElementById('fileInput').click();
-    });
-    document.getElementById('fileInput').addEventListener('change', handleFileImport);
     document.getElementById('exportBtn').addEventListener('click', exportUrls);
     document.getElementById('clearBtn').addEventListener('click', clearAllUrls);
-    
-    // Botones del header
-    document.getElementById('openInTab').addEventListener('click', function() {
+    document.getElementById('configBtn').addEventListener('click', toggleConfig);
+    document.getElementById('saveTokenBtn').addEventListener('click', saveToken);
+    document.getElementById('openInTab').addEventListener('click', () => {
         chrome.tabs.create({ url: chrome.runtime.getURL('popup.html') });
     });
     
-    document.getElementById('openInWindow').addEventListener('click', function() {
-        chrome.windows.create({
-            url: chrome.runtime.getURL('popup.html'),
-            type: 'popup',
-            width: 450,
-            height: 600
-        });
+    document.getElementById('shortUrl').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addUrl();
     });
+}
+
+function toggleConfig() {
+    const config = document.getElementById('apiConfig');
+    const addForm = document.getElementById('addForm');
     
-    // Enter para guardar
-    document.getElementById('shortUrl').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') addUrl();
-    });
-    document.getElementById('title').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') addUrl();
-    });
-});
+    // Cerrar otros formularios
+    addForm.style.display = 'none';
+    document.getElementById('toggleBtn').textContent = '➕ Agregar URL';
+    
+    if (config.style.display === 'none' || config.style.display === '') {
+        config.style.display = 'block';
+        // Cargar token actual si existe
+        if (apiToken) {
+            document.getElementById('apiToken').value = apiToken;
+        }
+    } else {
+        config.style.display = 'none';
+    }
+}
+
+async function saveToken() {
+    const tokenInput = document.getElementById('apiToken');
+    const token = tokenInput.value.trim();
+    
+    if (token) {
+        apiToken = token;
+        await chrome.storage.local.set({ apiToken: token });
+        showToast('✅ Token guardado');
+    } else {
+        apiToken = null;
+        await chrome.storage.local.remove('apiToken');
+        showToast('🗑️ Token eliminado');
+    }
+    
+    toggleConfig();
+    updateStats(); // Actualizar para mostrar el indicador de token
+}
 
 function loadUrls() {
     chrome.storage.local.get(['urls'], function(result) {
         urls = result.urls || [];
+        console.log('URLs cargadas:', urls.length);
         renderUrls();
         updateStats();
     });
@@ -53,9 +89,21 @@ function loadUrls() {
 
 function updateStats() {
     const totalUrls = urls.length;
-    const domains = [...new Set(urls.map(u => extractDomain(u.shortUrl)))];
-    document.getElementById('stats').textContent = 
-        `📊 ${totalUrls} URLs guardadas | 🌐 ${domains.length} dominios`;
+    const domains = [...new Set(urls.map(u => {
+        try {
+            return new URL(u.shortUrl).hostname;
+        } catch {
+            return 'unknown';
+        }
+    }))];
+    
+    let statsText = `📊 ${totalUrls} URLs | 🌐 ${domains.length} dominios`;
+    
+    if (apiToken) {
+        statsText += ' | 🔑 Con token';
+    }
+    
+    document.getElementById('stats').textContent = statsText;
 }
 
 function renderUrls(urlsToRender = urls) {
@@ -66,238 +114,39 @@ function renderUrls(urlsToRender = urls) {
             <div class="empty-state">
                 <div class="empty-state-icon">📭</div>
                 <h4>No hay URLs guardadas</h4>
-                <p>Agrega tu primera URL corta o importa desde 0ln.eu</p>
+                <p>Agrega tu primera URL corta</p>
             </div>
         `;
         return;
     }
     
     list.innerHTML = urlsToRender.map((url, index) => {
-        // Buscar índice real en el array completo
         const realIndex = urls.indexOf(url);
-        const favicon = url.favicon || `https://www.google.com/s2/favicons?domain=${extractDomain(url.originalUrl || url.shortUrl)}`;
         const domain = extractDomain(url.shortUrl);
         
         return `
-            <div class="url-item" data-index="${realIndex}" draggable="true">
+            <div class="url-item" data-index="${realIndex}">
                 <div class="url-actions">
-                    <button class="btn-action btn-copy" data-index="${realIndex}" title="Copiar URL corta">📋</button>
-                    <button class="btn-action btn-delete" data-index="${realIndex}" title="Eliminar">🗑️</button>
+                    <button class="btn-action btn-copy" data-action="copy" data-index="${realIndex}" title="Copiar">📋</button>
+                    <button class="btn-action btn-delete" data-action="delete" data-index="${realIndex}" title="Eliminar">🗑️</button>
                 </div>
                 
                 <div class="url-header">
-                    <img src="${favicon}" class="favicon" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAbwAAAG8B8aLcQwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAGJSURBVDiNpZO/S1VRGMc/5773vuddhKRID7oYRBAUQdHQ0tLQ0H9QQ0tDRGNTEERDQ0NIS1BQUUN/QUOJg4iBUBAU1NCPwaLXe+/7Ps5734aEet97r/2GL5zD93w/53vO+cIJlFJpYBKYBkaALiABBMCu1noHWANWgVUp5W7zWxEAKaVSylFgtlKpXAiCwPE8L66UQmuN1hoA13VDy7J2HMf5bFnWGyHEm9jnMjBZqVTOFQqF1EaxyN7eHkEQ1HeNokT6+/sZHBykUCjcKZfLs4ODgwtRgJlSqXRqu1hku1gk1dJC+K843H9WqZTi186O0pvNniqVShO9vb3PIwDXPM9LbW1v09baSmJmpglOo7jdbMb1PAdwIwKg4Hle3Pf9lvO53Ik4AIh1dKDrBVgFRGgcOl4dP8+tXqDZCQAJtNZYlkWru4/jODiWhWVZiEaNyDhqJKLN+s7/nKfOnwJUa7VaBtBAZiQ5SfW4OFquzqwWBsFRgBCi1tfXt5vP59O1Wu50MyCXy30XQhxE6v4AWq1/NCuOwOkAAAAASUVORK5CYII='">
-                    <div class="url-title">${escapeHtml(url.title)}</div>
+                    <img src="https://www.google.com/s2/favicons?domain=${domain}" class="favicon" onerror="this.style.display='none'">
+                    <div class="url-title">${escapeHtml(url.title || domain)}</div>
                 </div>
                 
-                <div class="url-short">
-                    🔗 ${escapeHtml(url.shortUrl)}
-                    <span class="domain-tag">${escapeHtml(domain)}</span>
-                </div>
-                
-                ${url.originalUrl ? `
-                    <div class="url-original" title="${escapeHtml(url.originalUrl)}">
-                        ➡️ ${escapeHtml(url.originalUrl)}
-                    </div>
-                ` : ''}
+                <div class="url-short">🔗 ${escapeHtml(url.shortUrl)}</div>
+                ${url.originalUrl ? `<div class="url-original" style="font-size: 12px; color: #666; margin-top: 4px;">➡️ ${escapeHtml(url.originalUrl)}</div>` : ''}
             </div>
         `;
     }).join('');
     
-    // Agregar event listeners después de crear el HTML
     setupUrlEventListeners();
-    setupDragAndDrop();
 }
 
-// Función para importar desde API
-async function importFromAPI() {
-    const btn = document.getElementById('importApiBtn');
-    btn.disabled = true;
-    btn.textContent = '⏳ Importando...';
-    
-    try {
-        // Pedir al usuario su dominio si no es 0ln.eu
-        let domain = '0ln.eu';
-        const customDomain = prompt('¿Desde qué dominio quieres importar?\n(Deja vacío para 0ln.eu)', '0ln.eu');
-        if (customDomain) domain = customDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
-        
-        // Intentar obtener URLs del API
-        const response = await fetch(`https://${domain}/api/my-urls.php`, {
-            credentials: 'include',
-            mode: 'cors'
-        });
-        
-        if (!response.ok) {
-            throw new Error('No se pudo conectar al servidor');
-        }
-        
-        const apiUrls = await response.json();
-        
-        if (!Array.isArray(apiUrls)) {
-            throw new Error('Formato de respuesta inválido');
-        }
-        
-        // Procesar URLs
-        let imported = 0;
-        const newUrls = [];
-        
-        for (const apiUrl of apiUrls) {
-            const shortUrl = apiUrl.short_url || `https://${domain}/${apiUrl.short_code}`;
-            
-            // Verificar si ya existe
-            if (!urls.find(u => u.shortUrl === shortUrl)) {
-                newUrls.push({
-                    shortUrl: shortUrl,
-                    title: apiUrl.title || apiUrl.short_code || 'Sin título',
-                    originalUrl: apiUrl.original_url || null,
-                    favicon: null,
-                    date: apiUrl.created_at || new Date().toISOString(),
-                    clicks: apiUrl.clicks || 0
-                });
-                imported++;
-            }
-        }
-        
-        if (imported > 0) {
-            // Agregar las nuevas URLs
-            urls = [...newUrls, ...urls];
-            
-            // Guardar
-            await chrome.storage.local.set({ urls: urls });
-            renderUrls();
-            updateStats();
-            showToast(`✅ ${imported} URLs importadas de ${domain}`);
-        } else {
-            showToast('ℹ️ No hay URLs nuevas para importar');
-        }
-        
-    } catch (error) {
-        console.error('Error:', error);
-        showToast('❌ Error al importar. ¿Estás logueado en el sitio?');
-    } finally {
-        btn.disabled = false;
-        btn.textContent = '📥 Importar de 0ln.eu';
-    }
-}
-
-// Función para importar desde archivo
-function handleFileImport(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = async function(e) {
-        try {
-            const importedData = JSON.parse(e.target.result);
-            let urlsToImport = [];
-            
-            // Detectar formato
-            if (Array.isArray(importedData)) {
-                urlsToImport = importedData;
-            } else if (importedData.urls && Array.isArray(importedData.urls)) {
-                urlsToImport = importedData.urls;
-            } else {
-                throw new Error('Formato de archivo no reconocido');
-            }
-            
-            let imported = 0;
-            
-            urlsToImport.forEach(url => {
-                // Verificar que tenga los campos mínimos
-                if (url.shortUrl || (url.short_code && url.domain)) {
-                    const shortUrl = url.shortUrl || `https://${url.domain}/${url.short_code}`;
-                    
-                    if (!urls.find(u => u.shortUrl === shortUrl)) {
-                        urls.unshift({
-                            shortUrl: shortUrl,
-                            title: url.title || url.short_code || 'Importado',
-                            originalUrl: url.originalUrl || url.original_url || null,
-                            favicon: url.favicon || null,
-                            date: url.date || url.created_at || new Date().toISOString()
-                        });
-                        imported++;
-                    }
-                }
-            });
-            
-            if (imported > 0) {
-                // Guardar
-                await chrome.storage.local.set({ urls: urls });
-                renderUrls();
-                updateStats();
-                showToast(`✅ ${imported} URLs importadas del archivo`);
-            } else {
-                showToast('ℹ️ No hay URLs nuevas en el archivo');
-            }
-            
-        } catch (error) {
-            console.error('Error:', error);
-            showToast('❌ Error al leer el archivo');
-        }
-    };
-    
-    reader.readAsText(file);
-    e.target.value = ''; // Limpiar input
-}
-
-// Función para exportar URLs
-function exportUrls() {
-    if (urls.length === 0) {
-        showToast('No hay URLs para exportar');
-        return;
-    }
-    
-    const exportData = {
-        exported_at: new Date().toISOString(),
-        total: urls.length,
-        urls: urls
-    };
-    
-    const dataStr = JSON.stringify(exportData, null, 2);
-    const dataBlob = new Blob([dataStr], {type: 'application/json'});
-    
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(dataBlob);
-    link.download = `urls_backup_${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-    
-    showToast(`✅ ${urls.length} URLs exportadas`);
-}
-
-// Función para limpiar todas las URLs
-function clearAllUrls() {
-    if (urls.length === 0) {
-        showToast('No hay URLs para eliminar');
-        return;
-    }
-    
-    if (confirm(`¿Eliminar todas las ${urls.length} URLs?\n\n⚠️ Esta acción no se puede deshacer`)) {
-        urls = [];
-        chrome.storage.local.set({ urls: urls }, function() {
-            renderUrls();
-            updateStats();
-            showToast('🗑️ Todas las URLs eliminadas');
-        });
-    }
-}
-
-// Resto de funciones (setupUrlEventListeners, setupDragAndDrop, etc.)
 function setupUrlEventListeners() {
-    // Click en los items para abrir
-    document.querySelectorAll('.url-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-            // No abrir si se hizo click en los botones
-            if (e.target.closest('.btn-action')) return;
-            
-            const index = this.getAttribute('data-index');
-            if (urls[index]) {
-                chrome.tabs.create({ url: urls[index].shortUrl });
-            }
-        });
-    });
-    
-    // Botones de copiar
-    document.querySelectorAll('.btn-copy').forEach(btn => {
+    document.querySelectorAll('[data-action="copy"]').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             const index = parseInt(this.getAttribute('data-index'));
@@ -305,66 +154,480 @@ function setupUrlEventListeners() {
         });
     });
     
-    // Botones de eliminar
-    document.querySelectorAll('.btn-delete').forEach(btn => {
+    document.querySelectorAll('[data-action="delete"]').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             const index = parseInt(this.getAttribute('data-index'));
-            deleteUrl(index);
+            deleteUrl(index, this);
+        });
+    });
+    
+    document.querySelectorAll('.url-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            if (!e.target.closest('.btn-action')) {
+                const index = parseInt(this.getAttribute('data-index'));
+                if (urls[index]) {
+                    chrome.tabs.create({ url: urls[index].shortUrl });
+                }
+            }
         });
     });
 }
 
-function setupDragAndDrop() {
-    const items = document.querySelectorAll('.url-item');
+function copyUrl(index) {
+    const url = urls[index];
+    if (!url) return;
     
-    items.forEach((item) => {
-        item.addEventListener('dragstart', function(e) {
-            draggedElement = parseInt(this.getAttribute('data-index'));
-            this.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-        });
-        
-        item.addEventListener('dragend', function(e) {
-            this.classList.remove('dragging');
-        });
-        
-        item.addEventListener('dragover', function(e) {
-            if (e.preventDefault) {
-                e.preventDefault();
-            }
-            e.dataTransfer.dropEffect = 'move';
-            return false;
-        });
-        
-        item.addEventListener('drop', function(e) {
-            if (e.stopPropagation) {
-                e.stopPropagation();
-            }
-            
-            const dropIndex = parseInt(this.getAttribute('data-index'));
-            
-            if (draggedElement !== null && draggedElement !== dropIndex) {
-                // Reordenar array
-                const draggedItem = urls[draggedElement];
-                urls.splice(draggedElement, 1);
-                urls.splice(dropIndex, 0, draggedItem);
-                
-                // Guardar y renderizar
-                chrome.storage.local.set({ urls: urls }, function() {
-                    renderUrls();
-                    showToast('📋 URLs reordenadas');
-                });
-            }
-            
-            return false;
-        });
+    navigator.clipboard.writeText(url.shortUrl).then(() => {
+        showToast('✅ URL copiada');
+    }).catch(() => {
+        const input = document.createElement('input');
+        input.value = url.shortUrl;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        showToast('✅ URL copiada');
     });
+}
+
+// DELETE CORREGIDO - Siempre usa 0ln.eu para la API
+async function deleteUrl(index, buttonElement) {
+    const url = urls[index];
+    if (!url) {
+        console.error('No hay URL en índice:', index);
+        return;
+    }
+    
+    const urlItem = buttonElement.closest('.url-item');
+    
+    if (buttonElement.classList.contains('confirm-delete')) {
+        try {
+            buttonElement.innerHTML = '⏳';
+            buttonElement.disabled = true;
+            
+            // Extraer información
+            const urlObj = new URL(url.shortUrl);
+            const shortCode = urlObj.pathname.substring(1);
+            const urlDomain = urlObj.hostname; // Dominio de la URL (puede ser Clancy.es, etc)
+            
+            console.log('Eliminando:', { 
+                shortCode, 
+                urlDomain, 
+                apiDomain: API_DOMAIN,
+                hasToken: !!apiToken 
+            });
+            
+            // Intentar eliminar del servidor
+            let serverDeleted = false;
+            let deleteMethod = 'none';
+            
+            // Método 1: Intentar con token si existe
+            if (apiToken) {
+                try {
+                    // IMPORTANTE: Siempre usar API_DOMAIN (0ln.eu) para la API
+                    const apiUrl = `https://${API_DOMAIN}/api/delete-url.php`;
+                    console.log('Llamando a:', apiUrl);
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiToken}`,
+                            'X-API-Token': apiToken
+                        },
+                        body: JSON.stringify({
+                            code: shortCode
+                        })
+                    });
+                    
+                    console.log('Respuesta:', response.status);
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Resultado:', result);
+                        
+                        if (result.success) {
+                            serverDeleted = true;
+                            deleteMethod = 'token';
+                            console.log('Eliminado del servidor exitosamente');
+                        } else {
+                            console.log('Error del servidor:', result.message);
+                        }
+                    } else {
+                        const errorText = await response.text();
+                        console.log('Error HTTP:', response.status, errorText);
+                    }
+                } catch (error) {
+                    console.error('Error con token:', error);
+                }
+            }
+            
+            // Método 2: Intentar con sesión (por si acaso)
+            if (!serverDeleted) {
+                try {
+                    const response = await fetch(`https://${API_DOMAIN}/api/delete-url.php`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        mode: 'cors',
+                        body: JSON.stringify({
+                            code: shortCode
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success) {
+                            serverDeleted = true;
+                            deleteMethod = 'session';
+                            console.log('Eliminado con sesión');
+                        }
+                    }
+                } catch (error) {
+                    console.log('Error con sesión:', error);
+                }
+            }
+            
+            // Método 3: Si no funciona, abrir en navegador para eliminar
+            if (!serverDeleted && !apiToken) {
+                const deleteUrl = `https://${API_DOMAIN}/dashboard?action=delete&code=${shortCode}`;
+                const confirmDelete = confirm(
+                    'No se puede eliminar del servidor desde la extensión.\n\n' +
+                    '¿Quieres abrir el panel para eliminarla?\n\n' +
+                    'Nota: Puedes configurar un token API para eliminar directamente.'
+                );
+                
+                if (confirmDelete) {
+                    chrome.tabs.create({ url: deleteUrl });
+                }
+            }
+            
+            // Siempre eliminar localmente
+            urlItem.classList.add('deleting');
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            urls.splice(index, 1);
+            await chrome.storage.local.set({ urls: urls });
+            
+            renderUrls();
+            updateStats();
+            
+            // Mostrar mensaje apropiado
+            if (serverDeleted) {
+                showToast(`✅ Eliminada completamente (${deleteMethod})`);
+            } else if (apiToken) {
+                showToast('🗑️ Eliminada localmente\n(Error en servidor)');
+            } else {
+                showToast('🗑️ Eliminada localmente\n(Configura token para eliminar del servidor)');
+            }
+            
+        } catch (error) {
+            console.error('Error al eliminar:', error);
+            buttonElement.innerHTML = '🗑️';
+            buttonElement.disabled = false;
+            buttonElement.classList.remove('confirm-delete');
+            urlItem.classList.remove('deleting');
+            showToast('❌ Error al eliminar');
+        }
+    } else {
+        buttonElement.classList.add('confirm-delete');
+        buttonElement.innerHTML = '✓?';
+        buttonElement.title = 'Click para confirmar';
+        
+        if (!apiToken) {
+            showToast('💡 Configura un token API para eliminar del servidor');
+        }
+        
+        setTimeout(() => {
+            if (buttonElement && !buttonElement.disabled) {
+                buttonElement.classList.remove('confirm-delete');
+                buttonElement.innerHTML = '🗑️';
+                buttonElement.title = 'Eliminar';
+            }
+        }, 3000);
+    }
+}
+
+// IMPORT también corregido para usar siempre 0ln.eu
+async function importFromAPI() {
+    const btn = document.getElementById('importApiBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Importando...';
+    
+    try {
+        // Siempre importar desde el dominio principal
+        const apiUrl = `https://${API_DOMAIN}/api/my-urls.php`;
+        console.log('Importando desde:', apiUrl);
+        
+        // Preparar headers
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        
+        if (apiToken) {
+            headers['Authorization'] = `Bearer ${apiToken}`;
+            headers['X-API-Token'] = apiToken;
+        }
+        
+        const response = await fetch(apiUrl, {
+            credentials: 'include',
+            mode: 'cors',
+            headers: headers
+        });
+        
+        if (!response.ok) {
+            throw new Error('No autorizado');
+        }
+        
+        const apiUrls = await response.json();
+        let imported = 0;
+        
+        apiUrls.forEach(apiUrl => {
+            const shortUrl = apiUrl.short_url;
+            if (!urls.find(u => u.shortUrl === shortUrl)) {
+                urls.unshift({
+                    shortUrl: shortUrl,
+                    title: apiUrl.short_code || 'Importado',
+                    originalUrl: apiUrl.original_url || null,
+                    date: apiUrl.created_at || new Date().toISOString()
+                });
+                imported++;
+            }
+        });
+        
+        if (imported > 0) {
+            await chrome.storage.local.set({ urls: urls });
+            renderUrls();
+            updateStats();
+            showToast(`✅ ${imported} URLs importadas de ${API_DOMAIN}`);
+        } else {
+            showToast('ℹ️ No hay URLs nuevas');
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        if (apiToken) {
+            alert('Error al importar. Verifica tu token API.');
+        } else {
+            alert(`Error al importar. Asegúrate de estar logueado en ${API_DOMAIN} o configura un token API.`);
+        }
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '📥 Importar';
+    }
+}
+
+// FUNCIÓN ADDURL ACTUALIZADA - CREA URLS CORTAS
+async function addUrl() {
+    const originalUrlInput = document.getElementById('shortUrl'); // Este campo ahora recibe URLs largas
+    const titleInput = document.getElementById('title');
+    const originalUrl = originalUrlInput.value.trim();
+    const title = titleInput.value.trim();
+    
+    if (!originalUrl) {
+        showError('Por favor ingresa una URL');
+        return;
+    }
+    
+    if (!isValidUrl(originalUrl)) {
+        showError('Por favor ingresa una URL válida');
+        return;
+    }
+    
+    // Verificar si NO es token o sesión
+    if (!apiToken) {
+        showError('Necesitas configurar un token API para crear URLs');
+        showToast('⚠️ Configura primero tu token API');
+        return;
+    }
+    
+    // Mostrar loading
+    showLoading(true);
+    hideError();
+    
+    try {
+        // Crear URL corta en el servidor
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiToken}`,
+            'X-API-Token': apiToken
+        };
+        
+        const response = await fetch(`https://${API_DOMAIN}/api/shorten.php`, {
+            method: 'POST',
+            headers: headers,
+            credentials: 'include',
+            body: JSON.stringify({
+                url: originalUrl,
+                original_url: originalUrl // Algunos endpoints esperan este nombre
+            })
+        });
+        
+        console.log('Respuesta shorten:', response.status);
+        
+        if (!response.ok) {
+            const errorData = await response.text();
+            console.error('Error response:', errorData);
+            
+            try {
+                const error = JSON.parse(errorData);
+                throw new Error(error.message || error.error || 'Error al crear URL');
+            } catch {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+        }
+        
+        const result = await response.json();
+        console.log('URL creada:', result);
+        
+        // Guardar la nueva URL
+        const newUrl = {
+            shortUrl: result.short_url,
+            title: title || result.short_code || extractTitle(originalUrl),
+            originalUrl: originalUrl,
+            date: result.created_at || new Date().toISOString()
+        };
+        
+        // Verificar que no exista ya
+        if (!urls.find(u => u.shortUrl === newUrl.shortUrl)) {
+            urls.unshift(newUrl);
+            await chrome.storage.local.set({ urls: urls });
+        }
+        
+        // Limpiar y actualizar
+        originalUrlInput.value = '';
+        titleInput.value = '';
+        toggleForm();
+        renderUrls();
+        updateStats();
+        
+        // Copiar al portapapeles automáticamente
+        try {
+            await navigator.clipboard.writeText(result.short_url);
+            showToast('✅ URL creada y copiada:\n' + result.short_url);
+        } catch {
+            showToast('✅ URL creada:\n' + result.short_url);
+        }
+        
+    } catch (error) {
+        console.error('Error al crear URL:', error);
+        showError(error.message || 'Error al crear la URL');
+        showToast('❌ ' + (error.message || 'Error al crear URL'));
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Funciones auxiliares para el formulario
+function showLoading(show) {
+    const loadingMsg = document.getElementById('loadingMsg');
+    const saveBtn = document.getElementById('saveBtn');
+    
+    if (loadingMsg) {
+        loadingMsg.style.display = show ? 'block' : 'none';
+    }
+    if (saveBtn) {
+        saveBtn.disabled = show;
+        saveBtn.textContent = show ? '⏳ Creando...' : '💾 Guardar';
+    }
+}
+
+function showError(message) {
+    const errorMsg = document.getElementById('errorMsg');
+    if (errorMsg) {
+        errorMsg.textContent = message;
+        errorMsg.style.display = 'block';
+    }
+}
+
+function hideError() {
+    const errorMsg = document.getElementById('errorMsg');
+    if (errorMsg) {
+        errorMsg.style.display = 'none';
+    }
+}
+
+function extractTitle(url) {
+    try {
+        const urlObj = new URL(url);
+        let title = urlObj.hostname.replace('www.', '');
+        // Si hay path, añadir parte de él
+        if (urlObj.pathname && urlObj.pathname !== '/') {
+            const pathPart = urlObj.pathname.split('/').filter(p => p).join(' - ');
+            if (pathPart.length < 50) {
+                title += ' - ' + pathPart;
+            }
+        }
+        return title;
+    } catch {
+        return 'Mi enlace';
+    }
+}
+
+async function clearAllUrls() {
+    if (urls.length === 0) {
+        showToast('No hay URLs para eliminar');
+        return;
+    }
+    
+    const btn = document.getElementById('clearBtn');
+    const originalText = btn.textContent;
+    
+    if (!btn.classList.contains('confirm-clear')) {
+        btn.classList.add('confirm-clear');
+        btn.style.background = '#c0392b';
+        btn.textContent = `⚠️ ¿Eliminar ${urls.length} URLs?`;
+        
+        setTimeout(() => {
+            btn.classList.remove('confirm-clear');
+            btn.style.background = '#e74c3c';
+            btn.textContent = originalText;
+        }, 5000);
+        
+        return;
+    }
+    
+    try {
+        btn.disabled = true;
+        btn.textContent = '⏳ Eliminando...';
+        
+        const items = document.querySelectorAll('.url-item');
+        items.forEach((item, index) => {
+            setTimeout(() => {
+                item.classList.add('deleting');
+            }, index * 50);
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, items.length * 50 + 300));
+        
+        urls = [];
+        await chrome.storage.local.set({ urls: urls });
+        
+        renderUrls();
+        updateStats();
+        showToast('🗑️ Todas las URLs eliminadas localmente');
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('❌ Error al eliminar');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+        btn.classList.remove('confirm-clear');
+        btn.style.background = '#e74c3c';
+    }
 }
 
 function toggleForm() {
     const form = document.getElementById('addForm');
     const btn = document.getElementById('toggleBtn');
+    const config = document.getElementById('apiConfig');
+    
+    // Cerrar config si está abierto
+    config.style.display = 'none';
     
     if (form.style.display === 'none' || form.style.display === '') {
         form.style.display = 'block';
@@ -377,178 +640,67 @@ function toggleForm() {
     }
 }
 
-async function addUrl() {
-    const shortUrlInput = document.getElementById('shortUrl');
-    const titleInput = document.getElementById('title');
-    const shortUrl = shortUrlInput.value.trim();
-    const title = titleInput.value.trim();
-    
-    if (!shortUrl) {
-        showError('Por favor ingresa una URL');
+function exportUrls() {
+    if (urls.length === 0) {
+        alert('No hay URLs para exportar');
         return;
     }
     
-    // Validar que sea una URL válida
-    if (!isValidUrl(shortUrl)) {
-        showError('Por favor ingresa una URL válida');
-        return;
-    }
+    const data = {
+        exported_at: new Date().toISOString(),
+        total: urls.length,
+        urls: urls
+    };
     
-    // Verificar si ya existe
-    const exists = urls.some(u => u.shortUrl === shortUrl);
-    if (exists) {
-        showError('Esta URL ya está guardada');
-        return;
-    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `urls_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
     
-    // Mostrar loading
-    showLoading(true);
-    hideError();
-    
-    try {
-        // Intentar obtener la URL original
-        const urlInfo = await fetchOriginalUrl(shortUrl);
-        
-        // Crear objeto URL
-        const newUrl = {
-            shortUrl: shortUrl,
-            title: title || urlInfo.title || extractTitle(urlInfo.originalUrl || shortUrl),
-            originalUrl: urlInfo.originalUrl || null,
-            favicon: urlInfo.favicon || null,
-            date: new Date().toISOString()
-        };
-        
-        // Agregar al principio del array
-        urls.unshift(newUrl);
-        
-        // Guardar
-        chrome.storage.local.set({ urls: urls }, function() {
-            // Limpiar formulario
-            shortUrlInput.value = '';
-            titleInput.value = '';
-            toggleForm();
-            renderUrls();
-            updateStats();
-            showLoading(false);
-            showToast('✅ URL guardada');
-        });
-        
-    } catch (error) {
-        console.error('Error:', error);
-        showError('No se pudo obtener la información de la URL');
-        showLoading(false);
-    }
-}
-
-async function fetchOriginalUrl(shortUrl) {
-    try {
-        // Extraer el dominio y código de la URL corta
-        const url = new URL(shortUrl);
-        const domain = url.hostname;
-        const code = url.pathname.substring(1);
-        
-        // No hacer petición si no hay código
-        if (!code) return {};
-        
-        // Intentar diferentes endpoints según el dominio
-        let apiUrl = `https://${domain}/api/info.php?code=${code}`;
-        
-        // Hacer petición con timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 segundos timeout
-        
-        const response = await fetch(apiUrl, {
-            signal: controller.signal,
-            mode: 'cors'
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (response.ok) {
-            const data = await response.json();
-            return {
-                originalUrl: data.original_url || null,
-                title: data.title || null,
-                favicon: data.favicon || null
-            };
-        }
-    } catch (error) {
-        console.log('No se pudo obtener info de API, continuando sin ella');
-    }
-    
-    // Si falla, devolver objeto vacío
-    return {};
+    showToast(`✅ ${urls.length} URLs exportadas`);
 }
 
 function filterUrls(e) {
-    const searchTerm = e.target.value.toLowerCase();
+    const term = e.target.value.toLowerCase();
     
-    if (!searchTerm) {
+    if (!term) {
         renderUrls();
         return;
     }
     
-    const filtered = urls.filter(url => 
-        url.title.toLowerCase().includes(searchTerm) ||
-        url.shortUrl.toLowerCase().includes(searchTerm) ||
-        (url.originalUrl && url.originalUrl.toLowerCase().includes(searchTerm))
+    const filtered = urls.filter(url =>
+        url.title.toLowerCase().includes(term) ||
+        url.shortUrl.toLowerCase().includes(term) ||
+        (url.originalUrl && url.originalUrl.toLowerCase().includes(term))
     );
     
     renderUrls(filtered);
 }
 
 // Funciones auxiliares
-function isValidUrl(string) {
-    try {
-        const url = new URL(string);
-        return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch (_) {
-        return false;
-    }
-}
-
 function extractDomain(url) {
     try {
-        const urlObj = new URL(url);
-        return urlObj.hostname;
-    } catch (_) {
-        return '';
-    }
-}
-
-function extractTitle(url) {
-    try {
-        const urlObj = new URL(url);
-        return urlObj.hostname.replace('www.', '');
-    } catch (_) {
-        return url.substring(0, 30) + '...';
+        return new URL(url).hostname;
+    } catch {
+        return url;
     }
 }
 
 function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
-function showLoading(show) {
-    document.getElementById('loadingMsg').style.display = show ? 'block' : 'none';
-    document.getElementById('saveBtn').disabled = show;
-}
-
-function showError(message) {
-    const errorMsg = document.getElementById('errorMsg');
-    errorMsg.textContent = message;
-    errorMsg.style.display = 'block';
-}
-
-function hideError() {
-    document.getElementById('errorMsg').style.display = 'none';
+function isValidUrl(string) {
+    try {
+        const url = new URL(string);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+        return false;
+    }
 }
 
 function showToast(message) {
@@ -558,99 +710,10 @@ function showToast(message) {
     const toast = document.createElement('div');
     toast.className = 'copy-toast';
     toast.textContent = message;
+    toast.style.whiteSpace = 'pre-line';
     document.body.appendChild(toast);
     
-    setTimeout(() => toast.remove(), 2000);
+    setTimeout(() => toast.remove(), 3000);
 }
 
-// Funciones para los botones
-function copyUrl(index) {
-    const url = urls[index];
-    if (url) {
-        navigator.clipboard.writeText(url.shortUrl).then(() => {
-            showToast('✅ URL copiada');
-        }).catch(err => {
-            // Fallback para cuando falla clipboard API
-            const textArea = document.createElement('textarea');
-            textArea.value = url.shortUrl;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            showToast('✅ URL copiada');
-        });
-    }
-}
-
-// FUNCIÓN CORREGIDA - Elimina tanto local como del servidor
-async function deleteUrl(index) {
-    const url = urls[index];
-    if (!url) return;
-    
-    const deleteBtn = document.querySelector(`.btn-delete[data-index="${index}"]`);
-    const originalContent = deleteBtn.innerHTML;
-    
-    if (deleteBtn.classList.contains('confirm-delete')) {
-        try {
-            // Mostrar loading
-            deleteBtn.innerHTML = '⏳';
-            deleteBtn.disabled = true;
-            
-            // Extraer código de la URL
-            const urlObj = new URL(url.shortUrl);
-            const shortCode = urlObj.pathname.substring(1);
-            const domain = urlObj.hostname;
-            
-            // Intentar eliminar del servidor
-            try {
-                const response = await fetch(`https://${domain}/api/delete-url.php`, {
-                    method: 'POST', // POST es más compatible
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        code: shortCode
-                    })
-                });
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    if (!result.success) {
-                        console.log('No se pudo eliminar del servidor');
-                    }
-                }
-            } catch (serverError) {
-                // Si falla el servidor, continuar con eliminación local
-                console.log('Error de servidor, eliminando solo localmente');
-            }
-            
-            // Siempre eliminar localmente (incluso si falla el servidor)
-            urls.splice(index, 1);
-            await chrome.storage.local.set({ urls: urls });
-            renderUrls();
-            updateStats();
-            showToast('🗑️ URL eliminada');
-            
-        } catch (error) {
-            console.error('Error:', error);
-            deleteBtn.innerHTML = originalContent;
-            deleteBtn.disabled = false;
-            deleteBtn.classList.remove('confirm-delete');
-            showToast('❌ Error al eliminar');
-        }
-    } else {
-        // Mostrar confirmación
-        deleteBtn.classList.add('confirm-delete');
-        deleteBtn.innerHTML = '✓?';
-        deleteBtn.title = 'Click para confirmar';
-        
-        setTimeout(() => {
-            if (deleteBtn && !deleteBtn.disabled) {
-                deleteBtn.classList.remove('confirm-delete');
-                deleteBtn.innerHTML = originalContent;
-                deleteBtn.title = 'Eliminar';
-            }
-        }, 3000);
-    }
-}
+console.log('Gestor URLs v1.0.2 - API Domain:', API_DOMAIN);

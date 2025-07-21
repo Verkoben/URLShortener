@@ -2,14 +2,53 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de URLs Cortas</title>
     <style>
         body {
-            width: 400px;
-            min-height: 100px;
-            padding: 0;
             margin: 0;
+            padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
             background: #f5f6fa;
+            min-height: 100vh;
+        }
+        
+        /* Contenedor principal - centrado en pantallas grandes */
+        .main-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        /* En popup mantiene ancho fijo */
+        @media (max-width: 600px) {
+            .main-container {
+                width: 400px;
+                min-height: 100px;
+                box-shadow: none;
+            }
+        }
+        
+        /* Detectar si es popup o pestaña */
+        @media (min-height: 600px) {
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .main-container {
+                margin: 20px auto;
+                border-radius: 10px;
+                overflow: hidden;
+                min-height: auto;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
         }
         
         .header {
@@ -20,6 +59,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
         .header h3 {
@@ -52,6 +94,16 @@
         
         .content {
             padding: 15px;
+            background: #f5f6fa;
+            min-height: calc(100vh - 70px);
+        }
+        
+        /* En vista de pestaña, ajustar el contenido */
+        @media (min-height: 600px) {
+            .content {
+                min-height: auto;
+                padding: 20px;
+            }
         }
         
         .button-group {
@@ -67,9 +119,10 @@
             margin-bottom: 10px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            cursor: move;
-            transition: all 0.2s;
+            cursor: pointer;
+            transition: all 0.3s ease-out;
             position: relative;
+            overflow: hidden;
         }
         
         .url-item:hover {
@@ -77,12 +130,15 @@
             transform: translateY(-1px);
         }
         
-        .url-item:active {
-            cursor: grabbing;
+        .url-item.deleting {
+            animation: slideOut 0.3s ease-out forwards;
         }
         
-        .url-item.dragging {
-            opacity: 0.5;
+        @keyframes slideOut {
+            to {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
         }
         
         .url-header {
@@ -113,18 +169,15 @@
             font-size: 13px;
             font-family: monospace;
             margin: 5px 0;
-            display: flex;
-            align-items: center;
-            gap: 5px;
         }
         
         .url-original {
-            color: #7f8c8d;
             font-size: 12px;
+            color: #666;
+            margin-top: 4px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            margin: 5px 0;
         }
         
         .url-actions {
@@ -181,7 +234,7 @@
             transition: all 0.2s;
         }
         
-        button:hover {
+        button:hover:not(:disabled) {
             opacity: 0.9;
             transform: translateY(-1px);
         }
@@ -189,7 +242,6 @@
         button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
         
         .btn-secondary {
@@ -204,6 +256,24 @@
             background: #17a2b8;
         }
         
+        .btn-danger {
+            background: #e74c3c !important;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b !important;
+        }
+        
+        .confirm-clear {
+            animation: pulseButton 1s infinite;
+        }
+        
+        @keyframes pulseButton {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
         input {
             width: 100%;
             padding: 10px;
@@ -212,7 +282,6 @@
             border: 2px solid #e0e0e0;
             border-radius: 6px;
             font-size: 14px;
-            transition: border-color 0.2s;
         }
         
         input:focus {
@@ -220,41 +289,66 @@
             border-color: #667eea;
         }
         
-        #addForm {
+        #addForm, #apiConfig {
             display: none;
             margin-bottom: 15px;
             padding: 15px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            animation: slideDown 0.3s ease-out;
         }
         
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #7f8c8d;
+        #apiConfig {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
         }
         
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
+        #apiConfig h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #856404;
+            font-size: 16px;
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        #apiConfig small {
+            display: block;
+            margin-top: 5px;
+            color: #856404;
+            font-size: 12px;
+        }
+        
+        #saveTokenBtn {
+            margin-top: 10px;
+            background: #ffc107 !important;
+            color: #212529 !important;
+        }
+        
+        #saveTokenBtn:hover {
+            background: #e0a800 !important;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .empty-state {
             text-align: center;
             padding: 40px 20px;
             color: #7f8c8d;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         .empty-state-icon {
@@ -263,12 +357,33 @@
             opacity: 0.3;
         }
         
-        .domain-tag {
+        .stats {
             background: #e3f2fd;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
             color: #1976d2;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
+        }
+        
+        .search-box {
+            margin-bottom: 15px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
         }
         
         .error {
@@ -293,6 +408,7 @@
             animation: slideUp 0.3s ease-out;
             z-index: 1000;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            white-space: pre-line;
         }
         
         @keyframes slideUp {
@@ -306,89 +422,81 @@
             }
         }
         
-        .search-box {
-            margin-bottom: 15px;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .stats {
-            background: #e3f2fd;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 14px;
-            color: #1976d2;
-        }
-        
-        /* Para cuando se abre en ventana completa */
-        @media (min-width: 600px) {
-            body {
-                width: 100%;
-                max-width: 600px;
-                margin: 0 auto;
-            }
-        }
-        
-        /* Ocultar input de archivo */
         #fileInput {
             display: none;
+        }
+        
+        /* Footer solo en vista de pestaña */
+        .footer {
+            display: none;
+        }
+        
+        @media (min-height: 600px) {
+            .footer {
+                display: block;
+                text-align: center;
+                padding: 20px;
+                color: rgba(255,255,255,0.8);
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h3>🚀 Mis URLs Cortas</h3>
-        <div class="header-buttons">
-            <button class="header-btn" id="openInTab" title="Abrir en pestaña">📑</button>
-            <button class="header-btn" id="openInWindow" title="Abrir en ventana">🪟</button>
+    <div class="main-container">
+        <div class="header">
+            <h3>🚀 Mis URLs Cortas</h3>
+            <div class="header-buttons">
+                <button class="header-btn" id="configBtn" title="Configuración">⚙️</button>
+                <button class="header-btn" id="openInTab" title="Abrir en pestaña">📑</button>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="stats" id="stats">
+                Cargando estadísticas...
+            </div>
+            
+            <button id="toggleBtn">➕ Acortar URL</button>
+            
+            <div id="apiConfig">
+                <h4>🔑 Configuración API</h4>
+                <input type="text" id="apiToken" placeholder="Tu token API (obligatorio)">
+                <small>
+                    Obtén tu token en el panel de usuario del sitio para poder crear y eliminar URLs
+                </small>
+                <button id="saveTokenBtn">💾 Guardar Token</button>
+            </div>
+            
+            <div id="addForm">
+                <input type="url" id="shortUrl" placeholder="https://ejemplo.com/pagina-muy-larga-que-quieres-acortar">
+                <input type="text" id="title" placeholder="Título descriptivo (opcional)">
+                <button id="saveBtn">🚀 Acortar URL</button>
+                <div id="loadingMsg" class="loading" style="display: none;">
+                    ⏳ Creando URL corta...
+                </div>
+                <div id="errorMsg" class="error" style="display: none;"></div>
+            </div>
+            
+            <div class="button-group">
+                <button id="importApiBtn" class="btn-success">📥 Importar</button>
+                <button id="exportBtn" class="btn-secondary">💾 Exportar</button>
+            </div>
+            
+            <button id="clearBtn" class="btn-danger">🗑️ Limpiar todo</button>
+            
+            <input type="file" id="fileInput" accept=".json">
+            
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar URLs...">
+            </div>
+            
+            <div id="urlList"></div>
         </div>
     </div>
     
-    <div class="content">
-        <div class="stats" id="stats">
-            Cargando estadísticas...
-        </div>
-        
-        <button id="toggleBtn">➕ Agregar URL</button>
-        
-        <div id="addForm">
-            <input type="text" id="shortUrl" placeholder="https://0ln.eu/abc123">
-            <input type="text" id="title" placeholder="Título (opcional)">
-            <button id="saveBtn">💾 Guardar</button>
-            <div id="loadingMsg" class="loading" style="display: none;">
-                <div class="loading-spinner"></div>
-                <span>Obteniendo información...</span>
-            </div>
-            <div id="errorMsg" class="error" style="display: none;"></div>
-        </div>
-        
-        <div class="button-group">
-            <button id="importApiBtn" class="btn-success">📥 Importar de 0ln.eu</button>
-            <button id="importFileBtn" class="btn-info">📁 Importar JSON</button>
-            <button id="exportBtn" class="btn-secondary">💾 Exportar</button>
-            <button id="clearBtn" class="btn-secondary">🗑️ Limpiar todo</button>
-        </div>
-        
-        <input type="file" id="fileInput" accept=".json">
-        
-        <div class="search-box">
-            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar URLs...">
-        </div>
-        
-        <div id="urlList"></div>
+    <div class="footer">
+        <p>Gestor de URLs Cortas v1.0.2</p>
     </div>
     
     <script src="popup.js"></script>
