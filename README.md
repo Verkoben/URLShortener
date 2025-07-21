@@ -481,3 +481,6 @@ CREATE TABLE url_blacklist (
     UNIQUE KEY unique_user_code (user_id, short_code),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+----------------------------
+ADD COLUMN last_accessed DATETIME DEFAULT NULL AFTER created_at,
+ADD INDEX idx_last_accessed (last_accessed);"
