@@ -503,3 +503,22 @@ ADD INDEX idx_geo (latitude, longitude);
 -- Añadir índice para mejorar rendimiento de consultas geográficas
 ALTER TABLE url_analytics
 ADD INDEX idx_url_geo (url_id, latitude, longitude);
+-- Verificar y añadir columnas para metadatos sociales si no existen
+ALTER TABLE urls 
+ADD COLUMN IF NOT EXISTS title VARCHAR(255) AFTER original_url,
+ADD COLUMN IF NOT EXISTS description TEXT AFTER title,
+ADD COLUMN IF NOT EXISTS og_image VARCHAR(500) AFTER description;
+
+-- Si tu versión de MySQL no soporta IF NOT EXISTS en ALTER TABLE, usa esto:
+-- Primero verifica qué columnas ya existen
+SHOW COLUMNS FROM urls;
+
+-- Luego añade solo las que faltan, por ejemplo:
+-- Si falta 'title':
+ALTER TABLE urls ADD COLUMN title VARCHAR(255) AFTER original_url;
+
+-- Si falta 'description':
+ALTER TABLE urls ADD COLUMN description TEXT AFTER title;
+
+-- Si falta 'og_image':
+ALTER TABLE urls ADD COLUMN og_image VARCHAR(500) AFTER description;
