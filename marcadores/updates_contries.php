@@ -1,233 +1,406 @@
 <?php
-// update_countries.php - Añadir países a clicks históricos
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// update_countries_enhanced.php - Actualización mejorada con múltiples APIs
+set_time_limit(0);
+ini_set('memory_limit', '512M');
 
 require_once 'config.php';
 
-echo "🌍 ACTUALIZACIÓN DE PAÍSES PARA CLICKS HISTÓRICOS\n";
-echo "===========================================\n\n";
-
-// Verificar conexión
-if (!isset($pdo)) {
-    die("❌ Error: No hay conexión a la base de datos\n");
+if (!isset($_SESSION['user_id']) || $_SESSION['user_id'] != 1) {
+    die("Acceso denegado. Solo administradores.");
 }
 
-// Lista de países con sus códigos ISO y peso (probabilidad)
-$countries_distribution = [
-    // Países hispanohablantes (mayor peso)
-    ['country' => 'Spain', 'country_code' => 'ES', 'weight' => 25],
-    ['country' => 'Mexico', 'country_code' => 'MX', 'weight' => 15],
-    ['country' => 'Argentina', 'country_code' => 'AR', 'weight' => 10],
-    ['country' => 'Colombia', 'country_code' => 'CO', 'weight' => 8],
-    ['country' => 'Chile', 'country_code' => 'CL', 'weight' => 5],
-    ['country' => 'Peru', 'country_code' => 'PE', 'weight' => 5],
-    ['country' => 'Venezuela', 'country_code' => 'VE', 'weight' => 3],
-    ['country' => 'Ecuador', 'country_code' => 'EC', 'weight' => 3],
-    ['country' => 'Guatemala', 'country_code' => 'GT', 'weight' => 2],
-    ['country' => 'Dominican Republic', 'country_code' => 'DO', 'weight' => 2],
+// Configuración
+$BATCH_SIZE = 50; // Menos IPs por lote para evitar límites
+$SLEEP_TIME = 3; // Más tiempo entre lotes
+
+echo "<!DOCTYPE html>
+<html>
+<head>
+    <title>Actualización Mejorada de Geolocalización</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px; 
+            background: #f0f4f8; 
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .progress-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            padding: 3px;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 8px;
+            transition: width 0.3s ease;
+            min-width: 50px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .log {
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .info { color: #17a2b8; }
+    </style>
+</head>
+<body>
+<div class='container'>
+<h1>🌍 Actualización Mejorada de Geolocalización</h1>
+<p>Como un detective digital que rastrea de dónde vienen tus visitantes...</p>
+";
+
+flush();
+
+// Cache de IPs
+$ip_cache = [];
+$stats = [
+    'total' => 0,
+    'processed' => 0,
+    'updated' => 0,
+    'cached' => 0,
+    'api_calls' => 0,
+    'errors' => 0
+];
+
+// Función mejorada con múltiples servicios
+function getGeoLocationEnhanced($ip, &$stats) {
+    global $ip_cache;
     
-    // Otros países importantes
-    ['country' => 'United States', 'country_code' => 'US', 'weight' => 10],
-    ['country' => 'United Kingdom', 'country_code' => 'GB', 'weight' => 3],
-    ['country' => 'France', 'country_code' => 'FR', 'weight' => 2],
-    ['country' => 'Germany', 'country_code' => 'DE', 'weight' => 2],
-    ['country' => 'Italy', 'country_code' => 'IT', 'weight' => 2],
-    ['country' => 'Portugal', 'country_code' => 'PT', 'weight' => 1],
-    ['country' => 'Brazil', 'country_code' => 'BR', 'weight' => 2],
-];
-
-// Crear array ponderado
-$weighted_countries = [];
-foreach ($countries_distribution as $country) {
-    for ($i = 0; $i < $country['weight']; $i++) {
-        $weighted_countries[] = $country;
+    // Verificar cache
+    if (isset($ip_cache[$ip])) {
+        $stats['cached']++;
+        return $ip_cache[$ip];
     }
+    
+    // Verificar si es IP privada
+    if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+        $result = [
+            'country' => 'Private Network',
+            'country_code' => 'XX',
+            'city' => 'Local',
+            'region' => 'Private',
+            'lat' => null,
+            'lon' => null,
+            'source' => 'local'
+        ];
+        $ip_cache[$ip] = $result;
+        return $result;
+    }
+    
+    // Lista de servicios de geolocalización
+    $services = [
+        // 1. ip-api.com
+        [
+            'name' => 'ip-api.com',
+            'url' => "http://ip-api.com/json/{$ip}?fields=status,message,country,countryCode,region,regionName,city,lat,lon",
+            'parse' => function($data) {
+                if ($data && $data['status'] == 'success') {
+                    return [
+                        'country' => $data['country'] ?? 'Unknown',
+                        'country_code' => strtoupper($data['countryCode'] ?? ''),
+                        'city' => $data['city'] ?? null,
+                        'region' => $data['regionName'] ?? null,
+                        'lat' => $data['lat'] ?? null,
+                        'lon' => $data['lon'] ?? null
+                    ];
+                }
+                return false;
+            }
+        ],
+        
+        // 2. ipapi.co
+        [
+            'name' => 'ipapi.co',
+            'url' => "https://ipapi.co/{$ip}/json/",
+            'parse' => function($data) {
+                if ($data && !isset($data['error'])) {
+                    return [
+                        'country' => $data['country_name'] ?? 'Unknown',
+                        'country_code' => strtoupper($data['country_code'] ?? ''),
+                        'city' => $data['city'] ?? null,
+                        'region' => $data['region'] ?? null,
+                        'lat' => $data['latitude'] ?? null,
+                        'lon' => $data['longitude'] ?? null
+                    ];
+                }
+                return false;
+            }
+        ],
+        
+        // 3. ip-api.io
+        [
+            'name' => 'ip-api.io',
+            'url' => "https://ip-api.io/json/{$ip}",
+            'parse' => function($data) {
+                if ($data && isset($data['country_name'])) {
+                    return [
+                        'country' => $data['country_name'] ?? 'Unknown',
+                        'country_code' => strtoupper($data['country_code'] ?? ''),
+                        'city' => $data['city'] ?? null,
+                        'region' => $data['region_name'] ?? null,
+                        'lat' => $data['latitude'] ?? null,
+                        'lon' => $data['longitude'] ?? null
+                    ];
+                }
+                return false;
+            }
+        ]
+    ];
+    
+    // Intentar con cada servicio
+    foreach ($services as $service) {
+        try {
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 5,
+                    'method' => 'GET',
+                    'header' => "User-Agent: Mozilla/5.0\r\nAccept: application/json\r\n"
+                ]
+            ]);
+            
+            $response = @file_get_contents($service['url'], false, $context);
+            
+            if ($response) {
+                $data = json_decode($response, true);
+                $result = $service['parse']($data);
+                
+                if ($result !== false) {
+                    $result['source'] = $service['name'];
+                    $ip_cache[$ip] = $result;
+                    $stats['api_calls']++;
+                    
+                    echo "<script>
+                        document.getElementById('log').innerHTML += '<div class=\"success\">✓ {$ip} → {$result['country']} ({$service['name']})</div>';
+                        document.getElementById('log').scrollTop = document.getElementById('log').scrollHeight;
+                    </script>";
+                    flush();
+                    
+                    return $result;
+                }
+            }
+        } catch (Exception $e) {
+            continue;
+        }
+    }
+    
+    // Si todos fallan
+    $stats['errors']++;
+    $result = [
+        'country' => 'Unknown',
+        'country_code' => null,
+        'city' => null,
+        'region' => null,
+        'lat' => null,
+        'lon' => null,
+        'source' => 'failed'
+    ];
+    
+    $ip_cache[$ip] = $result;
+    return $result;
 }
-
-// Ciudades por país (opcional)
-$cities_by_country = [
-    'ES' => ['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Bilbao', 'Málaga', 'Zaragoza'],
-    'MX' => ['Ciudad de México', 'Guadalajara', 'Monterrey', 'Puebla', 'Tijuana'],
-    'AR' => ['Buenos Aires', 'Córdoba', 'Rosario', 'Mendoza', 'La Plata'],
-    'CO' => ['Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena'],
-    'CL' => ['Santiago', 'Valparaíso', 'Concepción', 'La Serena'],
-    'US' => ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Miami', 'Phoenix'],
-    'GB' => ['London', 'Manchester', 'Birmingham', 'Liverpool', 'Edinburgh'],
-];
 
 try {
-    // Contar registros sin país
+    // Contar total de IPs únicas sin geolocalización
     $stmt = $pdo->query("
-        SELECT COUNT(*) as total 
+        SELECT COUNT(DISTINCT ip_address) as total
         FROM url_analytics 
-        WHERE (country IS NULL OR country = '') 
-        AND ip_address LIKE '10.%'
+        WHERE (country = 'Unknown' OR country IS NULL OR country = '')
+        AND ip_address IS NOT NULL
+        AND ip_address != ''
     ");
-    $total = $stmt->fetchColumn();
+    $stats['total'] = $stmt->fetchColumn();
     
-    echo "📊 Registros históricos sin país: " . number_format($total) . "\n\n";
-    
-    if ($total == 0) {
-        echo "✅ No hay registros que actualizar.\n";
+    if ($stats['total'] == 0) {
+        echo "<div class='alert alert-success'>✅ Todas las IPs ya están geolocalizadas!</div>";
         exit;
     }
     
-    // Confirmar
-    if (php_sapi_name() === 'cli') {
-        echo "¿Actualizar países? (s/n): ";
-        $confirm = trim(fgets(STDIN));
-        if (strtolower($confirm) !== 's') {
-            echo "❌ Actualización cancelada.\n";
-            exit;
-        }
-    }
+    echo "<div class='stats-grid'>
+        <div class='stat-card'>
+            <div class='stat-value' id='stat-total'>" . number_format($stats['total']) . "</div>
+            <div>IPs totales</div>
+        </div>
+        <div class='stat-card'>
+            <div class='stat-value' id='stat-processed'>0</div>
+            <div>Procesadas</div>
+        </div>
+        <div class='stat-card'>
+            <div class='stat-value' id='stat-updated'>0</div>
+            <div>Actualizadas</div>
+        </div>
+        <div class='stat-card'>
+            <div class='stat-value' id='stat-api'>0</div>
+            <div>Llamadas API</div>
+        </div>
+    </div>";
     
-    echo "\n🔄 Actualizando países...\n\n";
+    echo "<div class='progress-container'>
+        <div class='progress-bar' id='progress' style='width: 0%'>0%</div>
+    </div>";
     
-    // Actualizar por lotes
-    $batch_size = 1000;
-    $updated = 0;
+    echo "<div class='log' id='log'></div>";
     
-    // Obtener todos los user_id únicos para distribuir países de manera coherente
+    flush();
+    
+    // Obtener IPs únicas
     $stmt = $pdo->query("
-        SELECT DISTINCT user_id 
+        SELECT DISTINCT ip_address
         FROM url_analytics 
-        WHERE (country IS NULL OR country = '') 
-        AND ip_address LIKE '10.%'
+        WHERE (country = 'Unknown' OR country IS NULL OR country = '')
+        AND ip_address IS NOT NULL
+        AND ip_address != ''
+        ORDER BY ip_address
+        LIMIT 5000
     ");
-    $user_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
     
-    // Asignar países principales a cada usuario (para coherencia)
-    $user_countries = [];
-    foreach ($user_ids as $user_id) {
-        // 70% probabilidad de tener un país principal
-        if (rand(1, 100) <= 70) {
-            $user_countries[$user_id] = $weighted_countries[array_rand($weighted_countries)];
+    $ips = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    $batches = array_chunk($ips, $BATCH_SIZE);
+    
+    foreach ($batches as $batch_index => $batch) {
+        $batch_start = microtime(true);
+        
+        foreach ($batch as $ip) {
+            $geo = getGeoLocationEnhanced($ip, $stats);
+            
+            // Actualizar en base de datos
+            if ($geo['country'] != 'Unknown') {
+                $update = $pdo->prepare("
+                    UPDATE url_analytics 
+                    SET country = :country,
+                        country_code = :country_code,
+                        city = :city,
+                        region = :region,
+                        latitude = :lat,
+                        longitude = :lon
+                    WHERE ip_address = :ip
+                    AND (country = 'Unknown' OR country IS NULL OR country = '')
+                ");
+                
+                $update->execute([
+                    ':country' => $geo['country'],
+                    ':country_code' => $geo['country_code'],
+                    ':city' => $geo['city'],
+                    ':region' => $geo['region'],
+                    ':lat' => $geo['lat'],
+                    ':lon' => $geo['lon'],
+                    ':ip' => $ip
+                ]);
+                
+                $stats['updated'] += $update->rowCount();
+            }
+            
+            $stats['processed']++;
+            
+            // Actualizar estadísticas en pantalla cada 5 IPs
+            if ($stats['processed'] % 5 == 0) {
+                $percent = round(($stats['processed'] / $stats['total']) * 100, 1);
+                echo "<script>
+                    document.getElementById('progress').style.width = '{$percent}%';
+                    document.getElementById('progress').textContent = '{$percent}%';
+                    document.getElementById('stat-processed').textContent = '" . number_format($stats['processed']) . "';
+                    document.getElementById('stat-updated').textContent = '" . number_format($stats['updated']) . "';
+                    document.getElementById('stat-api').textContent = '" . number_format($stats['api_calls']) . "';
+                </script>";
+                flush();
+            }
+        }
+        
+        // Pausa entre lotes
+        if ($batch_index < count($batches) - 1) {
+            echo "<script>
+                document.getElementById('log').innerHTML += '<div class=\"warning\">⏸ Pausando {$SLEEP_TIME} segundos...</div>';
+            </script>";
+            flush();
+            sleep($SLEEP_TIME);
         }
     }
     
-    // Actualizar registros
-    $update_stmt = $pdo->prepare("
-        UPDATE url_analytics 
-        SET 
-            country = :country,
-            country_code = :country_code,
-            city = :city
-        WHERE id = :id
-    ");
+    // Resumen final
+    echo "<h2 class='success'>✅ Proceso completado!</h2>";
     
-    // Procesar en lotes
-    $offset = 0;
-    while ($offset < $total) {
-        $stmt = $pdo->prepare("
-            SELECT id, user_id, clicked_at 
-            FROM url_analytics 
-            WHERE (country IS NULL OR country = '') 
-            AND ip_address LIKE '10.%'
-            LIMIT :limit OFFSET :offset
-        ");
-        $stmt->bindValue(':limit', $batch_size, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        $records = $stmt->fetchAll();
-        
-        if (empty($records)) break;
-        
-        $pdo->beginTransaction();
-        
-        foreach ($records as $record) {
-            // Decidir país
-            if (isset($user_countries[$record['user_id']]) && rand(1, 100) <= 80) {
-                // 80% usa el país principal del usuario
-                $country_data = $user_countries[$record['user_id']];
-            } else {
-                // 20% usa un país aleatorio
-                $country_data = $weighted_countries[array_rand($weighted_countries)];
-            }
-            
-            // Seleccionar ciudad si está disponible
-            $city = null;
-            if (isset($cities_by_country[$country_data['country_code']])) {
-                $cities = $cities_by_country[$country_data['country_code']];
-                $city = $cities[array_rand($cities)];
-            }
-            
-            // Actualizar
-            $update_stmt->execute([
-                ':country' => $country_data['country'],
-                ':country_code' => $country_data['country_code'],
-                ':city' => $city,
-                ':id' => $record['id']
-            ]);
-            
-            $updated++;
-        }
-        
-        $pdo->commit();
-        
-        echo "✅ Actualizados: " . number_format($updated) . " / " . number_format($total) . "\r";
-        
-        $offset += $batch_size;
-    }
-    
-    echo "\n\n📊 RESUMEN DE ACTUALIZACIÓN\n";
-    echo "==========================\n";
-    echo "✅ Total registros actualizados: " . number_format($updated) . "\n\n";
-    
-    // Mostrar distribución de países
-    echo "🌍 Distribución de países:\n";
+    // Top países
     $stmt = $pdo->query("
         SELECT 
             country,
             country_code,
-            COUNT(*) as total,
-            ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM url_analytics WHERE ip_address LIKE '10.%'), 2) as percentage
-        FROM url_analytics 
-        WHERE ip_address LIKE '10.%'
-        AND country IS NOT NULL
+            COUNT(*) as clicks,
+            COUNT(DISTINCT ip_address) as unique_ips,
+            COUNT(DISTINCT city) as cities
+        FROM url_analytics
+        WHERE country != 'Unknown' AND country IS NOT NULL
         GROUP BY country, country_code
-        ORDER BY total DESC
+        ORDER BY clicks DESC
         LIMIT 15
     ");
     
-    $distribution = $stmt->fetchAll();
-    foreach ($distribution as $row) {
-        $bar = str_repeat('█', (int)($row['percentage'] / 2));
-        echo sprintf("%-20s %s %5.1f%% (%s)\n", 
-            $row['country'], 
-            $bar, 
-            $row['percentage'],
-            number_format($row['total'])
-        );
+    echo "<h3>🏆 Top 15 Países</h3>";
+    echo "<table class='table table-striped'>
+        <tr>
+            <th>País</th>
+            <th>Código</th>
+            <th>Clicks</th>
+            <th>IPs únicas</th>
+            <th>Ciudades</th>
+        </tr>";
+    
+    while ($row = $stmt->fetch()) {
+        $flag = $row['country_code'] ? 
+            "<img src='https://flagcdn.com/24x18/" . strtolower($row['country_code']) . ".png' 
+                 style='margin-right: 8px;' onerror='this.style.display=\"none\"'>" : "";
+        echo "<tr>
+            <td>{$flag}{$row['country']}</td>
+            <td>{$row['country_code']}</td>
+            <td>" . number_format($row['clicks']) . "</td>
+            <td>" . number_format($row['unique_ips']) . "</td>
+            <td>" . number_format($row['cities']) . "</td>
+        </tr>";
     }
-    
-    // Verificar algunos usuarios específicos
-    echo "\n📍 Muestra de distribución por usuario:\n";
-    $stmt = $pdo->query("
-        SELECT 
-            user_id,
-            COUNT(DISTINCT country) as countries,
-            GROUP_CONCAT(DISTINCT country) as country_list
-        FROM url_analytics 
-        WHERE ip_address LIKE '10.%'
-        GROUP BY user_id
-        LIMIT 5
-    ");
-    
-    $samples = $stmt->fetchAll();
-    foreach ($samples as $sample) {
-        echo "Usuario {$sample['user_id']}: {$sample['countries']} países - {$sample['country_list']}\n";
-    }
-    
-    echo "\n✅ ¡Actualización completada!\n";
-    echo "\n💡 Ahora puedes ver las estadísticas por país en el dashboard.\n";
+    echo "</table>";
     
 } catch (Exception $e) {
-    if (isset($pdo) && $pdo->inTransaction()) {
-        $pdo->rollBack();
-    }
-    echo "❌ Error: " . $e->getMessage() . "\n";
+    echo "<div class='error'>❌ Error: " . htmlspecialchars($e->getMessage()) . "</div>";
 }
+
+echo "
+<br>
+<a href='setup_migration.php' class='btn btn-secondary'>← Volver</a>
+</div>
+</body>
+</html>";
 ?>

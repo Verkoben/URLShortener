@@ -1,9 +1,7 @@
 <?php
-// analytics_url.php - Visualización de estadísticas con CSS corregido
+// analytics_url.php - Visualización de estadísticas con permisos de superadmin
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
-session_start();
 
 // Verificar archivos necesarios
 $required_files = ['config.php', 'functions.php', 'analytics.php'];
@@ -31,24 +29,70 @@ $user_id = $_SESSION['user_id'];
 $url_id = isset($_GET['url_id']) ? (int)$_GET['url_id'] : 0;
 $days = isset($_GET['days']) ? (int)$_GET['days'] : 30;
 
+// Definir quién es superadmin (puedes ajustar según tu sistema)
+$is_superadmin = false;
+// Opción 1: Por ID de usuario (usuario 1 es superadmin)
+if ($user_id == 1) {
+    $is_superadmin = true;
+}
+// Opción 2: Por rol en sesión
+if (isset($_SESSION['role']) && $_SESSION['role'] == 'superadmin') {
+    $is_superadmin = true;
+}
+// Opción 3: Verificar en base de datos
+try {
+    $stmt = $pdo->prepare("SELECT role FROM users WHERE id = ?");
+    $stmt->execute([$user_id]);
+    $user_data = $stmt->fetch();
+    if ($user_data && ($user_data['role'] == 'admin' || $user_data['role'] == 'superadmin')) {
+        $is_superadmin = true;
+    }
+} catch (Exception $e) {
+    // Si no existe columna role, ignorar
+}
+
 if (!$url_id) {
-    die("Error: No se especificó ID de URL");
+    die("Error: No se especificó ID de URL. Use: analytics_url.php?url_id=X");
 }
 
 // Obtener información básica de la URL
 try {
-    $stmt = $pdo->prepare("
-        SELECT u.*, cd.domain 
-        FROM urls u 
-        LEFT JOIN custom_domains cd ON u.domain_id = cd.id 
-        WHERE u.id = ? AND u.user_id = ?
-    ");
-    $stmt->execute([$url_id, $user_id]);
+    // Si es superadmin, puede ver cualquier URL
+    if ($is_superadmin) {
+        $stmt = $pdo->prepare("
+            SELECT u.*, cd.domain, us.username as owner_username, us.email as owner_email
+            FROM urls u 
+            LEFT JOIN custom_domains cd ON u.domain_id = cd.id 
+            LEFT JOIN users us ON u.user_id = us.id
+            WHERE u.id = ?
+        ");
+        $stmt->execute([$url_id]);
+    } else {
+        // Usuario normal solo puede ver sus propias URLs
+        $stmt = $pdo->prepare("
+            SELECT u.*, cd.domain 
+            FROM urls u 
+            LEFT JOIN custom_domains cd ON u.domain_id = cd.id 
+            WHERE u.id = ? AND u.user_id = ?
+        ");
+        $stmt->execute([$url_id, $user_id]);
+    }
+    
     $url = $stmt->fetch();
     
     if (!$url) {
-        die("Error: URL no encontrada o sin permisos");
+        // Verificar si la URL existe pero no tiene permisos
+        $check_stmt = $pdo->prepare("SELECT id, user_id FROM urls WHERE id = ?");
+        $check_stmt->execute([$url_id]);
+        $check_url = $check_stmt->fetch();
+        
+        if ($check_url) {
+            die("Error: No tienes permisos para ver las estadísticas de esta URL.");
+        } else {
+            die("Error: La URL solicitada no existe.");
+        }
     }
+    
 } catch (Exception $e) {
     die("Error al buscar URL: " . $e->getMessage());
 }
@@ -72,7 +116,8 @@ $has_detailed_analytics = false;
 if ($analytics_table_exists) {
     $analytics = new UrlAnalytics($pdo);
     try {
-        $stats = $analytics->getUrlStats($url_id, $user_id, $days);
+        // Usar el user_id del propietario real de la URL, no del viewer
+        $stats = $analytics->getUrlStats($url_id, $url['user_id'], $days);
         if ($stats && ($stats['general']['total_clicks'] ?? 0) > 0) {
             $has_detailed_analytics = true;
         }
@@ -170,6 +215,20 @@ if (!empty($stats['hourly_clicks'])) {
     }
 }
 
+// Verificar si hay datos geográficos para el mapa
+$has_geo_data = false;
+if ($has_detailed_analytics) {
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) 
+        FROM url_analytics 
+        WHERE url_id = ? 
+        AND latitude IS NOT NULL 
+        AND longitude IS NOT NULL
+    ");
+    $stmt->execute([$url_id]);
+    $has_geo_data = $stmt->fetchColumn() > 0;
+}
+
 $pageTitle = "Estadísticas: " . ($url['title'] ?: $url['short_code']);
 $siteName = defined('SITE_NAME') ? SITE_NAME : 'Marcadores';
 ?>
@@ -263,6 +322,27 @@ $siteName = defined('SITE_NAME') ? SITE_NAME : 'Marcadores';
         
         .url-short-link:hover {
             color: var(--secondary-color);
+        }
+        
+        /* Badge de admin */
+        .admin-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .owner-info {
+            background: #f0f4f8;
+            border-left: 4px solid var(--info-color);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
         }
         
         /* Stats Cards */
@@ -484,6 +564,16 @@ $siteName = defined('SITE_NAME') ? SITE_NAME : 'Marcadores';
             gap: 1rem;
             align-items: center;
             flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        
+        /* Map iframe */
+        .map-iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 8px;
+            background: #f0f0f0;
         }
     </style>
 </head>
@@ -503,6 +593,25 @@ $siteName = defined('SITE_NAME') ? SITE_NAME : 'Marcadores';
     </nav>
     
     <div class="main-container">
+        <?php if ($is_superadmin && $url['user_id'] != $user_id): ?>
+        <!-- Badge de superadmin viendo URL de otro usuario -->
+        <div class="admin-badge">
+            <i class="bi bi-shield-check"></i>
+            <span>Vista de Superadmin</span>
+        </div>
+        
+        <!-- Información del propietario -->
+        <div class="owner-info">
+            <strong>Propietario:</strong> 
+            <?php if (isset($url['owner_username'])): ?>
+                <i class="bi bi-person-circle"></i> <?php echo htmlspecialchars($url['owner_username']); ?>
+                (<?php echo htmlspecialchars($url['owner_email']); ?>)
+            <?php else: ?>
+                Usuario ID: <?php echo $url['user_id']; ?>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+        
         <!-- Header de URL -->
         <div class="url-header">
             <h1 class="url-title">
@@ -531,19 +640,40 @@ $siteName = defined('SITE_NAME') ? SITE_NAME : 'Marcadores';
         
         <!-- Filtros de período -->
         <div class="filters">
-            <div class="btn-group" role="group">
-                <a href="?url_id=<?php echo $url_id; ?>&days=7" 
-                   class="btn btn-sm <?php echo $days == 7 ? 'btn-primary' : 'btn-outline-primary'; ?>">
-                    7 días
+            <div>
+                <div class="btn-group" role="group">
+                    <a href="?url_id=<?php echo $url_id; ?>&days=7" 
+                       class="btn btn-sm <?php echo $days == 7 ? 'btn-primary' : 'btn-outline-primary'; ?>">
+                        7 días
+                    </a>
+                    <a href="?url_id=<?php echo $url_id; ?>&days=30" 
+                       class="btn btn-sm <?php echo $days == 30 ? 'btn-primary' : 'btn-outline-primary'; ?>">
+                        30 días
+                    </a>
+                    <a href="?url_id=<?php echo $url_id; ?>&days=90" 
+                       class="btn btn-sm <?php echo $days == 90 ? 'btn-primary' : 'btn-outline-primary'; ?>">
+                        90 días
+                    </a>
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <?php if ($has_geo_data): ?>
+                <a href="geo_map.php?url_id=<?php echo $url_id; ?>" 
+                   class="btn btn-sm btn-success" 
+                   target="_blank"
+                   title="Ver mapa mundial de clicks">
+                    <i class="bi bi-geo-alt-fill"></i> Ver Mapa Mundial
                 </a>
-                <a href="?url_id=<?php echo $url_id; ?>&days=30" 
-                   class="btn btn-sm <?php echo $days == 30 ? 'btn-primary' : 'btn-outline-primary'; ?>">
-                    30 días
+                <?php endif; ?>
+                
+                <?php if ($is_superadmin): ?>
+                <a href="admin_dashboard.php" 
+                   class="btn btn-sm btn-warning" 
+                   title="Panel de administración">
+                    <i class="bi bi-speedometer2"></i> Admin Panel
                 </a>
-                <a href="?url_id=<?php echo $url_id; ?>&days=90" 
-                   class="btn btn-sm <?php echo $days == 90 ? 'btn-primary' : 'btn-outline-primary'; ?>">
-                    90 días
-                </a>
+                <?php endif; ?>
             </div>
         </div>
         
@@ -785,6 +915,32 @@ $siteName = defined('SITE_NAME') ? SITE_NAME : 'Marcadores';
             </div>
         </div>
         
+        <?php if ($has_geo_data): ?>
+        <!-- Sección del Mapa -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3 class="chart-title">
+                    <i class="bi bi-globe-americas text-primary"></i>
+                    Mapa de Visitantes
+                </h3>
+                <a href="geo_map.php?url_id=<?php echo $url_id; ?>" 
+                   class="btn btn-sm btn-outline-primary"
+                   target="_blank">
+                    <i class="bi bi-arrows-fullscreen"></i> Ver completo
+                </a>
+            </div>
+            
+            <!-- Mini mapa embebido -->
+            <div style="position: relative;">
+                <iframe 
+                    src="geo_map.php?url_id=<?php echo $url_id; ?>&embed=1" 
+                    class="map-iframe"
+                    loading="lazy">
+                </iframe>
+            </div>
+        </div>
+        <?php endif; ?>
+        
         <?php elseif ($stats['general']['total_clicks'] > 0): ?>
         
         <!-- Vista simplificada cuando solo hay contador básico -->
@@ -807,7 +963,7 @@ $siteName = defined('SITE_NAME') ? SITE_NAME : 'Marcadores';
                 <i class="bi bi-bar-chart"></i>
             </div>
             <h3>No hay datos de estadísticas todavía</h3>
-            <p>Las estadísticas aparecerán cuando tu URL reciba clicks.</p>
+            <p>Las estadísticas aparecerán cuando esta URL reciba clicks.</p>
             <div class="mt-4">
                 <button class="btn btn-primary" onclick="copyToClipboard('<?php echo $short_url; ?>')">
                     <i class="bi bi-share"></i> Compartir URL
@@ -998,7 +1154,6 @@ $siteName = defined('SITE_NAME') ? SITE_NAME : 'Marcadores';
     </script>
 </body>
 </html>
-
 <?php
 function timeAgo($datetime) {
     if (empty($datetime)) return '';
