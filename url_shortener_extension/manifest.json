@@ -2,9 +2,9 @@
   "manifest_version": 3,
   "name": "Gestor de URLs Cortas",
   "short_name": "URL Manager",
-  "version": "1.0.2",
+  "version": "1.0.1",
   "description": "Gestiona tus URLs acortadas como favoritos. Importa, exporta y organiza todos tus enlaces cortos.",
-  "author": "URL Shortener",
+  "author": "Verkoven",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -13,9 +13,10 @@
       "128": "icon128.png"
     }
   },
-  "permissions": ["storage", "tabs", "clipboardWrite"],
+  "permissions": ["storage"],
   "host_permissions": [
-    "https://*/*"
+    "https://0ln.eu/*",
+    "https://*.0ln.eu/*"
   ],
   "icons": {
     "16": "icon16.png",
