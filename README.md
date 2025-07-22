@@ -484,3 +484,12 @@ CREATE TABLE url_blacklist (
 ----------------------------
 ADD COLUMN last_accessed DATETIME DEFAULT NULL AFTER created_at,
 ADD INDEX idx_last_accessed (last_accessed);"
+-----------------------------
+Datos de geolocalización
+-----------------------------
+ALTER TABLE url_analytics 
+ADD COLUMN region VARCHAR(100) AFTER city,
+ADD COLUMN latitude DECIMAL(10, 8) AFTER region,
+ADD COLUMN longitude DECIMAL(11, 8) AFTER latitude,
+ADD INDEX idx_country_code (country_code),
+ADD INDEX idx_geo (latitude, longitude);
