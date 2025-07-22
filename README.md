@@ -493,3 +493,13 @@ ADD COLUMN latitude DECIMAL(10, 8) AFTER region,
 ADD COLUMN longitude DECIMAL(11, 8) AFTER latitude,
 ADD INDEX idx_country_code (country_code),
 ADD INDEX idx_geo (latitude, longitude);
+ALTER TABLE url_analytics 
+ADD COLUMN region VARCHAR(100) AFTER city,
+ADD COLUMN latitude DECIMAL(10, 8) AFTER region,
+ADD COLUMN longitude DECIMAL(11, 8) AFTER latitude,
+ADD INDEX idx_country_code (country_code),
+ADD INDEX idx_geo (latitude, longitude);
+
+-- Añadir índice para mejorar rendimiento de consultas geográficas
+ALTER TABLE url_analytics
+ADD INDEX idx_url_geo (url_id, latitude, longitude);
