@@ -22,21 +22,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Botones de importación/exportación
     document.getElementById('importApiBtn').addEventListener('click', importFromAPI);
-    document.getElementById('importFileBtn').addEventListener('click', () => {
+    document.getElementById('importFileBtn').addEventListener('click', function() {
         document.getElementById('fileInput').click();
     });
     document.getElementById('fileInput').addEventListener('change', handleFileImport);
     document.getElementById('exportBtn').addEventListener('click', exportUrls);
     document.getElementById('clearBtn').addEventListener('click', clearAllUrls);
     
-    // Botones del header - MODIFICADO para no usar tabs
+    // Botones del header
     document.getElementById('openInTab').addEventListener('click', function() {
-        // Usar window.open en lugar de chrome.tabs
         window.open(chrome.runtime.getURL('popup.html'), '_blank');
     });
     
     document.getElementById('openInWindow').addEventListener('click', function() {
-        // Abrir en ventana popup
         window.open(
             chrome.runtime.getURL('popup.html'),
             'URLManager',
@@ -63,54 +61,55 @@ function loadUrls() {
 
 function updateStats() {
     const totalUrls = urls.length;
-    const domains = [...new Set(urls.map(u => extractDomain(u.shortUrl)))];
+    const domainSet = new Set();
+    urls.forEach(function(url) {
+        domainSet.add(extractDomain(url.shortUrl));
+    });
+    const domains = Array.from(domainSet);
     document.getElementById('stats').textContent = 
-        `📊 ${totalUrls} URLs guardadas | 🌐 ${domains.length} dominios`;
+        '📊 ' + totalUrls + ' URLs guardadas | 🌐 ' + domains.length + ' dominios';
 }
 
-function renderUrls(urlsToRender = urls) {
+function renderUrls(urlsToRender) {
+    if (!urlsToRender) urlsToRender = urls;
     const list = document.getElementById('urlList');
     
     if (urlsToRender.length === 0) {
-        list.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">📭</div>
-                <h4>No hay URLs guardadas</h4>
-                <p>Agrega tu primera URL corta o importa desde tu servidor</p>
-            </div>
-        `;
+        list.innerHTML = '<div class="empty-state">' +
+            '<div class="empty-state-icon">📭</div>' +
+            '<h4>No hay URLs guardadas</h4>' +
+            '<p>Agrega tu primera URL corta o importa desde tu servidor</p>' +
+            '</div>';
         return;
     }
     
-    list.innerHTML = urlsToRender.map((url, index) => {
+    list.innerHTML = urlsToRender.map(function(url, index) {
         const realIndex = urls.indexOf(url);
-        const favicon = url.favicon || `https://www.google.com/s2/favicons?domain=${extractDomain(url.originalUrl || url.shortUrl)}`;
+        const favicon = url.favicon || 'https://www.google.com/s2/favicons?domain=' + extractDomain(url.originalUrl || url.shortUrl);
         const domain = extractDomain(url.shortUrl);
         
-        return `
-            <div class="url-item" data-index="${realIndex}" draggable="true">
-                <div class="url-actions">
-                    <button class="btn-action btn-copy" data-index="${realIndex}" title="Copiar URL corta">📋</button>
-                    <button class="btn-action btn-delete" data-index="${realIndex}" title="Eliminar">🗑️</button>
-                </div>
-                
-                <div class="url-header">
-                    <img src="${favicon}" class="favicon" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAbwAAAG8B8aLcQwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAGJSURBVDiNpZO/S1VRGMc/5773vuddhKRID7oYRBAUQdHQ0tLQ0H9QQ0tDRGNTEERDQ0NIS1BQUUN/QUOJg4iBUBAU1NCPwaLXe+/7Ps5734aEet97r/2GL5zD93w/53vO+cIJlFJpYBKYBkaALiABBMCu1noHWANWgVUp5W7zWxEAKaVSylFgtlKpXAiCwPE8L66UQmuN1hoA13VDy7J2HMf5bFnWGyHEm9jnMjBZqVTOFQqF1EaxyN7eHkEQ1HeNokT6+/sZHBykUCjcKZfLs4ODgwtRgJlSqXRqu1hku1gk1dJC+K843H9WqZTi186O0pvNniqVShO9vb3PIwDXPM9LbW1v09baSmJmpglOo7jdbMb1PAdwIwKg4Hle3Pf9lvO53Ik4AIh1dKDrBVgFRGgcOl4dP8+tXqDZCQAJtNZYlkWru4/jODiWhWVZiEaNyDhqJKLN+s7/nKfOnwJUa7VaBtBAZiQ5SfW4OFquzqwWBsFRgBCi1tfXt5vP59O1Wu50MyCXy30XQhxE6v4AWq1/NCuOwOkAAAAASUVORK5CYII='">
-                    <div class="url-title">${escapeHtml(url.title)}</div>
-                </div>
-                
-                <div class="url-short">
-                    🔗 ${escapeHtml(url.shortUrl)}
-                    <span class="domain-tag">${escapeHtml(domain)}</span>
-                </div>
-                
-                ${url.originalUrl ? `
-                    <div class="url-original" title="${escapeHtml(url.originalUrl)}">
-                        ➡️ ${escapeHtml(url.originalUrl)}
-                    </div>
-                ` : ''}
-            </div>
-        `;
+        let html = '<div class="url-item" data-index="' + realIndex + '" draggable="true">' +
+            '<div class="url-actions">' +
+            '<button class="btn-action btn-copy" data-index="' + realIndex + '" title="Copiar URL corta">📋</button>' +
+            '<button class="btn-action btn-delete" data-index="' + realIndex + '" title="Eliminar">🗑️</button>' +
+            '</div>' +
+            '<div class="url-header">' +
+            '<img src="' + favicon + '" class="favicon" onerror="this.src=\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAbwAAAG8B8aLcQwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAGJSURBVDiNpZO/S1VRGMc/5773vuddhKRID7oYRBAUQdHQ0tLQ0H9QQ0tDRGNTEERDQ0NIS1BQUUN/QUOJg4iBUBAU1NCPwaLXe+/7Ps5734aEet97r/2GL5zD93w/53vO+cIJlFJpYBKYBkaALiABBMCu1noHWANWgVUp5W7zWxEAKaVSylFgtlKpXAiCwPE8L66UQmuN1hoA13VDy7J2HMf5bFnWGyHEm9jnMjBZqVTOFQqF1EaxyN7eHkEQ1HeNokT6+/sZHBykUCjcKZfLs4ODgwtRgJlSqXRqu1hku1gk1dJC+K843H9WqZTi186O0pvNniqVShO9vb3PIwDXPM9LbW1v09baSmJmpglOo7jdbMb1PAdwIwKg4Hle3Pf9lvO53Ik4AIh1dKDrBVgFRGgcOl4dP8+tXqDZCQAJtNZYlkWru4/jODiWhWVZiEaNyDhqJKLN+s7/nKfOnwJUa7VaBtBAZiQ5SfW4OFquzqwWBsFRgBCi1tfXt5vP59O1Wu50MyCXy30XQhxE6v4AWq1/NCuOwOkAAAAASUVORK5CYII=\'">' +
+            '<div class="url-title">' + escapeHtml(url.title) + '</div>' +
+            '</div>' +
+            '<div class="url-short">' +
+            '🔗 ' + escapeHtml(url.shortUrl) +
+            '<span class="domain-tag">' + escapeHtml(domain) + '</span>' +
+            '</div>';
+        
+        if (url.originalUrl) {
+            html += '<div class="url-original" title="' + escapeHtml(url.originalUrl) + '">' +
+                '➡️ ' + escapeHtml(url.originalUrl) +
+                '</div>';
+        }
+        
+        html += '</div>';
+        return html;
     }).join('');
     
     setupUrlEventListeners();
@@ -124,12 +123,12 @@ async function importFromAPI() {
     
     try {
         const apiDomain = await API_CONFIG.getApiDomain();
-        const customDomain = prompt(`¿Desde qué dominio quieres importar?\n(Deja vacío para ${apiDomain})`, apiDomain);
+        const customDomain = prompt('¿Desde qué dominio quieres importar?\n(Deja vacío para ' + apiDomain + ')', apiDomain);
         const domain = customDomain && customDomain.trim() ? 
             customDomain.trim().replace(/^https?:\/\//, '').replace(/\/$/, '') : 
             apiDomain;
         
-        const response = await fetch(`https://${domain}/api/my-urls.php`, {
+        const response = await fetch('https://' + domain + '/api/my-urls.php', {
             credentials: 'include',
             mode: 'cors'
         });
@@ -148,7 +147,7 @@ async function importFromAPI() {
         const newUrls = [];
         
         for (const apiUrl of apiUrls) {
-            const shortUrl = apiUrl.short_url || `https://${apiUrl.domain || domain}/${apiUrl.short_code}`;
+            const shortUrl = apiUrl.short_url || 'https://' + (apiUrl.domain || domain) + '/' + apiUrl.short_code;
             
             if (!urls.find(u => u.shortUrl === shortUrl)) {
                 newUrls.push({
@@ -164,11 +163,11 @@ async function importFromAPI() {
         }
         
         if (imported > 0) {
-            urls = [...newUrls, ...urls];
+            urls = newUrls.concat(urls);
             await chrome.storage.local.set({ urls: urls });
             renderUrls();
             updateStats();
-            showToast(`✅ ${imported} URLs importadas de ${domain}`);
+            showToast('✅ ' + imported + ' URLs importadas de ' + domain);
         } else {
             showToast('ℹ️ No hay URLs nuevas para importar');
         }
@@ -202,9 +201,9 @@ function handleFileImport(e) {
             
             let imported = 0;
             
-            urlsToImport.forEach(url => {
+            urlsToImport.forEach(function(url) {
                 if (url.shortUrl || (url.short_code && url.domain)) {
-                    const shortUrl = url.shortUrl || `https://${url.domain}/${url.short_code}`;
+                    const shortUrl = url.shortUrl || 'https://' + url.domain + '/' + url.short_code;
                     
                     if (!urls.find(u => u.shortUrl === shortUrl)) {
                         urls.unshift({
@@ -223,7 +222,7 @@ function handleFileImport(e) {
                 await chrome.storage.local.set({ urls: urls });
                 renderUrls();
                 updateStats();
-                showToast(`✅ ${imported} URLs importadas del archivo`);
+                showToast('✅ ' + imported + ' URLs importadas del archivo');
             } else {
                 showToast('ℹ️ No hay URLs nuevas en el archivo');
             }
@@ -255,10 +254,10 @@ function exportUrls() {
     
     const link = document.createElement('a');
     link.href = URL.createObjectURL(dataBlob);
-    link.download = `urls_backup_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = 'urls_backup_' + new Date().toISOString().split('T')[0] + '.json';
     link.click();
     
-    showToast(`✅ ${urls.length} URLs exportadas`);
+    showToast('✅ ' + urls.length + ' URLs exportadas');
 }
 
 function clearAllUrls() {
@@ -267,7 +266,7 @@ function clearAllUrls() {
         return;
     }
     
-    if (confirm(`¿Eliminar todas las ${urls.length} URLs?\n\n⚠️ Esta acción no se puede deshacer`)) {
+    if (confirm('¿Eliminar todas las ' + urls.length + ' URLs?\n\n⚠️ Esta acción no se puede deshacer')) {
         urls = [];
         chrome.storage.local.set({ urls: urls }, function() {
             renderUrls();
@@ -278,20 +277,18 @@ function clearAllUrls() {
 }
 
 function setupUrlEventListeners() {
-    // MODIFICADO - usar window.open en lugar de chrome.tabs
-    document.querySelectorAll('.url-item').forEach(item => {
+    document.querySelectorAll('.url-item').forEach(function(item) {
         item.addEventListener('click', function(e) {
             if (e.target.closest('.btn-action')) return;
             
             const index = this.getAttribute('data-index');
             if (urls[index]) {
-                // Usar window.open en lugar de chrome.tabs.create
                 window.open(urls[index].shortUrl, '_blank');
             }
         });
     });
     
-    document.querySelectorAll('.btn-copy').forEach(btn => {
+    document.querySelectorAll('.btn-copy').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             const index = parseInt(this.getAttribute('data-index'));
@@ -299,7 +296,7 @@ function setupUrlEventListeners() {
         });
     });
     
-    document.querySelectorAll('.btn-delete').forEach(btn => {
+    document.querySelectorAll('.btn-delete').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
             const index = parseInt(this.getAttribute('data-index'));
@@ -311,7 +308,7 @@ function setupUrlEventListeners() {
 function setupDragAndDrop() {
     const items = document.querySelectorAll('.url-item');
     
-    items.forEach((item) => {
+    items.forEach(function(item) {
         item.addEventListener('dragstart', function(e) {
             draggedElement = parseInt(this.getAttribute('data-index'));
             this.classList.add('dragging');
@@ -368,7 +365,7 @@ function toggleForm() {
     }
 }
 
-// Función para agregar URL - ahora también acorta URLs largas
+// Función para agregar URL - CORREGIDA
 async function addUrl() {
     const shortUrlInput = document.getElementById('shortUrl');
     const titleInput = document.getElementById('title');
@@ -380,8 +377,13 @@ async function addUrl() {
         return;
     }
     
-    // Verificar si es una URL válida
-    if (!isValidUrl(urlToSave)) {
+    // Agregar http:// si no tiene protocolo
+    if (!urlToSave.match(/^https?:\/\//)) {
+        urlToSave = 'https://' + urlToSave;
+    }
+    
+    // Validación más simple
+    if (!urlToSave.match(/^https?:\/\/.+\..+/)) {
         showError('Por favor ingresa una URL válida');
         return;
     }
@@ -390,19 +392,25 @@ async function addUrl() {
     hideError();
     
     try {
-        // Detectar si es una URL larga que necesita ser acortada
-        const urlObj = new URL(urlToSave);
-        const isShortUrl = urlObj.pathname.length > 1 && 
-                          urlObj.pathname.length < 20 && 
-                          !urlObj.pathname.includes('/') && 
-                          (urlObj.hostname.includes('0ln.') || urlObj.hostname.includes('bit.ly') || urlObj.hostname.includes('tinyurl.com'));
+        // Detectar si es una URL corta
+        let isShortUrl = false;
+        try {
+            const urlObj = new URL(urlToSave);
+            const pathLength = urlObj.pathname.replace(/^\//, '').length;
+            isShortUrl = pathLength > 0 && pathLength < 20 && 
+                        !urlObj.pathname.substring(1).includes('/') && 
+                        (urlObj.hostname.includes('0ln.') || 
+                         urlObj.hostname.includes('bit.ly') || 
+                         urlObj.hostname.includes('tinyurl.com'));
+        } catch (e) {
+            isShortUrl = false;
+        }
         
         // Si NO es una URL corta, acortarla
         if (!isShortUrl) {
             const apiDomain = await API_CONFIG.getApiDomain();
             
-            // Hacer petición para acortar
-            const response = await fetch(`https://${apiDomain}/api/shorten.php`, {
+            const response = await fetch('https://' + apiDomain + '/api/shorten.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -415,9 +423,8 @@ async function addUrl() {
             });
             
             if (!response.ok) {
-                // Si no está autenticado, mostrar mensaje específico
                 if (response.status === 401) {
-                    throw new Error(`No estás autenticado en ${apiDomain}. Por favor, inicia sesión primero.`);
+                    throw new Error('No estás autenticado en ' + apiDomain + '. Por favor, inicia sesión primero.');
                 }
                 throw new Error('No se pudo acortar la URL');
             }
@@ -425,7 +432,6 @@ async function addUrl() {
             const result = await response.json();
             
             if (result.success && result.short_url) {
-                // Usar la URL acortada
                 urlToSave = result.short_url;
                 showToast('🔗 URL acortada exitosamente');
             } else {
@@ -434,7 +440,7 @@ async function addUrl() {
         }
         
         // Verificar si ya existe
-        const exists = urls.some(u => u.shortUrl === urlToSave);
+        const exists = urls.some(function(u) { return u.shortUrl === urlToSave; });
         if (exists) {
             showError('Esta URL ya está guardada');
             showLoading(false);
@@ -444,10 +450,8 @@ async function addUrl() {
         // Si no hay título, generarlo
         if (!title) {
             if (!isShortUrl) {
-                // Para URLs largas, usar el dominio
                 title = extractDomain(shortUrlInput.value) || 'Nueva URL';
             } else {
-                // Para URLs cortas, usar el código
                 title = extractShortCode(urlToSave) || 'URL Corta';
             }
         }
@@ -457,7 +461,7 @@ async function addUrl() {
             shortUrl: urlToSave,
             title: title,
             originalUrl: isShortUrl ? null : shortUrlInput.value,
-            favicon: `https://www.google.com/s2/favicons?domain=${extractDomain(shortUrlInput.value)}`,
+            favicon: 'https://www.google.com/s2/favicons?domain=' + extractDomain(shortUrlInput.value),
             date: new Date().toISOString(),
             clicks: 0
         };
@@ -498,8 +502,7 @@ async function fetchAdditionalInfo(urlObj, index) {
         
         if (!code) return;
         
-        // Intentar con el endpoint info.php
-        const response = await fetch(`https://${domain}/api/info.php?code=${code}`, {
+        const response = await fetch('https://' + domain + '/api/info.php?code=' + code, {
             mode: 'cors',
             credentials: 'omit'
         });
@@ -507,12 +510,10 @@ async function fetchAdditionalInfo(urlObj, index) {
         if (response.ok) {
             const data = await response.json();
             
-            // Actualizar la URL con la info obtenida
             const currentUrls = await chrome.storage.local.get(['urls']);
             if (currentUrls.urls) {
-                const urlIndex = currentUrls.urls.findIndex(u => u.shortUrl === urlObj.shortUrl);
+                const urlIndex = currentUrls.urls.findIndex(function(u) { return u.shortUrl === urlObj.shortUrl; });
                 if (urlIndex !== -1) {
-                    // Solo actualizar si no tiene título personalizado
                     if (currentUrls.urls[urlIndex].title === urlObj.title && data.title) {
                         currentUrls.urls[urlIndex].title = data.title;
                     }
@@ -524,15 +525,13 @@ async function fetchAdditionalInfo(urlObj, index) {
                     }
                     
                     await chrome.storage.local.set({ urls: currentUrls.urls });
-                    // Re-renderizar solo si es visible
                     if (document.getElementById('urlList')) {
-                        renderUrls();
+                        loadUrls(); // Recargar desde storage
                     }
                 }
             }
         }
     } catch (error) {
-        // Ignorar errores, la info adicional es opcional
         console.log('Info adicional no disponible para:', urlObj.shortUrl);
     }
 }
@@ -545,11 +544,11 @@ function filterUrls(e) {
         return;
     }
     
-    const filtered = urls.filter(url => 
-        url.title.toLowerCase().includes(searchTerm) ||
-        url.shortUrl.toLowerCase().includes(searchTerm) ||
-        (url.originalUrl && url.originalUrl.toLowerCase().includes(searchTerm))
-    );
+    const filtered = urls.filter(function(url) {
+        return url.title.toLowerCase().includes(searchTerm) ||
+            url.shortUrl.toLowerCase().includes(searchTerm) ||
+            (url.originalUrl && url.originalUrl.toLowerCase().includes(searchTerm));
+    });
     
     renderUrls(filtered);
 }
@@ -598,7 +597,7 @@ function escapeHtml(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
 
 function showLoading(show) {
@@ -636,15 +635,15 @@ function showToast(message) {
     toast.textContent = message;
     document.body.appendChild(toast);
     
-    setTimeout(() => toast.remove(), 2000);
+    setTimeout(function() { toast.remove(); }, 2000);
 }
 
 function copyUrl(index) {
     const url = urls[index];
     if (url) {
-        navigator.clipboard.writeText(url.shortUrl).then(() => {
+        navigator.clipboard.writeText(url.shortUrl).then(function() {
             showToast('✅ URL copiada');
-        }).catch(err => {
+        }).catch(function(err) {
             const textArea = document.createElement('textarea');
             textArea.value = url.shortUrl;
             document.body.appendChild(textArea);
@@ -656,12 +655,11 @@ function copyUrl(index) {
     }
 }
 
-// Función de eliminación corregida para multidominio
 async function deleteUrl(index) {
     const url = urls[index];
     if (!url) return;
     
-    const deleteBtn = document.querySelector(`.btn-delete[data-index="${index}"]`);
+    const deleteBtn = document.querySelector('.btn-delete[data-index="' + index + '"]');
     if (!deleteBtn) return;
     
     const originalContent = deleteBtn.innerHTML;
@@ -674,10 +672,9 @@ async function deleteUrl(index) {
                 deleteBtn.disabled = true;
                 deleteBtn.innerHTML = '⏳';
                 
-                // IMPORTANTE: Usar el servidor principal para la API
                 const apiDomain = await API_CONFIG.getApiDomain();
                 
-                const response = await fetch(`https://${apiDomain}/api/delete-url.php`, {
+                const response = await fetch('https://' + apiDomain + '/api/delete-url.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -700,7 +697,6 @@ async function deleteUrl(index) {
             }
         }
         
-        // Eliminar localmente
         urls.splice(index, 1);
         await chrome.storage.local.set({ urls: urls });
         renderUrls();
@@ -708,13 +704,12 @@ async function deleteUrl(index) {
         showToast('🗑️ URL eliminada');
         
     } else {
-        // Mostrar confirmación
         deleteBtn.classList.add('confirm-delete');
         deleteBtn.innerHTML = '✓?';
         deleteBtn.title = 'Click para confirmar';
         
-        setTimeout(() => {
-            const btn = document.querySelector(`.btn-delete[data-index="${index}"]`);
+        setTimeout(function() {
+            const btn = document.querySelector('.btn-delete[data-index="' + index + '"]');
             if (btn && !btn.disabled && btn.classList.contains('confirm-delete')) {
                 btn.classList.remove('confirm-delete');
                 btn.innerHTML = originalContent;

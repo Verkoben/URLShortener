@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Gestor de URLs Cortas",
   "short_name": "URL Manager",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Gestiona tus URLs acortadas como favoritos. Importa, exporta y organiza todos tus enlaces cortos.",
   "author": "Verkoven",
   "action": {
