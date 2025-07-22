@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 21-07-2025 a las 03:12:47
+-- Tiempo de generación: 22-07-2025 a las 22:29:19
 -- Versión del servidor: 8.0.42-0ubuntu0.22.04.1
 -- Versión de PHP: 8.4.10
 
@@ -150,8 +150,8 @@ CREATE TABLE `api_tokens` (
 INSERT INTO `api_tokens` (`id`, `user_id`, `token`, `name`, `permissions`, `last_used`, `created_at`, `expires_at`, `is_active`) VALUES
 (5, 12, '7367c5ca87ed0e0af14d7f11cd7ae1953c50f3712df6d96f1e19c9fd7923e65e', 'Extension Chrome', 'read', NULL, '2025-07-17 10:15:22', NULL, 1),
 (6, 12, 'ff996a3ed7a793de69ef7701776fdbaef0ebf502832fee71ab186321dd008c46', 'Extension chrome', 'read', NULL, '2025-07-17 10:41:26', NULL, 1),
-(8, 1, '7744acde093889f2ad9066868227ecfc846b2a0295873d05d2a8666326422b77', 'API Token', NULL, NULL, '2025-07-17 10:57:46', NULL, 1),
-(9, 13, '978e02b674a5798455d98cec73ffd6c0e3ac83f9b0dbcc1cb3890283c8385d9f', 'API Token', 'read', NULL, '2025-07-19 22:07:39', NULL, 1);
+(11, 13, '45eb614358a409b8a65b36bc517ca12446c17b2fd94db76d20159ac2f1a9164f', 'Extension Chrome', 'read', NULL, '2025-07-21 20:36:37', NULL, 1),
+(13, 1, '0607171faecd57257b35170eaded897be066eae8d2cd07b983f7ac5f0bef1f70', 'API Token', 'read', NULL, '2025-07-21 22:23:43', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -296,63 +296,7 @@ INSERT INTO `click_stats` (`id`, `url_id`, `user_id`, `session_id`, `clicked_at`
 (269, 25, NULL, NULL, '2025-06-14 08:36:31', '122.5.193.63', 'Mozilla/5.0 Test Browser', NULL, 'ES', 'Málaga', '36.72130000', '-4.42140000', NULL, 'España', 'Málaga', NULL),
 (271, 20, NULL, NULL, '2025-07-11 08:39:23', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (272, 25, NULL, NULL, '2025-07-11 08:58:44', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(278, 29, NULL, NULL, '2025-07-11 15:18:46', '62.99.100.233', 'WhatsApp/2.23.20.0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(279, 29, NULL, NULL, '2025-07-11 15:19:28', '92.191.45.226', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/28.0 Chrome/130.0.0.0 Mobile Safari/537.36', NULL, NULL, NULL, '43.26300000', '-2.93510000', NULL, 'Spain', 'Bilbao', NULL),
-(280, 29, NULL, NULL, '2025-07-11 15:19:32', '92.191.45.226', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/28.0 Chrome/130.0.0.0 Mobile Safari/537.36', NULL, NULL, NULL, '43.26300000', '-2.93510000', NULL, 'Spain', 'Bilbao', NULL),
-(281, 29, NULL, NULL, '2025-07-11 15:19:48', '92.191.45.226', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36', NULL, NULL, NULL, '43.26300000', '-2.93510000', NULL, 'Spain', 'Bilbao', NULL),
-(282, 29, NULL, NULL, '2025-07-11 15:20:09', '92.191.45.226', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36', NULL, NULL, NULL, '43.26300000', '-2.93510000', NULL, 'Spain', 'Bilbao', NULL),
-(283, 29, NULL, NULL, '2025-07-11 15:20:38', '92.191.45.226', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/28.0 Chrome/130.0.0.0 Mobile Safari/537.36', NULL, NULL, NULL, '43.26300000', '-2.93510000', NULL, 'Spain', 'Bilbao', NULL),
-(284, 29, NULL, NULL, '2025-07-11 15:21:30', '92.191.45.226', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/28.0 Chrome/130.0.0.0 Mobile Safari/537.36', NULL, NULL, NULL, '43.26300000', '-2.93510000', NULL, 'Spain', 'Bilbao', NULL),
-(285, 30, NULL, NULL, '2025-07-11 18:58:59', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(286, 34, NULL, NULL, '2025-07-11 19:20:01', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(287, 35, NULL, NULL, '2025-07-11 19:32:21', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(288, 35, NULL, NULL, '2025-07-11 19:59:25', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(289, 30, NULL, NULL, '2025-07-11 20:12:39', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(290, 30, NULL, NULL, '2025-07-11 20:12:50', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(292, 36, NULL, NULL, '2025-07-11 21:08:35', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(293, 36, NULL, NULL, '2025-07-11 23:16:17', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(294, 35, NULL, NULL, '2025-07-11 23:16:24', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(295, 34, NULL, NULL, '2025-07-11 23:16:34', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(296, 30, NULL, NULL, '2025-07-11 23:16:43', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(297, 29, NULL, NULL, '2025-07-11 23:16:54', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(298, 35, NULL, NULL, '2025-07-11 23:26:32', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(299, 29, NULL, NULL, '2025-07-12 09:26:46', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(300, 36, NULL, NULL, '2025-07-12 09:57:01', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(301, 35, NULL, NULL, '2025-07-12 09:57:08', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(302, 34, NULL, NULL, '2025-07-12 09:57:16', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(303, 30, NULL, NULL, '2025-07-12 09:57:23', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(304, 29, NULL, NULL, '2025-07-12 09:57:30', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(305, 29, NULL, NULL, '2025-07-12 09:58:45', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(306, 36, NULL, NULL, '2025-07-12 10:25:52', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(307, 29, NULL, NULL, '2025-07-12 10:33:28', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(308, 29, NULL, NULL, '2025-07-12 10:35:14', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(309, 29, NULL, NULL, '2025-07-12 10:35:58', '199.16.157.181', 'Twitterbot/1.0', NULL, NULL, NULL, '33.76970000', '-84.37540000', NULL, 'United States', 'Atlanta', NULL),
-(310, 29, NULL, NULL, '2025-07-12 10:35:59', '199.16.157.182', 'Twitterbot/1.0', NULL, NULL, NULL, '33.76970000', '-84.37540000', NULL, 'United States', 'Atlanta', NULL),
-(311, 29, NULL, NULL, '2025-07-12 10:35:59', '199.16.157.181', 'Twitterbot/1.0', NULL, NULL, NULL, '33.76970000', '-84.37540000', NULL, 'United States', 'Atlanta', NULL),
-(312, 29, NULL, NULL, '2025-07-12 10:36:05', '54.85.32.163', 'help@dataminr.com', NULL, NULL, NULL, '39.04380000', '-77.48740000', NULL, 'United States', 'Ashburn', NULL),
-(313, 29, NULL, NULL, '2025-07-12 10:36:43', '144.76.22.168', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; trendictionbot0.5.0; trendiction search; http://www.trendiction.de/bot; please let us know of any problems; web at trendiction.com) Gecko/20100101 Firefox/125.0', NULL, NULL, NULL, '50.47770000', '12.36490000', NULL, 'Germany', 'Falkenstein', NULL),
-(314, 37, NULL, NULL, '2025-07-12 12:34:27', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(315, 37, NULL, NULL, '2025-07-12 12:35:55', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(316, 37, NULL, NULL, '2025-07-12 12:37:46', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(317, 37, NULL, NULL, '2025-07-12 12:43:20', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(320, 37, NULL, NULL, '2025-07-12 13:06:38', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(321, 36, NULL, NULL, '2025-07-12 14:15:50', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (322, 23, NULL, NULL, '2025-07-12 14:25:01', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(323, 37, NULL, NULL, '2025-07-12 16:21:20', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(324, 40, NULL, NULL, '2025-07-12 17:01:16', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(325, 37, NULL, NULL, '2025-07-12 17:55:33', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(326, 41, NULL, NULL, '2025-07-12 18:29:41', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(327, 30, NULL, NULL, '2025-07-13 00:45:07', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(328, 30, NULL, NULL, '2025-07-13 02:22:43', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(329, 30, NULL, NULL, '2025-07-13 03:37:13', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(331, 30, NULL, NULL, '2025-07-13 05:32:47', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(332, 45, NULL, NULL, '2025-07-13 07:04:36', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(350, 47, NULL, NULL, '2025-07-13 08:34:42', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(351, 47, NULL, NULL, '2025-07-13 08:35:00', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(352, 47, NULL, NULL, '2025-07-13 08:37:46', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(353, 47, NULL, NULL, '2025-07-13 08:38:23', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(354, 48, NULL, NULL, '2025-07-13 08:50:39', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(355, 48, NULL, NULL, '2025-07-13 08:59:01', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (356, 50, NULL, NULL, '2025-07-13 08:59:48', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (357, 51, NULL, NULL, '2025-07-13 09:10:36', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (358, 52, NULL, NULL, '2025-07-13 09:11:23', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -373,20 +317,12 @@ INSERT INTO `click_stats` (`id`, `url_id`, `user_id`, `session_id`, `clicked_at`
 (376, 57, NULL, NULL, '2025-07-13 11:40:39', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (377, 56, NULL, NULL, '2025-07-13 12:15:10', '43.157.156.190', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (378, 57, NULL, NULL, '2025-07-13 12:26:22', '43.131.36.84', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(379, 34, NULL, NULL, '2025-07-13 12:27:05', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(380, 47, NULL, NULL, '2025-07-13 12:28:36', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (381, 58, NULL, NULL, '2025-07-13 12:32:04', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.org/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (382, 59, NULL, NULL, '2025-07-13 13:20:36', '43.153.192.98', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (383, 60, NULL, NULL, '2025-07-13 13:26:50', '43.157.170.126', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (384, 58, NULL, NULL, '2025-07-13 13:46:16', '129.226.93.214', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (391, 65, NULL, NULL, '2025-07-13 17:09:46', '43.153.96.79', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (406, 65, NULL, NULL, '2025-07-14 00:23:08', '43.159.128.247', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', 'http://0ln.eu/u6hcLr', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(432, 29, NULL, NULL, '2025-07-15 21:49:31', '54.36.232.187', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(436, 29, NULL, NULL, '2025-07-16 06:20:32', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(438, 82, NULL, NULL, '2025-07-16 12:05:56', '43.135.145.77', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(440, 82, NULL, NULL, '2025-07-16 13:42:15', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(446, 82, NULL, NULL, '2025-07-17 07:42:01', '20.171.207.132', 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(448, 41, NULL, NULL, '2025-07-17 10:45:41', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (460, 89, NULL, NULL, '2025-07-17 20:49:51', '92.191.45.226', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (461, 91, NULL, NULL, '2025-07-17 21:07:09', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (462, 92, NULL, NULL, '2025-07-17 21:45:58', '199.16.157.182', 'Twitterbot/1.0', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -421,10 +357,6 @@ INSERT INTO `click_stats` (`id`, `url_id`, `user_id`, `session_id`, `clicked_at`
 (497, 96, NULL, NULL, '2025-07-18 11:42:28', '20.171.207.214', 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (499, 97, NULL, NULL, '2025-07-18 11:59:34', '43.135.145.77', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', 'http://0ln.eu/la_biblioteca_personal', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (500, 96, NULL, NULL, '2025-07-18 12:09:01', '43.135.140.225', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', 'http://0ln.eu/Mi-Biblioteca_personal', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(505, 29, NULL, NULL, '2025-07-18 14:00:08', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/terms/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(506, 29, NULL, NULL, '2025-07-18 14:00:24', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/terms/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(507, 29, NULL, NULL, '2025-07-18 14:00:40', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/terms/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(508, 29, NULL, NULL, '2025-07-18 14:01:09', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (509, 97, NULL, NULL, '2025-07-18 14:10:29', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/terms/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (510, 97, NULL, NULL, '2025-07-18 14:10:51', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (511, 92, NULL, NULL, '2025-07-18 14:30:34', '54.198.55.229', 'Mozilla/5.0 (compatible)', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -448,8 +380,7 @@ INSERT INTO `click_stats` (`id`, `url_id`, `user_id`, `session_id`, `clicked_at`
 (555, 111, NULL, NULL, '2025-07-18 15:52:51', '144.217.252.156', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (556, 111, NULL, NULL, '2025-07-18 15:56:43', '167.100.103.236', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (557, 111, NULL, NULL, '2025-07-18 15:56:44', '74.91.59.117', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(558, 92, NULL, NULL, '2025-07-18 16:01:48', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://t.co/3koa3VkmQn', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `click_stats` (`id`, `url_id`, `user_id`, `session_id`, `clicked_at`, `ip_address`, `user_agent`, `referer`, `country_code`, `region`, `latitude`, `longitude`, `timezone`, `country`, `city`, `accessed_domain`) VALUES
+(558, 92, NULL, NULL, '2025-07-18 16:01:48', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://t.co/3koa3VkmQn', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (559, 111, NULL, NULL, '2025-07-18 16:05:37', '43.135.133.194', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (560, 111, NULL, NULL, '2025-07-18 16:13:15', '34.19.76.185', 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (561, 111, NULL, NULL, '2025-07-18 16:13:15', '34.19.76.185', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -485,7 +416,6 @@ INSERT INTO `click_stats` (`id`, `url_id`, `user_id`, `session_id`, `clicked_at`
 (591, 111, NULL, NULL, '2025-07-18 16:30:27', '147.136.252.165', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (592, 111, NULL, NULL, '2025-07-18 16:30:29', '147.136.252.165', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (593, 111, NULL, NULL, '2025-07-18 16:31:51', '95.39.236.190', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(594, 29, NULL, NULL, '2025-07-18 16:32:59', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/terms/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (595, 111, NULL, NULL, '2025-07-18 16:37:49', '34.169.197.18', 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (596, 111, NULL, NULL, '2025-07-18 16:37:49', '34.169.197.18', '', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (597, 111, NULL, NULL, '2025-07-18 16:37:49', '34.169.197.18', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -526,7 +456,8 @@ INSERT INTO `click_stats` (`id`, `url_id`, `user_id`, `session_id`, `clicked_at`
 (632, 111, NULL, NULL, '2025-07-18 18:38:59', '83.54.155.176', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (633, 111, NULL, NULL, '2025-07-18 18:38:59', '146.75.182.19', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (634, 111, NULL, NULL, '2025-07-18 18:39:15', '81.33.50.97', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22F76 Twitter for iPhone/11.7.5', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(635, 111, NULL, NULL, '2025-07-18 18:39:41', '80.103.26.245', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22F76 Twitter for iPhone/11.8.5', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(635, 111, NULL, NULL, '2025-07-18 18:39:41', '80.103.26.245', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22F76 Twitter for iPhone/11.8.5', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `click_stats` (`id`, `url_id`, `user_id`, `session_id`, `clicked_at`, `ip_address`, `user_agent`, `referer`, `country_code`, `region`, `latitude`, `longitude`, `timezone`, `country`, `city`, `accessed_domain`) VALUES
 (636, 111, NULL, NULL, '2025-07-18 18:39:53', '62.42.20.84', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (637, 111, NULL, NULL, '2025-07-18 18:40:06', '2.140.217.149', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/28.0 Chrome/130.0.0.0 Mobile Safari/537.36', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (638, 111, NULL, NULL, '2025-07-18 18:40:30', '37.10.135.81', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -665,12 +596,32 @@ INSERT INTO `click_stats` (`id`, `url_id`, `user_id`, `session_id`, `clicked_at`
 (783, 112, NULL, NULL, '2025-07-19 21:30:46', '37.114.33.6', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/118.0.0.0', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (785, 117, NULL, NULL, '2025-07-20 01:16:59', '43.133.139.6', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (787, 116, NULL, NULL, '2025-07-20 01:33:12', '43.166.244.192', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(789, 118, NULL, NULL, '2025-07-20 01:56:59', '101.32.52.164', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (790, 111, NULL, NULL, '2025-07-20 06:01:37', '88.9.171.142', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (792, 111, NULL, NULL, '2025-07-20 16:17:36', '88.11.217.248', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (793, 111, NULL, NULL, '2025-07-20 17:44:45', '217.198.193.76', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://t.co/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(794, 40, NULL, NULL, '2025-07-20 20:34:42', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(795, 112, NULL, NULL, '2025-07-20 21:56:45', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(795, 112, NULL, NULL, '2025-07-20 21:56:45', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(796, 65, NULL, NULL, '2025-07-21 03:39:09', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.org/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(797, 112, NULL, NULL, '2025-07-21 03:49:39', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(798, 112, NULL, NULL, '2025-07-21 03:50:10', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(799, 96, NULL, NULL, '2025-07-21 03:50:46', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(813, 132, NULL, NULL, '2025-07-21 10:47:41', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(814, 132, NULL, NULL, '2025-07-21 10:55:22', '170.106.110.146', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(815, 136, NULL, NULL, '2025-07-21 12:37:36', '43.166.246.180', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(818, 139, NULL, NULL, '2025-07-21 14:54:43', '43.157.38.131', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(819, 141, NULL, NULL, '2025-07-21 15:04:26', '129.226.93.214', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(825, 111, NULL, NULL, '2025-07-21 20:43:39', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(826, 97, NULL, NULL, '2025-07-21 20:56:22', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(827, 152, NULL, NULL, '2025-07-21 23:14:15', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(830, 152, NULL, NULL, '2025-07-22 01:25:45', '43.153.204.189', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(832, 153, NULL, NULL, '2025-07-22 01:38:54', '162.62.213.165', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(833, 152, NULL, NULL, '2025-07-22 02:56:02', '20.171.207.33', 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(835, 153, NULL, NULL, '2025-07-22 02:56:08', '20.171.207.33', 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(839, 111, NULL, NULL, '2025-07-22 11:32:29', '20.171.207.69', 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(844, 160, NULL, NULL, '2025-07-22 14:29:13', '43.153.62.161', 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(845, 111, NULL, NULL, '2025-07-22 16:27:59', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/gestor.php', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(846, 139, NULL, NULL, '2025-07-22 20:52:44', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(847, 153, NULL, NULL, '2025-07-22 21:45:45', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/', 'ES', NULL, NULL, NULL, NULL, 'Spain', 'Bilbao', NULL),
+(848, 152, NULL, NULL, '2025-07-22 22:00:48', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', 'https://0ln.eu/', 'ES', NULL, NULL, NULL, NULL, 'Spain', 'Bilbao', NULL);
 
 -- --------------------------------------------------------
 
@@ -726,7 +677,7 @@ INSERT INTO `custom_domains` (`id`, `user_id`, `domain`, `status`, `verification
 (14, NULL, '0ln.org', 'active', '72eb9bcb1a1d37844fb550e6bde11c4b16fbcc4ce9dcbda504a6ae678404218c', '2025-07-12 23:21:37', '2025-07-12 23:20:01', '2025-07-14 16:10:57', 0, 'dns_txt'),
 (15, NULL, 'short.tudominio.com', 'active', NULL, NULL, '2025-07-13 08:56:59', '2025-07-13 08:56:59', 0, NULL),
 (16, NULL, 'link.tudominio.com', 'active', NULL, NULL, '2025-07-13 08:56:59', '2025-07-13 08:56:59', 0, NULL),
-(26, 1, 'clancy.es', 'active', NULL, NULL, '2025-07-17 21:52:07', '2025-07-17 21:52:07', 0, NULL);
+(26, NULL, 'clancy.es', 'active', NULL, NULL, '2025-07-17 21:52:07', '2025-07-21 04:43:18', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -855,6 +806,28 @@ INSERT INTO `settings` (`key`, `value`, `type`, `description`, `updated_at`) VAL
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `sync_logs`
+--
+
+CREATE TABLE `sync_logs` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `action` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `sync_logs`
+--
+
+INSERT INTO `sync_logs` (`id`, `user_id`, `action`, `ip_address`, `user_agent`, `created_at`) VALUES
+(1, 11, 'import_from_extension', '62.99.100.233', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36', '2025-07-21 13:58:07');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `system_settings`
 --
 
@@ -904,6 +877,7 @@ CREATE TABLE `urls` (
   `short_code` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `original_url` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_accessed` datetime DEFAULT NULL,
   `clicks` int DEFAULT '0',
   `last_click` timestamp NULL DEFAULT NULL,
   `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -912,6 +886,7 @@ CREATE TABLE `urls` (
   `is_public` tinyint(1) DEFAULT '1',
   `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `description` text COLLATE utf8mb4_unicode_ci,
+  `og_image` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -919,50 +894,41 @@ CREATE TABLE `urls` (
 -- Volcado de datos para la tabla `urls`
 --
 
-INSERT INTO `urls` (`id`, `user_id`, `domain_id`, `short_code`, `original_url`, `created_at`, `clicks`, `last_click`, `ip_address`, `user_agent`, `active`, `is_public`, `title`, `description`, `deleted_at`) VALUES
-(20, NULL, NULL, '160orw', 'https://abc.es', '2025-07-09 13:23:29', 73, '2025-07-09 13:23:51', '62.99.100.233', NULL, 1, 1, NULL, NULL, NULL),
-(23, NULL, NULL, 'X9k7IN', 'https://adunti.net', '2025-07-10 20:41:22', 7, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(25, NULL, NULL, 'hoQdJs', 'https://biblioteca.store', '2025-07-10 20:54:54', 6, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(29, 1, NULL, 'guZSnU', 'https://www.elespanol.com/espana/politica/20250711/feijoo-no-critica-cronica-sanchez-admita-prostitucion-vino-bien-patrimonial/1003743843638_0.html', '2025-07-11 15:18:14', 25, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(30, 1, NULL, 'A3wBd6', 'https://adunti.net', '2025-07-11 15:35:36', 9, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(34, 1, NULL, '1yVssT', 'https://adunti.org/biblioteca', '2025-07-11 19:03:20', 4, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(35, 1, NULL, '5iY9DD', 'https://adunti.net/biblioteca', '2025-07-11 19:28:02', 5, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(36, 1, NULL, 'aGCvU7', 'https://amazon.com', '2025-07-11 20:56:14', 5, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(37, 1, NULL, 'yCvdMr', 'https://www.elespanol.com/espana/politica/20250712/pp-reprocha-sanchez-pacte-vertedero-moral-bildu-lleva-asesinos-listas-dirige-secuestrador/1003743845104_0.html', '2025-07-12 12:34:22', 7, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(40, 13, NULL, 'yhfdTJ', 'https://amzn.to/3R2pzir', '2025-07-12 17:00:46', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(41, 13, NULL, 'kvB1gX', 'https://adunti.net', '2025-07-12 18:29:26', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(42, 13, NULL, '6dhxRG', 'https://adunti.org/biblioteca', '2025-07-12 21:19:12', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(43, 1, NULL, 'gxSn1V', 'https://www.google.fr', '2025-07-12 22:05:46', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(45, 1, NULL, '7Mmc3X', 'https://hola.es', '2025-07-13 07:03:52', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(46, 1, 14, 'ool8LN', 'https://adunti.net', '2025-07-13 08:21:39', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(47, 1, 14, 'g7AHKg', 'https://adunti.org/biblioteca', '2025-07-13 08:34:25', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(48, 1, 14, 'zRkhFR', 'https://amzn.to/3R2pzir', '2025-07-13 08:50:27', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(49, 1, 14, 'ZZUj2G', 'https://amzn.to/3R2pzir', '2025-07-13 08:58:45', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(50, 1, 14, 'md4CYW', 'https://amzn.to/3R2pzir', '2025-07-13 08:59:22', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(51, 1, 14, 'IezPkI', 'https://amzn.to/3R2pzir', '2025-07-13 09:10:01', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(52, 1, 14, 'CgsEuL', 'https://adunti.net/biblioteca', '2025-07-13 09:11:06', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(53, 1, 0, '2Dtjhy', 'https://adunti.net', '2025-07-13 09:36:36', 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(54, 1, 0, 'lpBDcU', 'https://adunti.net', '2025-07-13 09:56:47', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(55, 1, 14, 'fdeSit', 'https://adunti.net', '2025-07-13 09:57:09', 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(56, 1, 14, '8zaHZF', 'https://adunti.net', '2025-07-13 11:39:16', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(57, 1, 14, 'vosNy7', 'https://adunti.net', '2025-07-13 11:39:43', 4, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(58, 1, 0, 'EVYDFU', 'https://adunti.net', '2025-07-13 12:32:02', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(59, 1, 14, 'KnIyVp', 'https://adunti.net', '2025-07-13 12:42:57', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(60, 1, 14, 'liL38N', 'https://adunti.org/biblioteca', '2025-07-13 12:47:55', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(64, 1, 0, 'nextcloud', 'http://0ln.eu/nextcloud', '2025-07-13 15:31:29', 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(65, 1, 0, 'u6hcLr', 'https://adunti.net', '2025-07-13 16:43:57', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(82, 11, 14, 'gVXjHh', 'https://hola.es', '2025-07-16 10:46:11', 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(89, 17, 0, 'NyKMCD', 'https://www.vanitatis.elconfidencial.com/famosos/2025-07-17/georgina-rodriguez-compras-mansion-pisos-hipoteca_4173235/', '2025-07-17 20:49:38', 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(90, 17, 0, 'HBHXj6', 'https://computerhoy.20minutos.es/moviles/expertos-tienen-claro-razon-siempre-deberias-apagar-movil-vacaciones-1472836?utm_source=firefox-newtab-es-es', '2025-07-17 20:51:59', 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(91, 17, 0, 'PhuVeJ', 'https://www.vanitatis.elconfidencial.com/famosos/2025-07-17/georgina-rodriguez-compras-mansion-pisos-hipoteca_4173235/', '2025-07-17 20:55:56', 4, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(92, 17, 0, 'PerdidoCaT', 'https://www.elespanol.com/edicion/20250717/gobierno-da-perdido-septimo-intento-oficializar-catalan-ue-pese-carta-conjunta-illa-pradales/1003743853036_16.html', '2025-07-17 21:45:29', 47, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(96, 1, 0, 'Mi-Biblioteca_personal', 'https://adunti.org/biblioteca', '2025-07-18 10:42:53', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(97, 1, 0, 'la_biblioteca_personal', 'https://adunti.org/biblioteca', '2025-07-18 11:24:26', 6, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(111, 1, 14, 'ElGobiernoLoDaPorPerdidoElCat', 'https://orange-hawk-291552.hostingersite.com/wp-content/uploads/2025/03/1003743853036_16.html', '2025-07-18 15:50:27', 188, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(112, 1, 14, 'PasoAtrasDeSanchezConElCatEnLaUE', 'https://orange-hawk-291552.hostingersite.com/wp-content/uploads/2025/03/1003743854826_16-1.html', '2025-07-18 22:14:31', 20, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(116, 13, 14, 'Gobierno-CAT2', 'https://www.elespanol.com/edicion/20250717/gobierno-da-perdido-septimo-intento-oficializar-catalan-ue-pese-carta-conjunta-illa-pradales/1003743853036_16.html', '2025-07-19 22:06:57', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(117, 13, 14, 'TsMYj9', 'https://hola.es', '2025-07-19 22:08:15', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL),
-(118, 13, 14, 'Y0fLh4', 'https://hola.es', '2025-07-19 22:17:54', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL);
+INSERT INTO `urls` (`id`, `user_id`, `domain_id`, `short_code`, `original_url`, `created_at`, `last_accessed`, `clicks`, `last_click`, `ip_address`, `user_agent`, `active`, `is_public`, `title`, `description`, `og_image`, `deleted_at`) VALUES
+(20, NULL, NULL, '160orw', 'https://abc.es', '2025-07-09 13:23:29', NULL, 73, '2025-07-09 13:23:51', '62.99.100.233', NULL, 1, 1, NULL, NULL, NULL, NULL),
+(23, NULL, NULL, 'X9k7IN', 'https://adunti.net', '2025-07-10 20:41:22', NULL, 7, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(25, NULL, NULL, 'hoQdJs', 'https://biblioteca.store', '2025-07-10 20:54:54', NULL, 6, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(42, 13, NULL, '6dhxRG', 'https://adunti.org/biblioteca', '2025-07-12 21:19:12', NULL, 0, NULL, NULL, NULL, 1, 1, 'Adunti.org - 6dhxRG → https://adunti.org/biblioteca', NULL, NULL, NULL),
+(50, 1, 14, 'md4CYW', 'https://amzn.to/3R2pzir', '2025-07-13 08:59:22', NULL, 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(51, 1, 14, 'IezPkI', 'https://amzn.to/3R2pzir', '2025-07-13 09:10:01', NULL, 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(52, 1, 14, 'CgsEuL', 'https://adunti.net/biblioteca', '2025-07-13 09:11:06', NULL, 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(53, 1, 0, '2Dtjhy', 'https://adunti.net', '2025-07-13 09:36:36', NULL, 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(54, 1, 0, 'lpBDcU', 'https://adunti.net', '2025-07-13 09:56:47', NULL, 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(55, 1, 14, 'fdeSit', 'https://adunti.net', '2025-07-13 09:57:09', NULL, 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(56, 1, 14, '8zaHZF', 'https://adunti.net', '2025-07-13 11:39:16', NULL, 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(57, 1, 14, 'vosNy7', 'https://adunti.net', '2025-07-13 11:39:43', NULL, 4, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(58, 1, 0, 'EVYDFU', 'https://adunti.net', '2025-07-13 12:32:02', NULL, 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(59, 1, 14, 'KnIyVp', 'https://adunti.net', '2025-07-13 12:42:57', NULL, 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(60, 1, 14, 'liL38N', 'https://adunti.org/biblioteca', '2025-07-13 12:47:55', NULL, 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(64, 1, 0, 'nextcloud', 'http://0ln.eu/nextcloud', '2025-07-13 15:31:29', NULL, 0, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(65, 1, 0, 'u6hcLr', 'https://adunti.net', '2025-07-13 16:43:57', NULL, 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(89, 17, 0, 'NyKMCD', 'https://www.vanitatis.elconfidencial.com/famosos/2025-07-17/georgina-rodriguez-compras-mansion-pisos-hipoteca_4173235/', '2025-07-17 20:49:38', NULL, 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(90, 17, 0, 'HBHXj6', 'https://computerhoy.20minutos.es/moviles/expertos-tienen-claro-razon-siempre-deberias-apagar-movil-vacaciones-1472836?utm_source=firefox-newtab-es-es', '2025-07-17 20:51:59', NULL, 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(91, 17, 0, 'PhuVeJ', 'https://www.vanitatis.elconfidencial.com/famosos/2025-07-17/georgina-rodriguez-compras-mansion-pisos-hipoteca_4173235/', '2025-07-17 20:55:56', NULL, 4, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(92, 17, 0, 'PerdidoCaT', 'https://www.elespanol.com/edicion/20250717/gobierno-da-perdido-septimo-intento-oficializar-catalan-ue-pese-carta-conjunta-illa-pradales/1003743853036_16.html', '2025-07-17 21:45:29', NULL, 47, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(96, 1, 0, 'Mi-Biblioteca_personal', 'https://adunti.org/biblioteca', '2025-07-18 10:42:53', NULL, 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(97, 1, 0, 'la_biblioteca_personal', 'https://adunti.org/biblioteca', '2025-07-18 11:24:26', '2025-07-21 20:56:22', 7, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(111, 1, 14, 'ElGobiernoLoDaPorPerdidoElCat', 'https://orange-hawk-291552.hostingersite.com/wp-content/uploads/2025/03/1003743853036_16.html', '2025-07-18 15:50:27', '2025-07-22 16:27:59', 191, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(112, 1, 14, 'PasoAtrasDeSanchezConElCatEnLaUE', 'https://orange-hawk-291552.hostingersite.com/wp-content/uploads/2025/03/1003743854826_16-1.html', '2025-07-18 22:14:31', NULL, 22, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(116, 13, 14, 'Gobierno-CAT2', 'https://www.elespanol.com/edicion/20250717/gobierno-da-perdido-septimo-intento-oficializar-catalan-ue-pese-carta-conjunta-illa-pradales/1003743853036_16.html', '2025-07-19 22:06:57', NULL, 1, NULL, NULL, NULL, 1, 1, 'Elespanol.com - Gobierno-CAT2 → https://www.elespanol.com/edicion/20250717/gobierno-da-perdido-septimo-intento-oficializar-catalan-ue-pese-carta-conjunta-illa-pradales/1003743853036_16.html', NULL, NULL, NULL),
+(117, 13, 14, 'TsMYj9', 'https://hola.es', '2025-07-19 22:08:15', NULL, 1, NULL, NULL, NULL, 1, 1, 'Hola.es - TsMYj9 → https://hola.es', NULL, NULL, NULL),
+(132, 12, 14, 'GyIf6O', 'https://hola.es', '2025-07-21 10:13:40', '2025-07-21 10:55:22', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(136, 12, 14, 'i4V4Y2', 'https://adunti.net/biblioteca', '2025-07-21 12:13:57', '2025-07-21 12:37:36', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(139, 12, 14, 'mmg0p8', 'https://adunti.net/biblioteca', '2025-07-21 13:30:18', '2025-07-22 20:52:44', 2, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(141, 11, 14, 'kiaNQu', 'https://amzn.to/3R2pzir', '2025-07-21 14:00:28', '2025-07-21 15:04:26', 1, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(152, 1, NULL, 'RXua4A', 'https://proton.me', '2025-07-21 23:09:33', '2025-07-22 22:00:48', 4, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(153, 1, NULL, 'qc2L24', 'https://proton.me', '2025-07-21 23:24:39', '2025-07-22 21:45:45', 3, NULL, NULL, NULL, 1, 1, NULL, NULL, NULL, NULL),
+(160, 13, NULL, 'rzNzbq', 'https://Proton.me', '2025-07-22 13:55:05', '2025-07-22 14:29:13', 1, NULL, NULL, NULL, 1, 1, 'Proton.me - rzNzbq → https://Proton.me', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -995,6 +961,9 @@ CREATE TABLE `url_analytics` (
   `country` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `country_code` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `city` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `region` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `latitude` decimal(10,8) DEFAULT NULL,
+  `longitude` decimal(11,8) DEFAULT NULL,
   `device_type` enum('desktop','mobile','tablet','bot') COLLATE utf8mb4_unicode_ci DEFAULT 'desktop',
   `browser` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `os` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -1006,372 +975,339 @@ CREATE TABLE `url_analytics` (
 -- Volcado de datos para la tabla `url_analytics`
 --
 
-INSERT INTO `url_analytics` (`id`, `url_id`, `user_id`, `short_code`, `ip_address`, `user_agent`, `referer`, `country`, `country_code`, `city`, `device_type`, `browser`, `os`, `clicked_at`, `session_id`) VALUES
-(1, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.192.236.49', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'France', 'FR', NULL, 'tablet', 'Chrome', 'Linux', '2025-07-18 13:35:34', 'historical_40dd3f79f774a878d14eb6b353b0974f'),
-(2, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.201.49.166', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Buenos Aires', 'desktop', 'Chrome', 'Android', '2025-07-18 17:44:01', 'historical_03be2aed86c422d5061ce5a58643a4d0'),
-(3, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.16.75.108', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'United Kingdom', 'GB', 'Birmingham', 'desktop', 'Edge', 'Windows', '2025-07-18 11:00:25', 'historical_878a99ca37aa2f9882de2c5401df4089'),
-(4, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.171.235.214', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', 'mobile', 'Chrome', 'macOS', '2025-07-18 12:15:58', 'historical_af0507e6d1eba1ecd9e33d79c8c110f7'),
-(5, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.69.117.80', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Buenos Aires', 'mobile', 'Chrome', 'Android', '2025-07-18 16:35:06', 'historical_63b68c085b8dff3feed044f3aaa33396'),
-(6, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.132.34.184', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', 'mobile', 'Chrome', 'Windows', '2025-07-18 09:18:45', 'historical_8ca2cd8ddcb23e45ddffb96d81fd4c99'),
-(7, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.92.107.224', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Valparaíso', 'desktop', 'Edge', 'Android', '2025-07-18 17:54:35', 'historical_83a9a582fbc2788871599988bb421199'),
-(8, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.64.224.174', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Guatemala', 'GT', NULL, 'desktop', 'Edge', 'Windows', '2025-07-18 15:05:46', 'historical_6dbd88ce10cd761ceae52326a9870e75'),
-(9, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.176.230.161', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Monterrey', 'desktop', 'Chrome', 'macOS', '2025-07-18 17:18:32', 'historical_0d76bad646edb484694c468bb92951f5'),
-(10, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.143.195.113', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Ciudad de México', 'desktop', 'Chrome', 'Windows', '2025-07-18 22:28:41', 'historical_7d466c87cdc8a38051dcb6e3ed248b41'),
-(11, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.40.217.33', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', 'desktop', 'Chrome', 'Windows', '2025-07-18 12:12:29', 'historical_50b5ad8cfbf1a4744fe2166a0b158c98'),
-(12, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.44.145.114', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Barcelona', 'desktop', 'Safari', 'macOS', '2025-07-18 15:54:58', 'historical_a3ee22b0393ae10442780903f1767355'),
-(13, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.75.19.192', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Brazil', 'BR', NULL, 'desktop', 'Chrome', 'macOS', '2025-07-18 14:24:40', 'historical_86887d74b9a8d044a1866ebbe73a5538'),
-(14, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.81.195.125', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Madrid', 'mobile', 'Firefox', 'iOS', '2025-07-18 14:41:36', 'historical_deb8f8a21f5ca236a0f2d6160c107bed'),
-(15, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.212.229.243', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', 'mobile', 'Chrome', 'Android', '2025-07-18 12:43:06', 'historical_0171067ff5883c12396175ff728bc2c6'),
-(16, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.117.32.182', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Ciudad de México', 'mobile', 'Chrome', 'Windows', '2025-07-18 16:54:44', 'historical_5c4f71c643df3707553f622b3b086bcf'),
-(17, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.146.56.82', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Sevilla', 'tablet', 'Firefox', 'Windows', '2025-07-18 09:08:08', 'historical_89d6cbd73303c1c3fcd936a91a965a25'),
-(18, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.118.211.96', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Tijuana', 'tablet', 'Safari', 'Windows', '2025-07-18 21:09:33', 'historical_7f2528fb949b991acfc704643d9e3bf3'),
-(19, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.76.236.224', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Mexico', 'MX', 'Ciudad de México', 'mobile', 'Firefox', 'Windows', '2025-07-18 20:48:50', 'historical_8d9bb4b1c61dfb7b938a5856f7895772'),
-(20, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.151.51.137', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Colombia', 'CO', 'Bogotá', 'desktop', 'Safari', 'macOS', '2025-07-18 20:13:25', 'historical_bb4cd743812cadaa789422d76ae24caf'),
-(21, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.128.181.177', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Valencia', 'desktop', 'Safari', 'iOS', '2025-07-18 12:13:29', 'historical_c35da22ef0f4e11903d55f7b581c495f'),
-(22, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.196.33.241', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', 'desktop', 'Chrome', 'Windows', '2025-07-18 11:18:12', 'historical_0d0ae7893392201dcac0be83381142ae'),
-(23, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.240.24.48', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', 'mobile', 'Chrome', 'Windows', '2025-07-18 21:30:19', 'historical_484c7c510fa1b314f76b05b5d0bfca9a'),
-(24, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.55.101.14', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Ecuador', 'EC', NULL, 'desktop', 'Chrome', 'macOS', '2025-07-18 16:34:42', 'historical_0aa0daa5b64115effb7501a634419d31'),
-(25, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.31.168.147', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Valencia', 'mobile', 'Safari', 'macOS', '2025-07-18 22:14:20', 'historical_cd0bd308282fe5763b3d488dcb065714'),
-(26, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.95.109.226', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Ciudad de México', 'mobile', 'Chrome', 'Linux', '2025-07-18 22:34:13', 'historical_d6b3eed35cf7297534837840978aebd0'),
-(27, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.27.200.62', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Valencia', 'desktop', 'Safari', 'Windows', '2025-07-18 16:33:59', 'historical_aadc91bcfe704a3ae05d615b5c20b881'),
-(28, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.53.168.46', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, 'mobile', 'Chrome', 'Windows', '2025-07-18 20:23:05', 'historical_14fd24aaa30f20803d96455306106171'),
-(29, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.175.120.108', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Madrid', 'desktop', 'Firefox', 'Linux', '2025-07-18 19:53:03', 'historical_a1d1e4310292ad455e456728a6bd6e63'),
-(30, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.212.101.66', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Ciudad de México', 'desktop', 'Chrome', 'Windows', '2025-07-18 19:35:53', 'historical_c833100eb4b75cfc430e12f9cd828d1d'),
-(31, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.45.240.81', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Zaragoza', 'desktop', 'Edge', 'Windows', '2025-07-18 18:04:46', 'historical_8a5b8bc59f69b4ceda7722006464297e'),
-(32, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.66.116.228', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Argentina', 'AR', 'La Plata', 'mobile', 'Edge', 'iOS', '2025-07-18 10:59:28', 'historical_5106e70e2aa70aa46c626cf0238ba9d8'),
-(33, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.241.213.168', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Colombia', 'CO', 'Cali', 'mobile', 'Firefox', 'Windows', '2025-07-18 14:18:30', 'historical_27be3ae7a98770db5dbe6c3daa4d0828'),
-(34, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.197.252.95', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Portugal', 'PT', NULL, 'mobile', 'Firefox', 'macOS', '2025-07-18 10:24:22', 'historical_5d136154478ca5d0a233a39948912198'),
-(35, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.91.159.187', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Miami', 'mobile', 'Chrome', 'Linux', '2025-07-18 15:04:22', 'historical_c370b2ecaa201d3b5bcc8dffc758b19f'),
-(36, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.142.8.61', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Italy', 'IT', NULL, 'mobile', 'Chrome', 'macOS', '2025-07-18 21:00:01', 'historical_f3e2abc9ba8404ae581b1d606fb6579c'),
-(37, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.187.235.24', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Zaragoza', 'mobile', 'Safari', 'iOS', '2025-07-18 12:42:30', 'historical_8549975c8da55d4c2bfa7e7f5fd31c92'),
-(38, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.28.165.228', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Colombia', 'CO', 'Cartagena', 'desktop', 'Edge', 'iOS', '2025-07-18 08:11:05', 'historical_f7a844bfd5b6e6d93146a22b64793c97'),
-(39, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.7.41.252', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Germany', 'DE', NULL, 'desktop', 'Safari', 'macOS', '2025-07-18 22:01:28', 'historical_33ece5423824483bc7e353b0208da71c'),
-(40, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.5.21.103', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', 'mobile', 'Chrome', 'Windows', '2025-07-18 17:51:41', 'historical_f51a699fd503a5cb44a65d8757ade452'),
-(41, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.203.97.31', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Italy', 'IT', NULL, 'desktop', 'Chrome', 'Android', '2025-07-18 10:01:33', 'historical_3a7ae74bd57b1a25529143999eac62a0'),
-(42, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.83.158.175', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Buenos Aires', 'desktop', 'Firefox', 'Android', '2025-07-18 17:55:47', 'historical_d90b649913b6c2a49a8ebad4eb262f87'),
-(43, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.176.133.36', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Ecuador', 'EC', NULL, 'desktop', 'Edge', 'macOS', '2025-07-18 17:53:55', 'historical_62f71030feccad116cd4ac7bdfb8bc23'),
-(44, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.140.175.37', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Ecuador', 'EC', NULL, 'tablet', 'Chrome', 'Windows', '2025-07-18 15:12:24', 'historical_7efb670fde54bcc2fc0f1b558c4555fd'),
-(45, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.223.144.196', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Zaragoza', 'desktop', 'Safari', 'iOS', '2025-07-18 11:36:57', 'historical_8f556dd03b28c78ab3fa244a369e9461'),
-(46, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.106.111.67', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Bogotá', 'desktop', 'Chrome', 'Windows', '2025-07-18 15:51:04', 'historical_11b1c6c1d578c19513bf81b01834658f'),
-(47, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.172.33.111', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Barranquilla', 'desktop', 'Chrome', 'macOS', '2025-07-18 19:02:34', 'historical_99173ee40e8420fbba2564268bddceec'),
-(48, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.109.88.226', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Madrid', 'desktop', 'Safari', 'iOS', '2025-07-18 17:34:32', 'historical_763510693bbe8ffc5a2ae73b71ac9e34'),
-(49, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.73.178.158', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Guadalajara', 'desktop', 'Chrome', 'Windows', '2025-07-18 20:11:24', 'historical_5286de313e06a86c7c64a06816f512c8'),
-(50, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.51.135.83', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', 'mobile', 'Chrome', 'Linux', '2025-07-18 14:20:09', 'historical_aa91f2cf6244ec07aad82d01c08c5efc'),
-(51, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.139.122.41', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', 'mobile', 'Chrome', 'Windows', '2025-07-18 08:04:14', 'historical_b7b2ef9f1e523d85844fbefadd5f7bbd'),
-(52, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.197.178.96', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Córdoba', 'tablet', 'Chrome', 'iOS', '2025-07-18 09:29:34', 'historical_b23d71b8d46de8dc75ecc013d83f3ecc'),
-(53, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.108.215.140', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Barcelona', 'desktop', 'Edge', 'Windows', '2025-07-18 14:00:20', 'historical_ba429dfb11323d1e1d8e815c48463a23'),
-(54, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.91.128.51', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, 'desktop', 'Chrome', 'Linux', '2025-07-18 21:45:03', 'historical_05f461491e9347aa9beff3fe5ef710ef'),
-(55, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.73.181.114', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Valencia', 'desktop', 'Chrome', 'macOS', '2025-07-18 14:48:39', 'historical_fb32094bb3e16fb0a47e7fbf8e755998'),
-(56, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.67.209.150', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'United States', 'US', 'New York', 'desktop', 'Safari', 'macOS', '2025-07-18 10:12:40', 'historical_617b73c69602621bc4f126154b701b0b'),
-(57, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.37.167.154', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Valparaíso', 'desktop', 'Chrome', 'Windows', '2025-07-19 22:53:36', 'historical_15197403758ca351b510a6169a82548a'),
-(58, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.218.94.18', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'New York', 'desktop', 'Chrome', 'iOS', '2025-07-19 18:34:40', 'historical_2895ec213947f286b39030ee291a6c92'),
-(59, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.114.255.247', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'La Plata', 'tablet', 'Chrome', 'Windows', '2025-07-19 12:21:51', 'historical_e2f5d2082ef76bfd041a90bc0fee411a'),
-(60, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.59.123.123', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Concepción', 'desktop', 'Firefox', 'macOS', '2025-07-19 18:28:05', 'historical_e729946e6d3d42f988770bd91e3ddc1b'),
-(61, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.229.91.230', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'United States', 'US', 'Phoenix', 'mobile', 'Edge', 'Android', '2025-07-19 15:28:28', 'historical_3f0072e100693241e14b49968c99b805'),
-(62, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.26.35.56', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Sevilla', 'desktop', 'Safari', 'Windows', '2025-07-19 15:19:19', 'historical_73454bf64a97c989e7677c98a7776cf2'),
-(63, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.120.73.17', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Málaga', 'mobile', 'Firefox', 'Android', '2025-07-19 16:34:03', 'historical_8a7e039fbf642fb34352a01cab8a775a'),
-(64, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.61.25.153', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Sevilla', 'tablet', 'Edge', 'iOS', '2025-07-19 09:33:32', 'historical_5e6fb17f647992009f394628cfc2a30b'),
-(65, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.158.115.90', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', 'desktop', 'Chrome', 'Android', '2025-07-19 15:40:55', 'historical_39f35f8ff2461d6c2be0605603a0825a'),
-(66, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.164.174.50', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Phoenix', 'mobile', 'Chrome', 'Windows', '2025-07-19 12:37:31', 'historical_548630b8a51d2604f561b7e574878762'),
-(67, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.81.2.219', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Medellín', 'mobile', 'Chrome', 'iOS', '2025-07-19 11:12:52', 'historical_17fc93074b6f9d474cc3dfb610af2791'),
-(68, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.224.60.95', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Medellín', 'desktop', 'Chrome', 'iOS', '2025-07-19 20:58:39', 'historical_57afcce1e9744feb43c886608fc510dc'),
-(69, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.33.111.240', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Puebla', 'desktop', 'Edge', 'Android', '2025-07-19 18:05:53', 'historical_3130b58e603e88c9db7b2f68ed25dadf'),
-(70, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.234.82.252', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Monterrey', 'desktop', 'Chrome', 'Windows', '2025-07-19 19:40:09', 'historical_d42b0dd6a18ab7ea4b97c9224e3da0ca'),
-(71, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.86.59.117', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, 'tablet', 'Chrome', 'Windows', '2025-07-19 19:27:52', 'historical_8c494ada5279e0098e738c244425b6a0'),
-(72, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.152.50.166', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Barcelona', 'tablet', 'Firefox', 'Windows', '2025-07-19 17:53:56', 'historical_410f6733b40c3c32fb8be4fb15b97206'),
-(73, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.83.109.62', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Peru', 'PE', NULL, 'mobile', 'Firefox', 'Windows', '2025-07-19 22:18:33', 'historical_0ff7a07202f8af6480b5113e2d753033'),
-(74, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.146.69.233', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Málaga', 'mobile', 'Chrome', 'Windows', '2025-07-19 15:47:49', 'historical_f6b599a6d0d82456f38e15c7a51ad41d'),
-(75, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.134.130.41', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Monterrey', 'desktop', 'Chrome', 'Windows', '2025-07-19 21:54:17', 'historical_502b4a6f85851279edd3ba682fba6d81'),
-(76, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.78.150.66', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Mendoza', 'mobile', 'Safari', 'Windows', '2025-07-19 21:59:39', 'historical_fe606255a1d07fa80a7d8c94f286e3c4'),
-(77, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.146.6.138', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Córdoba', 'mobile', 'Firefox', 'Windows', '2025-07-19 17:26:19', 'historical_d54f2b8ac1228f28fb2ef677db64a149'),
-(78, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.62.141.254', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Medellín', 'desktop', 'Chrome', 'Windows', '2025-07-19 18:28:39', 'historical_d5e0c19d209973a30977aa0b3bb1252c'),
-(79, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.72.137.193', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Peru', 'PE', NULL, 'tablet', 'Firefox', 'Windows', '2025-07-19 19:09:06', 'historical_19d5c084d0b293c89d52a2a206c9264f'),
-(80, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.54.27.28', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Mexico', 'MX', 'Tijuana', 'mobile', 'Firefox', 'macOS', '2025-07-19 08:08:38', 'historical_c9b14939bd4a0c6762c164763ee09f6f'),
-(81, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.49.98.201', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Valencia', 'tablet', 'Firefox', 'Windows', '2025-07-19 12:33:18', 'historical_4d1b13100f7b21c729e21de6fc9941eb'),
-(82, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.110.112.214', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', 'mobile', 'Chrome', 'macOS', '2025-07-19 09:35:08', 'historical_c2d81511f517bc5a18b3770f49e913c7'),
-(83, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.209.152.188', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Italy', 'IT', NULL, 'tablet', 'Safari', 'macOS', '2025-07-19 14:31:52', 'historical_44f20105af5568982f172954c500c0be'),
-(84, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.139.175.141', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Miami', 'desktop', 'Chrome', 'Android', '2025-07-19 14:19:58', 'historical_75ac4484f3d7efb130aa078ce60f6e3d'),
-(85, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.12.66.246', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Concepción', 'mobile', 'Edge', 'Android', '2025-07-19 15:21:19', 'historical_535ac9c652599ca9d97fd2aa6f1fb2a1'),
-(86, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.120.136.117', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'France', 'FR', NULL, 'tablet', 'Chrome', 'Windows', '2025-07-19 13:59:55', 'historical_618473097fbc012d7d2a3ffb85adda57'),
-(87, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.53.185.198', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Bilbao', 'desktop', 'Safari', 'Android', '2025-07-19 20:02:37', 'historical_859bcfc7ae06c8df01770c2e02294bdf'),
-(88, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.248.43.16', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Monterrey', 'tablet', 'Chrome', 'Linux', '2025-07-19 15:47:19', 'historical_dd9fb0ea6ff5ac68bac2f4863e88c8f7'),
-(89, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.142.73.96', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', 'tablet', 'Chrome', 'iOS', '2025-07-19 09:34:00', 'historical_6ca6958b79819b6f7e0165dc5e1cfb9e'),
-(90, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.218.224.248', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Peru', 'PE', NULL, 'tablet', 'Safari', 'iOS', '2025-07-19 18:41:09', 'historical_532092e60d6970846c0f09798197ab4b'),
-(91, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.166.164.194', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', 'desktop', 'Chrome', 'Android', '2025-07-19 13:21:46', 'historical_d21d8a1c0c6946f9eaf4063b89b9b66c'),
-(92, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.21.147.90', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Peru', 'PE', NULL, 'tablet', 'Edge', 'Windows', '2025-07-19 12:06:43', 'historical_792a592c91dd46946c7037670cf87c1f'),
-(93, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.25.32.196', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Guadalajara', 'desktop', 'Edge', 'Android', '2025-07-19 19:04:00', 'historical_5673f0d2dbd07d6c295288cce4ea164f'),
-(94, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.84.246.3', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Barranquilla', 'desktop', 'Chrome', 'Linux', '2025-07-19 17:22:39', 'historical_5317ba54dbfc8fbc54d26df4c35e7f24'),
-(95, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.148.150.9', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Zaragoza', 'mobile', 'Chrome', 'iOS', '2025-07-19 22:11:40', 'historical_b0390d17cf6a9b39626b77adfaec4560'),
-(96, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.150.107.60', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Barcelona', 'desktop', 'Edge', 'macOS', '2025-07-19 19:48:42', 'historical_2732efebbf4d94881f66251fb0503cf5'),
-(97, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.32.50.62', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', 'desktop', 'Chrome', 'Windows', '2025-07-19 09:38:11', 'historical_b86d5c1240b09bdf7f2f5edc217cc96a'),
-(98, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.254.68.158', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, 'tablet', 'Chrome', 'iOS', '2025-07-19 09:59:22', 'historical_94980023f20f041de28bbcc6b7fa0138'),
-(99, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.44.37.247', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Germany', 'DE', NULL, 'mobile', 'Chrome', 'Windows', '2025-07-19 14:15:31', 'historical_7c8c710962c4da0528eb668bf52857c9'),
-(100, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.119.184.144', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Córdoba', 'mobile', 'Firefox', 'iOS', '2025-07-19 08:56:20', 'historical_c89851453d0cadfc0f0e9733e44a58f8'),
-(101, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.176.168.69', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'United Kingdom', 'GB', 'Manchester', 'tablet', 'Edge', 'iOS', '2025-07-19 20:25:00', 'historical_516db0120b9d84892d352f48e3a1f61e'),
-(102, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.176.70.243', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'France', 'FR', NULL, 'desktop', 'Firefox', 'iOS', '2025-07-19 08:05:18', 'historical_9566c21cd1df4355b5c36a22236d74a7'),
-(103, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.129.225.106', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Ecuador', 'EC', NULL, 'mobile', 'Chrome', 'macOS', '2025-07-19 14:25:35', 'historical_c60efe48974cd5185a35096faad68b97'),
-(104, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.182.57.56', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Guatemala', 'GT', NULL, 'desktop', 'Chrome', 'Windows', '2025-07-20 13:13:35', 'historical_c383d63fbe9605d6f87bdcfc663e0fdc'),
-(105, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.30.79.233', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', 'mobile', 'Chrome', 'Windows', '2025-07-20 12:39:30', 'historical_f155e2df628331bfbe1b6d4f6f8da1e6'),
-(106, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.223.209.86', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Tijuana', 'desktop', 'Edge', 'Windows', '2025-07-20 13:01:11', 'historical_8062d269023c0ab18ac9013cf29cc2c4'),
-(107, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.51.83.247', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Guadalajara', 'desktop', 'Edge', 'iOS', '2025-07-20 09:02:45', 'historical_d78fded31cb15cafbfb734aca470fece'),
-(108, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.98.4.60', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Rosario', 'tablet', 'Safari', 'Windows', '2025-07-20 15:50:44', 'historical_41d1d1d7e1a9d86b28c41b228b240758'),
-(109, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.59.51.101', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Málaga', 'desktop', 'Firefox', 'Windows', '2025-07-20 12:38:50', 'historical_b5a36c69cf1108b00d227135618ca8bf'),
-(110, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.204.255.246', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', 'desktop', 'Chrome', 'macOS', '2025-07-20 09:39:02', 'historical_ceae5b3f7d2f219d42cb23eafc8179d3'),
-(111, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.187.122.145', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Bogotá', 'desktop', 'Chrome', 'Windows', '2025-07-20 18:25:20', 'historical_560d784bcb97f28c963ab3fb2d422400'),
-(112, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.19.89.233', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Venezuela', 'VE', NULL, 'desktop', 'Chrome', 'Android', '2025-07-20 14:49:29', 'historical_923aa36b070150e58e882869fe1600dc'),
-(113, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.15.188.196', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Phoenix', 'desktop', 'Chrome', 'iOS', '2025-07-20 19:56:13', 'historical_6aea7f9c5813d0211c1e442ec375920e'),
-(114, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.98.86.176', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Tijuana', 'desktop', 'Edge', 'iOS', '2025-07-20 13:53:02', 'historical_ddeab391800a9b6d99bf76a1b16236c5'),
-(115, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.16.8.176', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Málaga', 'desktop', 'Edge', 'macOS', '2025-07-20 14:22:05', 'historical_9fc3367504b072c400dc42ea28df6282'),
-(116, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.215.64.177', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Barcelona', 'desktop', 'Safari', 'Windows', '2025-07-20 12:05:14', 'historical_5ada10471ffe245f398fcb868152553b'),
-(117, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.177.131.56', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'United States', 'US', 'Los Angeles', 'desktop', 'Firefox', 'Windows', '2025-07-20 18:44:44', 'historical_dd4c8de55ffdcdc7ee42f24c971d5d42'),
-(118, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.213.43.183', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', 'mobile', 'Chrome', 'Windows', '2025-07-20 22:10:59', 'historical_8f69da483a21e94befbdd8fbc778e303'),
-(119, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.110.12.4', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'France', 'FR', NULL, 'desktop', 'Edge', 'iOS', '2025-07-20 08:18:51', 'historical_1c0e4346c08fe0e718c20348437d2243'),
-(120, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.206.12.72', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Bilbao', 'tablet', 'Safari', 'macOS', '2025-07-20 18:16:16', 'historical_e4f3ade74a170f7d8f70c9586e127cd3'),
-(121, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.142.38.24', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Valencia', 'desktop', 'Safari', 'Linux', '2025-07-20 12:16:43', 'historical_62454219262905d3f09789376d14eb69'),
-(122, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.61.249.219', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Houston', 'tablet', 'Chrome', 'Linux', '2025-07-20 09:01:29', 'historical_194f4b2599be39f0dd039e820680cd6f'),
-(123, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.181.236.164', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Barcelona', 'mobile', 'Firefox', 'Windows', '2025-07-20 11:27:55', 'historical_86babe04019c8d6669dc0255edd3a129'),
-(124, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.33.229.248', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Málaga', 'tablet', 'Safari', 'Windows', '2025-07-20 08:04:34', 'historical_0c5e54fb9da415d216382598454ed92c'),
-(125, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.203.96.165', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, 'mobile', 'Chrome', 'macOS', '2025-07-20 22:16:00', 'historical_dd79fc1d8d5dd4511e70c6cddbd46498'),
-(126, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.85.157.210', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Mendoza', 'mobile', 'Safari', 'Android', '2025-07-20 12:46:15', 'historical_fa422641eb08452134c8c019bc19b18d'),
-(127, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.181.106.230', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Miami', 'desktop', 'Chrome', 'macOS', '2025-07-20 21:23:14', 'historical_a4e91c6e2f7e98305d221ac2c4772ce3'),
-(128, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.177.148.105', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Peru', 'PE', NULL, 'desktop', 'Safari', 'iOS', '2025-07-20 14:47:02', 'historical_1db3a429e39057147f4b6822fed070f7'),
-(129, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.3.178.214', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Chicago', 'desktop', 'Chrome', 'Linux', '2025-07-20 08:55:14', 'historical_2c8dd561525d711ffb4ec32121faca5e'),
-(130, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.125.202.150', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Colombia', 'CO', 'Medellín', 'desktop', 'Firefox', 'Android', '2025-07-20 17:17:23', 'historical_2094e6616637ebe64f720b8caf76b2fc'),
-(131, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.223.176.62', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Valencia', 'desktop', 'Safari', 'iOS', '2025-07-20 16:25:42', 'historical_dc01a39b9a195f11e4263a796f9de3ed'),
-(132, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.105.195.190', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Dominican Republic', 'DO', NULL, 'desktop', 'Chrome', 'iOS', '2025-07-20 11:19:41', 'historical_4668dcc98d92cc4a3b9a119ffaaed22a'),
-(133, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.144.223.209', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'La Plata', 'desktop', 'Chrome', 'macOS', '2025-07-20 20:33:00', 'historical_e28daff96f55f580c3198d56f09f12e5'),
-(134, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.48.105.139', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Guadalajara', 'mobile', 'Safari', 'Windows', '2025-07-20 11:51:25', 'historical_134d7e9fe9c76223775c875c8095f7d0'),
-(135, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.99.35.127', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Guatemala', 'GT', NULL, 'mobile', 'Firefox', 'Linux', '2025-07-20 19:21:49', 'historical_0efef44a193b0036e32eeae77acd76c1'),
-(136, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.23.145.48', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Colombia', 'CO', 'Cartagena', 'mobile', 'Safari', 'iOS', '2025-07-20 08:40:19', 'historical_6aec4226f0b6b64b59a1a7a39b80dd9a'),
-(137, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.200.64.109', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Ciudad de México', 'mobile', 'Edge', 'Android', '2025-07-20 18:25:14', 'historical_2d4e7f5072187d7582ff6863adcb5129'),
-(138, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.202.61.154', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Buenos Aires', 'mobile', 'Safari', 'Android', '2025-07-20 20:55:32', 'historical_e45a9cbf6e4364896fb55371b575cab2'),
-(139, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.124.91.145', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Brazil', 'BR', NULL, 'tablet', 'Safari', 'Android', '2025-07-20 13:51:34', 'historical_c1b8ea99aa84c0222ef6d769accaf538'),
-(140, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.161.213.71', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', 'mobile', 'Chrome', 'macOS', '2025-07-20 09:53:36', 'historical_6cec0738a5ce71a85d6c818964d44708'),
-(141, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.235.115.234', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Bilbao', 'tablet', 'Safari', 'Windows', '2025-07-20 12:40:38', 'historical_8dfac37fc50ce8b9cbc9918fff2e7a07'),
-(142, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.7.195.174', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Germany', 'DE', NULL, 'desktop', 'Edge', 'Windows', '2025-07-20 15:26:45', 'historical_77fa25146c4b7aa3862cd6fe25b38f89'),
-(143, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.73.60.112', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', 'desktop', 'Chrome', 'Android', '2025-07-20 20:17:12', 'historical_77e375fba8486e0ee2c83cbac2f0d4cb'),
-(144, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.47.37.148', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Peru', 'PE', NULL, 'desktop', 'Safari', 'Windows', '2025-07-20 18:55:43', 'historical_5c503bf64517afbae11bbc7ea68f8674'),
-(145, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.48.188.71', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Puebla', 'mobile', 'Chrome', 'Linux', '2025-07-20 17:32:16', 'historical_314808ecacaeccfe479e9703c4eb1deb'),
-(146, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.63.132.252', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'La Plata', 'desktop', 'Firefox', 'Windows', '2025-07-20 14:48:11', 'historical_18301cfebd8063b354a8f94b88feb018'),
-(147, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.120.4.238', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Ciudad de México', 'mobile', 'Chrome', 'iOS', '2025-07-20 14:41:56', 'historical_359d59eb3c2d6698b19f86c1058f0165'),
-(148, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.113.254.54', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, 'desktop', 'Chrome', 'Linux', '2025-07-20 08:51:38', 'historical_61b982ee3e472481d1d5ba80033c2f81'),
-(149, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.185.36.237', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'Valparaíso', 'mobile', 'Safari', 'macOS', '2025-07-20 22:30:42', 'historical_df57d02d1040968ef26f3965f472f4b0'),
-(150, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.195.111.132', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Córdoba', 'tablet', 'Chrome', 'Windows', '2025-07-20 19:11:49', 'historical_a72ec90b39e3742b47a58df58e172796'),
-(151, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.131.75.126', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Ecuador', 'EC', NULL, 'desktop', 'Chrome', 'Linux', '2025-07-20 11:25:25', 'historical_b90c9c7794ea52c169898fdb3b7dd803'),
-(152, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.209.21.154', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Valparaíso', 'desktop', 'Firefox', 'Windows', '2025-07-20 22:04:48', 'historical_7476f17faf0dcad418b38ccacf8518f7'),
-(153, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.239.208.115', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Valencia', 'desktop', 'Edge', 'Windows', '2025-07-20 21:17:01', 'historical_c4dd0cf8fdeb7ad5e3f14fcfacae4016'),
-(154, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.4.5.10', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'La Serena', 'tablet', 'Edge', 'Windows', '2025-07-20 15:36:43', 'historical_9404829c487b073f0e0703ff6f76cb6d'),
-(155, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.80.90.79', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Puebla', 'mobile', 'Safari', 'Windows', '2025-07-20 15:26:01', 'historical_f9876c693b3c6b228266f47664937339'),
-(156, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.232.84.133', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', 'tablet', 'Chrome', 'Android', '2025-07-20 17:10:19', 'historical_cfdc9455fb990f83f9dde369e31692fc'),
-(157, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.142.166.20', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Italy', 'IT', NULL, 'tablet', 'Safari', 'Android', '2025-07-20 22:36:20', 'historical_e06e82ab4ee9d6a38c55825a549eb3c8'),
-(158, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.24.236.239', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'France', 'FR', NULL, 'desktop', 'Safari', 'macOS', '2025-07-20 16:10:58', 'historical_649de996e29bef40bce21a4a735b2783'),
-(159, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.110.2.156', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Guadalajara', 'tablet', 'Safari', 'macOS', '2025-07-20 10:17:56', 'historical_a08c60c884b8cd9f0c020cf6330bcd48'),
-(160, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.17.247.186', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', 'mobile', 'Chrome', 'Windows', '2025-07-20 19:37:04', 'historical_cb94dedae3562e5d5ef29d1e5b3108d9'),
-(161, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.177.196.187', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Colombia', 'CO', 'Cartagena', 'desktop', 'Edge', 'Linux', '2025-07-20 11:29:44', 'historical_3e4f3cb1f7ea9f4e54e860f1c946ede3'),
-(162, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.149.123.80', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Zaragoza', 'mobile', 'Firefox', 'Android', '2025-07-20 09:35:08', 'historical_2b08db1c6033f2acf0ba843d36cd2a64'),
-(163, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.85.224.137', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United Kingdom', 'GB', 'Edinburgh', 'mobile', 'Chrome', 'Windows', '2025-07-20 09:10:18', 'historical_985513a8c440eeace92f37f26e6524de'),
-(164, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.2.92.231', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Buenos Aires', 'mobile', 'Safari', 'macOS', '2025-07-20 15:30:33', 'historical_631f6ad845b07a682d7c8d676e1be59b'),
-(165, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.201.55.53', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Barcelona', 'mobile', 'Edge', 'Android', '2025-07-20 14:07:48', 'historical_94e2ba7e4d3fcfe3882247b1222bc1d2'),
-(166, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.127.164.192', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Mexico', 'MX', 'Puebla', 'tablet', 'Firefox', 'Windows', '2025-07-20 16:41:03', 'historical_9a5ac0d812ca2dc8bf0af6dd95f4fd68'),
-(167, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.14.59.229', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Italy', 'IT', NULL, 'desktop', 'Firefox', 'Linux', '2025-07-20 12:40:10', 'historical_de21ced5b5ec9dc4e9243b799a76b193'),
-(168, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.159.179.177', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Zaragoza', 'desktop', 'Chrome', 'Windows', '2025-07-20 22:17:20', 'historical_60e2060ac6ad32ff0bc1066fb719ff97'),
-(169, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.184.182.69', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Ecuador', 'EC', NULL, 'desktop', 'Safari', 'Android', '2025-07-20 22:22:57', 'historical_d5f90c4791e6d9d34c95de7188b88cba'),
-(170, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.147.119.59', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', 'desktop', 'Chrome', 'iOS', '2025-07-20 08:29:24', 'historical_b632e0fcb297bc2a7e9a35471c10c87e'),
-(171, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.151.0.253', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'France', 'FR', NULL, 'desktop', 'Chrome', 'Windows', '2025-07-20 20:08:59', 'historical_b9238745cea65212c01afa19e22a54eb'),
-(172, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.5.27.187', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Dominican Republic', 'DO', NULL, 'desktop', 'Safari', 'macOS', '2025-07-20 09:51:25', 'historical_0b781bf705b8db1fcde04d6b3c0d5949'),
-(173, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.183.232.74', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', 'desktop', 'Chrome', 'macOS', '2025-07-20 12:17:38', 'historical_03bc5879672b547e86a58f5723894091'),
-(174, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.15.234.108', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Ecuador', 'EC', NULL, 'desktop', 'Chrome', 'Linux', '2025-07-20 10:42:53', 'historical_d260db2fa553f93634ba74eeb9623466'),
-(175, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.69.186.159', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Rosario', 'mobile', 'Firefox', 'Windows', '2025-07-20 14:15:40', 'historical_3f609707a7dc41b374dc15a8d8fb47cc'),
-(176, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.31.166.99', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Puebla', 'desktop', 'Safari', 'Windows', '2025-07-20 08:02:52', 'historical_f0bd303cf8ef4ca564e39097332e0fdf'),
-(177, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.183.159.204', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Colombia', 'CO', 'Barranquilla', 'mobile', 'Edge', 'Android', '2025-07-20 20:40:51', 'historical_216aa12a96d6d41ea177414b9a54cee4'),
-(178, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.99.72.235', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Bilbao', 'desktop', 'Edge', 'Windows', '2025-07-20 13:04:37', 'historical_2c86ec538c631c26212e230ccef373bc'),
-(179, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.109.83.106', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Venezuela', 'VE', NULL, 'mobile', 'Firefox', 'Android', '2025-07-20 19:38:59', 'historical_6d335770ac221cb3e641f6eb702bd980'),
-(180, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.40.242.216', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', 'desktop', 'Chrome', 'Android', '2025-07-20 17:14:17', 'historical_6880c21c2070a1c49778ea21fee9a392'),
-(181, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.76.199.10', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Buenos Aires', 'mobile', 'Firefox', 'Linux', '2025-07-20 14:55:12', 'historical_a93931279a4f5c8fe34371c1750908e4'),
-(182, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.247.47.143', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'United Kingdom', 'GB', 'Manchester', 'desktop', 'Edge', 'Linux', '2025-07-20 09:39:10', 'historical_fca08f6fd974a7f37e394fc8a1ec4d01'),
-(183, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.184.135.204', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Tijuana', 'desktop', 'Chrome', 'Windows', '2025-07-20 12:10:57', 'historical_e96f841aabf3d156f9e24bf9963b7b80'),
-(184, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.18.149.230', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Tijuana', 'desktop', 'Chrome', 'macOS', '2025-07-20 12:58:45', 'historical_aa7d17f3235361d57028d46589b3d78a'),
-(185, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.191.73.29', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Argentina', 'AR', 'La Plata', 'desktop', 'Edge', 'Windows', '2025-07-20 08:06:25', 'historical_3052a8bc19873648808c56f1579ef080'),
-(186, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.144.227.2', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Venezuela', 'VE', NULL, 'tablet', 'Safari', 'Windows', '2025-07-20 13:30:32', 'historical_8d89fa468ad852948e55d5a2c267ed20'),
-(187, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.128.78.239', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Zaragoza', 'desktop', 'Chrome', 'Android', '2025-07-20 10:00:21', 'historical_3a904b5dd8b485bef450d1eadda5550b'),
-(188, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.132.227.197', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Puebla', 'desktop', 'Chrome', 'Linux', '2025-07-20 12:19:15', 'historical_c241ef692d8ab2130f0f615d50fd1fc1'),
-(189, 92, 17, 'PerdidoCaT', '10.133.243.178', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', 'mobile', 'Chrome', 'macOS', '2025-07-17 13:21:40', 'historical_50e5d62dd405d21d7b00df638a956944'),
-(190, 92, 17, 'PerdidoCaT', '10.96.142.143', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', 'desktop', 'Chrome', 'Linux', '2025-07-17 19:25:41', 'historical_05e3644b51464d306193ec82a9f938db'),
-(191, 92, 17, 'PerdidoCaT', '10.19.85.67', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Mendoza', 'desktop', 'Safari', 'macOS', '2025-07-17 18:08:38', 'historical_d71d8ef9b3a8c0085ac22fd0509cc38b'),
-(192, 92, 17, 'PerdidoCaT', '10.181.196.184', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Concepción', 'desktop', 'Firefox', 'Linux', '2025-07-17 18:14:14', 'historical_8bc83623c223504b07576ae867dc2d94'),
-(193, 92, 17, 'PerdidoCaT', '10.99.163.29', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Santiago', 'desktop', 'Edge', 'macOS', '2025-07-17 16:16:23', 'historical_b3ce57df3917b143fe640aa7ed9ebcda'),
-(194, 92, 17, 'PerdidoCaT', '10.255.129.11', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Santiago', 'mobile', 'Firefox', 'Windows', '2025-07-17 14:45:23', 'historical_11541ba56c010bd91791b582fb8b332f'),
-(195, 92, 17, 'PerdidoCaT', '10.225.20.159', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Valparaíso', 'desktop', 'Chrome', 'iOS', '2025-07-17 18:14:33', 'historical_cddf88383d741768c8071cd7873be76d'),
-(196, 92, 17, 'PerdidoCaT', '10.15.129.138', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Puebla', 'desktop', 'Safari', 'Windows', '2025-07-17 18:41:04', 'historical_e84192ed65f6dfb9e67b085fd41ffb8d'),
-(197, 92, 17, 'PerdidoCaT', '10.26.200.2', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Santiago', 'tablet', 'Firefox', 'Linux', '2025-07-17 16:01:14', 'historical_8cdef57790289c658e38c5b6b39d6819'),
-(198, 92, 17, 'PerdidoCaT', '10.99.174.60', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Valparaíso', 'tablet', 'Chrome', 'Android', '2025-07-17 08:27:30', 'historical_2721a366141b6cbe0ad8ef8846130a3b'),
-(199, 92, 17, 'PerdidoCaT', '10.119.64.27', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Valparaíso', 'desktop', 'Edge', 'iOS', '2025-07-18 12:26:46', 'historical_c7e948d5e2ce135a06fdbb37b41ca04f'),
-(200, 92, 17, 'PerdidoCaT', '10.134.157.75', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', 'desktop', 'Chrome', 'Linux', '2025-07-18 22:00:47', 'historical_7ecc70a7f6d0ca8439d698f7d2216844'),
-(201, 92, 17, 'PerdidoCaT', '10.11.222.204', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'La Serena', 'desktop', 'Firefox', 'Windows', '2025-07-18 18:56:41', 'historical_63d01b98297b716456aa006524d0951a');
-INSERT INTO `url_analytics` (`id`, `url_id`, `user_id`, `short_code`, `ip_address`, `user_agent`, `referer`, `country`, `country_code`, `city`, `device_type`, `browser`, `os`, `clicked_at`, `session_id`) VALUES
-(202, 92, 17, 'PerdidoCaT', '10.213.126.197', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Zaragoza', 'mobile', 'Chrome', 'macOS', '2025-07-18 09:25:14', 'historical_d074577321987c2b1b5862c81fcf5af9'),
-(203, 92, 17, 'PerdidoCaT', '10.72.197.147', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Valparaíso', 'desktop', 'Edge', 'Android', '2025-07-18 15:39:48', 'historical_a711079df0b8be63c4c05049beec159b'),
-(204, 92, 17, 'PerdidoCaT', '10.116.230.7', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', 'desktop', 'Chrome', 'Windows', '2025-07-18 17:10:55', 'historical_24acdedd1defb0980f2d21c38395ea2d'),
-(205, 92, 17, 'PerdidoCaT', '10.119.39.124', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Argentina', 'AR', 'Mendoza', 'desktop', 'Edge', 'Android', '2025-07-18 10:09:07', 'historical_1004b66fb13b2e85d192612c7451f7ca'),
-(206, 92, 17, 'PerdidoCaT', '10.1.32.112', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'United States', 'US', 'New York', 'mobile', 'Firefox', 'Windows', '2025-07-18 15:27:36', 'historical_737a3418fc130d5b9f42393d88054ff6'),
-(207, 92, 17, 'PerdidoCaT', '10.99.178.5', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', 'desktop', 'Chrome', 'Linux', '2025-07-18 13:58:52', 'historical_31d0618823c9b053fa397aaf880643f0'),
-(208, 92, 17, 'PerdidoCaT', '10.225.95.208', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Madrid', 'desktop', 'Safari', 'Android', '2025-07-19 08:33:40', 'historical_349581abdb579fc6cb67f7a9da1bfd09'),
-(209, 92, 17, 'PerdidoCaT', '10.217.138.9', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Concepción', 'desktop', 'Edge', 'Windows', '2025-07-19 14:36:48', 'historical_8e741c96d374eba87779290d6700d67a'),
-(210, 92, 17, 'PerdidoCaT', '10.35.254.126', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', 'desktop', 'Chrome', 'Windows', '2025-07-19 13:34:11', 'historical_93675d21a2813d9b012c700f88c55537'),
-(211, 92, 17, 'PerdidoCaT', '10.177.6.233', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', 'desktop', 'Chrome', 'macOS', '2025-07-19 10:04:05', 'historical_64b76fde049f5a8031d65ff89ba773c8'),
-(212, 92, 17, 'PerdidoCaT', '10.8.188.30', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Valparaíso', 'desktop', 'Edge', 'Android', '2025-07-19 21:52:50', 'historical_06b9ceeaada88dafc0c56096c51592f3'),
-(213, 92, 17, 'PerdidoCaT', '10.8.41.146', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'Valparaíso', 'tablet', 'Safari', 'Windows', '2025-07-19 17:07:04', 'historical_e90d8f401679a403d9fc719b57124745'),
-(214, 92, 17, 'PerdidoCaT', '10.141.14.162', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', 'mobile', 'Chrome', 'macOS', '2025-07-19 10:27:21', 'historical_71d75a47b1e01b0832786f13aea5e0b3'),
-(215, 92, 17, 'PerdidoCaT', '10.45.219.254', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Santiago', 'desktop', 'Firefox', 'Linux', '2025-07-19 21:28:34', 'historical_7e4c00ecb75593b821ecdc55f61c6570'),
-(216, 92, 17, 'PerdidoCaT', '10.238.127.230', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Guadalajara', 'mobile', 'Chrome', 'Android', '2025-07-19 21:41:01', 'historical_e559d7fda46cdbae609742ccefde1130'),
-(217, 92, 17, 'PerdidoCaT', '10.222.9.126', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'Concepción', 'mobile', 'Safari', 'iOS', '2025-07-20 19:31:29', 'historical_4a1fc1f8777bcec170bdc3e4a2102a1e'),
-(218, 92, 17, 'PerdidoCaT', '10.231.51.148', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', 'desktop', 'Chrome', 'Android', '2025-07-20 10:54:07', 'historical_be98c21c3d73e1ec420fd27abcd0be80'),
-(219, 92, 17, 'PerdidoCaT', '10.199.121.91', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Málaga', 'tablet', 'Chrome', 'iOS', '2025-07-20 09:16:56', 'historical_194c553acf4f277e167012a1848e7db4'),
-(220, 92, 17, 'PerdidoCaT', '10.14.58.254', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'La Serena', 'tablet', 'Firefox', 'Android', '2025-07-20 17:47:40', 'historical_3d7672d6ea18d564d705160e9ac3c92c'),
-(221, 92, 17, 'PerdidoCaT', '10.194.44.150', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Valencia', 'mobile', 'Safari', 'Windows', '2025-07-20 19:36:20', 'historical_41dc296f2be9eebcb7607c1bbc7f4178'),
-(222, 92, 17, 'PerdidoCaT', '10.111.137.120', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'La Serena', 'desktop', 'Edge', 'iOS', '2025-07-20 19:33:03', 'historical_8cad9d06ce4822df999e761d3fd42928'),
-(223, 92, 17, 'PerdidoCaT', '10.221.207.221', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'La Serena', 'desktop', 'Firefox', 'Windows', '2025-07-20 20:46:28', 'historical_ece0237e111c55b83ca4613a0aeab8a6'),
-(224, 92, 17, 'PerdidoCaT', '10.89.105.133', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', 'mobile', 'Chrome', 'iOS', '2025-07-20 19:09:22', 'historical_6644d77cf293de2e8cd9dbd8105f2564'),
-(225, 92, 17, 'PerdidoCaT', '10.9.116.17', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Valparaíso', 'tablet', 'Chrome', 'Android', '2025-07-20 21:42:03', 'historical_6f278ef713b561d3b033076a972aedec'),
-(226, 92, 17, 'PerdidoCaT', '10.151.249.76', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'La Serena', 'tablet', 'Edge', 'Windows', '2025-07-20 17:17:45', 'historical_97eed94b8d7aa894c79edd7a01419859'),
-(227, 92, 17, 'PerdidoCaT', '10.144.204.241', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', 'mobile', 'Chrome', 'Linux', '2025-07-20 10:31:08', 'historical_19422e6dedc2a7912d3bbbda3d7886e1'),
-(228, 92, 17, 'PerdidoCaT', '10.220.136.186', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'La Serena', 'desktop', 'Safari', 'macOS', '2025-07-20 15:20:43', 'historical_95cdfa0239bbb61922897a0e1d555b47'),
-(229, 92, 17, 'PerdidoCaT', '10.12.8.196', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', 'tablet', 'Chrome', 'Linux', '2025-07-20 22:01:11', 'historical_21cbcd6e755848f00e439b357127004f'),
-(230, 92, 17, 'PerdidoCaT', '10.96.130.175', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Concepción', 'desktop', 'Firefox', 'Windows', '2025-07-20 17:11:49', 'historical_822f33b84b14920d202f82c13b294aa6'),
-(231, 92, 17, 'PerdidoCaT', '10.81.31.252', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Phoenix', 'desktop', 'Chrome', 'iOS', '2025-07-20 17:05:51', 'historical_31d7f5eb6243f2843d4b06f538fe4292'),
-(232, 92, 17, 'PerdidoCaT', '10.251.165.169', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Santiago', 'mobile', 'Edge', 'Windows', '2025-07-20 08:43:08', 'historical_33c58841bb43c49a096b82248153d77f'),
-(233, 92, 17, 'PerdidoCaT', '10.208.200.219', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'Santiago', 'mobile', 'Safari', 'Linux', '2025-07-20 21:32:18', 'historical_20066eba19f66195974deaf8cbb58256'),
-(234, 92, 17, 'PerdidoCaT', '10.149.92.159', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'La Serena', 'desktop', 'Edge', 'iOS', '2025-07-20 18:41:40', 'historical_5d816646963acd0862262010e1988728'),
-(235, 92, 17, 'PerdidoCaT', '10.62.205.199', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', 'tablet', 'Chrome', 'Linux', '2025-07-20 15:12:25', 'historical_a5f58f2783c678a3e11ac5ef600ddca9'),
-(236, 29, 1, 'guZSnU', '10.4.182.133', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Málaga', 'desktop', 'Chrome', 'macOS', '2025-07-11 22:30:04', 'historical_20e7b7af7a5778c85ae909e71a18ecc4'),
-(237, 29, 1, 'guZSnU', '10.85.242.22', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Córdoba', 'tablet', 'Chrome', 'Android', '2025-07-12 11:50:30', 'historical_b6fde211cf24481aa5f49be58e8f91c0'),
-(238, 29, 1, 'guZSnU', '10.76.203.20', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Venezuela', 'VE', NULL, 'desktop', 'Edge', 'iOS', '2025-07-13 17:47:44', 'historical_0b18fc3dc1945b63c8cf8b39bbadefe0'),
-(239, 29, 1, 'guZSnU', '10.202.160.51', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Los Angeles', 'desktop', 'Chrome', 'Android', '2025-07-14 15:33:05', 'historical_c390c660b5192aec4fa45ae2d7fa4c7b'),
-(240, 29, 1, 'guZSnU', '10.245.28.104', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Mendoza', 'desktop', 'Safari', 'Android', '2025-07-14 22:57:31', 'historical_8880db30dedd2bf99478ae3f86601b81'),
-(241, 29, 1, 'guZSnU', '10.156.143.212', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Mexico', 'MX', 'Puebla', 'tablet', 'Firefox', 'macOS', '2025-07-14 15:45:57', 'historical_0b5ef21c720610ce12cb7729b864833c'),
-(242, 29, 1, 'guZSnU', '10.151.151.220', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'United States', 'US', 'Houston', 'mobile', 'Edge', 'macOS', '2025-07-15 13:47:50', 'historical_8fd3a57827e45137ebcb9db166bdf432'),
-(243, 29, 1, 'guZSnU', '10.208.109.75', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Buenos Aires', 'mobile', 'Chrome', 'iOS', '2025-07-15 22:11:54', 'historical_8be5116a67ea900425ee741a9e368fa4'),
-(244, 29, 1, 'guZSnU', '10.81.137.178', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Zaragoza', 'tablet', 'Firefox', 'macOS', '2025-07-16 19:09:22', 'historical_a84269b1d9f3103b0d160287e7cb4946'),
-(245, 29, 1, 'guZSnU', '10.81.112.64', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, 'mobile', 'Chrome', 'Windows', '2025-07-16 10:39:26', 'historical_9bc6cad2b111249e0dd5e0f7de10fc05'),
-(246, 29, 1, 'guZSnU', '10.2.208.64', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Mexico', 'MX', 'Guadalajara', 'desktop', 'Firefox', 'iOS', '2025-07-16 13:07:05', 'historical_96c49c98872e386d75cb740dedcedbb6'),
-(247, 29, 1, 'guZSnU', '10.124.109.12', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', 'mobile', 'Chrome', 'macOS', '2025-07-17 15:50:04', 'historical_5685b2a1a978822e76d6e2d61e4027c1'),
-(248, 29, 1, 'guZSnU', '10.188.230.215', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Mendoza', 'mobile', 'Chrome', 'Windows', '2025-07-17 17:31:17', 'historical_4427c6484f3034196291b675d22ba404'),
-(249, 29, 1, 'guZSnU', '10.76.100.115', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Puebla', 'tablet', 'Chrome', 'Android', '2025-07-17 10:33:26', 'historical_2ae2c7024d68dbc17ebca0ba9c46c68f'),
-(250, 29, 1, 'guZSnU', '10.248.102.185', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Bogotá', 'mobile', 'Chrome', 'Linux', '2025-07-18 22:59:52', 'historical_9a636d9578f4d1994118cdbdd87af3d7'),
-(251, 29, 1, 'guZSnU', '10.168.150.140', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Argentina', 'AR', 'La Plata', 'desktop', 'Edge', 'Android', '2025-07-18 11:58:34', 'historical_447514dcf4d874afd425051700692d4d'),
-(252, 29, 1, 'guZSnU', '10.91.142.151', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Sevilla', 'desktop', 'Safari', 'Windows', '2025-07-18 14:41:13', 'historical_c572e473918a29c20a01a824b90eba9c'),
-(253, 29, 1, 'guZSnU', '10.19.67.184', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Buenos Aires', 'desktop', 'Chrome', 'Windows', '2025-07-19 20:56:54', 'historical_d0168d9d647ba56f5d1e7ab1c6c519a8'),
-(254, 29, 1, 'guZSnU', '10.62.163.174', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Colombia', 'CO', 'Bogotá', 'desktop', 'Safari', 'Linux', '2025-07-19 17:46:30', 'historical_7391e747105198d3d600590e321e99aa'),
-(255, 29, 1, 'guZSnU', '10.250.181.181', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Dominican Republic', 'DO', NULL, 'desktop', 'Firefox', 'iOS', '2025-07-19 13:28:51', 'historical_3409a64d66ed48bfe937ecb6c3dd6e96'),
-(256, 29, 1, 'guZSnU', '10.193.53.186', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Venezuela', 'VE', NULL, 'desktop', 'Firefox', 'Windows', '2025-07-20 10:15:38', 'historical_7c741b1b8c19693c67c52254fefaf4b1'),
-(257, 29, 1, 'guZSnU', '10.238.77.79', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Sevilla', 'tablet', 'Firefox', 'Windows', '2025-07-20 12:46:50', 'historical_38c55d771f7f8c66978becaa6a4e794e'),
-(258, 29, 1, 'guZSnU', '10.19.123.186', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Málaga', 'desktop', 'Chrome', 'Windows', '2025-07-20 22:45:50', 'historical_02652372fbc028a51c51604b14200c6d'),
-(259, 29, 1, 'guZSnU', '10.33.183.238', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Brazil', 'BR', NULL, 'desktop', 'Chrome', 'iOS', '2025-07-20 17:44:51', 'historical_ef20bb32af3b0ca48e09695d43da06dc'),
-(260, 29, 1, 'guZSnU', '10.38.236.228', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Colombia', 'CO', 'Bogotá', 'desktop', 'Firefox', 'iOS', '2025-07-20 09:49:41', 'historical_edac93de3e846ec4fea0f976a09ce05d'),
-(261, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.26.36.208', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', 'desktop', 'Chrome', 'Windows', '2025-07-18 17:00:10', 'historical_3a4cb456078e7e1895fe1e9651029e13'),
-(262, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.68.94.70', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Sevilla', 'desktop', 'Edge', 'Linux', '2025-07-18 15:11:40', 'historical_91195580bd666c370d753215cb1ab6ad'),
-(263, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.98.200.194', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', 'desktop', 'Chrome', 'Windows', '2025-07-18 12:16:57', 'historical_f6a8114aec901de3b151d96e83f1f2fa'),
-(264, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.251.166.224', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Italy', 'IT', NULL, 'tablet', 'Safari', 'iOS', '2025-07-18 16:34:48', 'historical_ac0c7e81df69efb125593d4f0b8b320d'),
-(265, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.23.212.142', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Santiago', 'tablet', 'Edge', 'Linux', '2025-07-18 15:29:18', 'historical_4744f7a257208ca91ec6147dc6bd133f'),
-(266, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.4.154.72', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'Valparaíso', 'desktop', 'Safari', 'Windows', '2025-07-18 21:16:41', 'historical_80e12050169d05753fb05039ff053d3b'),
-(267, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.129.189.29', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Puebla', 'tablet', 'Chrome', 'iOS', '2025-07-18 16:03:40', 'historical_a38e44b217d5a7a3ccbd45fd502b7bbc'),
-(268, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.56.206.211', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Guadalajara', 'desktop', 'Chrome', 'macOS', '2025-07-19 18:27:25', 'historical_0e231624a383af2d72cc4373affd9a83'),
-(269, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.150.168.30', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Guatemala', 'GT', NULL, 'desktop', 'Chrome', 'Linux', '2025-07-19 16:05:22', 'historical_3ae51ec030d770bbb7c9d0491767ed78'),
-(270, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.164.94.211', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Mendoza', 'tablet', 'Chrome', 'Windows', '2025-07-19 11:50:33', 'historical_5ee713fab720493a02d216e56d132ba8'),
-(271, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.123.155.235', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Madrid', 'tablet', 'Firefox', 'Android', '2025-07-19 13:11:36', 'historical_e4415f8fa53bd4d78c5fbd1b21e0e6f7'),
-(272, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.204.163.6', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Mendoza', 'mobile', 'Chrome', 'macOS', '2025-07-19 18:58:17', 'historical_315eda0c42148ab01a5ee07ab0cc5aff'),
-(273, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.6.121.228', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', 'desktop', 'Chrome', 'Linux', '2025-07-20 12:20:44', 'historical_e0b22c1378166781c33d04d88ba5e4eb'),
-(274, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.134.253.181', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', 'desktop', 'Chrome', 'Linux', '2025-07-20 15:12:01', 'historical_7c0b6a8844370a4712a8b975071af06a'),
-(275, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.174.44.51', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Puebla', 'desktop', 'Chrome', 'macOS', '2025-07-20 17:37:27', 'historical_638b058f057b831f4265930e9b90e005'),
-(276, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.125.43.5', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Puebla', 'tablet', 'Chrome', 'macOS', '2025-07-20 19:49:20', 'historical_28e6b8e6a0f716c7ffd37fd19bcbc0a0'),
-(277, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.39.108.171', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'La Plata', 'desktop', 'Firefox', 'macOS', '2025-07-20 20:22:41', 'historical_27c42fa89f13d02ff415618b45f69f50'),
-(278, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.254.168.244', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Ecuador', 'EC', NULL, 'tablet', 'Chrome', 'Windows', '2025-07-20 09:22:37', 'historical_b7fc7cdedf5f9deda3a3ee8883b4157d'),
-(279, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.254.57.217', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Rosario', 'mobile', 'Chrome', 'Linux', '2025-07-20 17:28:28', 'historical_be4932d61295ab1d2a23af9fa565ec3b'),
-(280, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.205.71.205', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Zaragoza', 'tablet', 'Chrome', 'iOS', '2025-07-20 08:06:44', 'historical_e05dcd25e0509efc872295e3503f3c9f'),
-(308, 30, 1, 'A3wBd6', '10.86.118.54', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Barcelona', 'mobile', 'Edge', 'Android', '2025-07-11 17:07:06', 'historical_4a608189f0cd2a085373c7f9c60dc933'),
-(309, 30, 1, 'A3wBd6', '10.246.102.128', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Phoenix', 'desktop', 'Chrome', 'Android', '2025-07-12 12:52:36', 'historical_4908b4266135a3b8af651580f72ab351'),
-(310, 30, 1, 'A3wBd6', '10.90.184.250', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Italy', 'IT', NULL, 'mobile', 'Chrome', 'Android', '2025-07-13 10:04:24', 'historical_a4988c5d56340939e391edfaab13b876'),
-(311, 30, 1, 'A3wBd6', '10.237.182.215', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', 'tablet', 'Chrome', 'Windows', '2025-07-14 16:42:35', 'historical_1b55128d5ca48b633104bd40cbac5dc2'),
-(312, 30, 1, 'A3wBd6', '10.62.253.56', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Phoenix', 'desktop', 'Chrome', 'macOS', '2025-07-15 16:42:17', 'historical_f023976b3ae11ffdc0c59539ad49cbdf'),
-(313, 30, 1, 'A3wBd6', '10.182.181.22', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Zaragoza', 'desktop', 'Edge', 'iOS', '2025-07-16 16:27:21', 'historical_3bb92c9ab0df62efeaf7d403eaefb843'),
-(314, 30, 1, 'A3wBd6', '10.146.64.207', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Sevilla', 'desktop', 'Safari', 'Linux', '2025-07-17 15:58:05', 'historical_9c95cbc0aac2640d365db1d7ba1384c7'),
-(315, 30, 1, 'A3wBd6', '10.38.192.198', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Phoenix', 'desktop', 'Chrome', 'Windows', '2025-07-18 21:54:48', 'historical_a3903b820f696036ef75103919c6a882'),
-(316, 30, 1, 'A3wBd6', '10.111.169.153', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Córdoba', 'desktop', 'Chrome', 'Android', '2025-07-19 14:02:32', 'historical_71249c10689043bc38d7b8e7387afea8'),
-(332, 37, 1, 'yCvdMr', '10.23.142.52', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Monterrey', 'desktop', 'Safari', 'Windows', '2025-07-12 19:42:02', 'historical_f8a892d2db22394e498235669130b853'),
-(333, 37, 1, 'yCvdMr', '10.16.108.212', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Colombia', 'CO', 'Medellín', 'desktop', 'Safari', 'Windows', '2025-07-13 20:13:07', 'historical_698064b444acb8731a7c6673d09e166f'),
-(334, 37, 1, 'yCvdMr', '10.195.71.60', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'Valparaíso', 'mobile', 'Safari', 'macOS', '2025-07-14 19:58:26', 'historical_8a3d4cfb77ad423ae0dc0a1bf1579be2'),
-(335, 37, 1, 'yCvdMr', '10.140.16.101', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', 'mobile', 'Chrome', 'Windows', '2025-07-15 18:48:07', 'historical_f08b0f07526a3306cd90e7b5493ea154'),
-(336, 37, 1, 'yCvdMr', '10.79.214.20', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, 'mobile', 'Chrome', 'Android', '2025-07-16 10:50:45', 'historical_3c0db0c6558007dd12fc9acd3e34df98'),
-(337, 37, 1, 'yCvdMr', '10.71.154.102', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Buenos Aires', 'desktop', 'Chrome', 'Linux', '2025-07-17 14:03:39', 'historical_27ae76f34760a7b38cc5ecda5634b4b6'),
-(338, 37, 1, 'yCvdMr', '10.215.221.73', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Colombia', 'CO', 'Bogotá', 'desktop', 'Firefox', 'macOS', '2025-07-18 15:18:01', 'historical_208236178d8e8adc71bc4f98264d640b'),
-(339, 97, 1, 'la_biblioteca_personal', '10.162.233.110', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Guatemala', 'GT', NULL, 'mobile', 'Chrome', 'Linux', '2025-07-18 13:17:26', 'historical_eaa50f69dc0c7229bced31dc5ca0b5c1'),
-(340, 97, 1, 'la_biblioteca_personal', '10.20.215.135', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Ecuador', 'EC', NULL, 'tablet', 'Firefox', 'macOS', '2025-07-18 22:47:16', 'historical_33d9d60a83ef132e3fb5bc40a6eec176'),
-(341, 97, 1, 'la_biblioteca_personal', '10.40.25.223', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Colombia', 'CO', 'Cartagena', 'mobile', 'Edge', 'Windows', '2025-07-19 22:31:43', 'historical_91196d1937ce30f32861d1c25469e8cf'),
-(342, 97, 1, 'la_biblioteca_personal', '10.200.173.172', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'United States', 'US', 'Houston', 'desktop', 'Firefox', 'macOS', '2025-07-19 09:24:12', 'historical_27930f6ca20e7f66798be78cc42ad796'),
-(343, 97, 1, 'la_biblioteca_personal', '10.122.22.124', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Rosario', 'mobile', 'Firefox', 'Linux', '2025-07-20 11:46:48', 'historical_43ba5910ccffda0fc0f2e38de26e6ca2'),
-(344, 97, 1, 'la_biblioteca_personal', '10.57.179.42', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Los Angeles', 'desktop', 'Chrome', 'Linux', '2025-07-20 18:16:52', 'historical_47855f8a05d86e2f3821b825a611b039'),
-(345, 36, 1, 'aGCvU7', '10.18.135.17', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Barcelona', 'mobile', 'Safari', 'macOS', '2025-07-11 14:27:49', 'historical_194071aa983653de1aad1409c783476c'),
-(346, 36, 1, 'aGCvU7', '10.212.15.11', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', 'desktop', 'Chrome', 'iOS', '2025-07-12 21:52:46', 'historical_7c7daad5c729cd65e973e84d3086a88f'),
-(347, 36, 1, 'aGCvU7', '10.4.239.64', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Málaga', 'mobile', 'Safari', 'iOS', '2025-07-13 10:43:15', 'historical_2f522f0f504c72c27929a8781af26ac6'),
-(348, 36, 1, 'aGCvU7', '10.9.169.2', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Tijuana', 'desktop', 'Safari', 'macOS', '2025-07-14 12:18:06', 'historical_23db2dc51038657650ac9c05d3d7268a'),
-(349, 36, 1, 'aGCvU7', '10.228.242.220', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Ecuador', 'EC', NULL, 'mobile', 'Edge', 'macOS', '2025-07-15 19:38:34', 'historical_dfa8e639755e4ae4bdefa234f9e5467f'),
-(350, 35, 1, '5iY9DD', '10.247.118.163', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Bilbao', 'tablet', 'Edge', 'iOS', '2025-07-11 22:01:33', 'historical_015f3dfc3490e1b948dc7bafdf399d88'),
-(351, 35, 1, '5iY9DD', '10.230.247.155', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'United States', 'US', 'Chicago', 'desktop', 'Safari', 'macOS', '2025-07-12 22:53:30', 'historical_c3cc63c348049d40ddafde2bccb87742'),
-(352, 35, 1, '5iY9DD', '10.3.209.90', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Málaga', 'desktop', 'Safari', 'iOS', '2025-07-13 18:46:45', 'historical_02b3ea79e43d63062d1ad0b0e13103cf'),
-(353, 35, 1, '5iY9DD', '10.3.55.87', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Phoenix', 'desktop', 'Chrome', 'macOS', '2025-07-14 17:21:43', 'historical_8ba28b0de84dc87824fea6e3468e3072'),
-(354, 35, 1, '5iY9DD', '10.1.159.159', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Madrid', 'tablet', 'Firefox', 'Linux', '2025-07-15 18:48:49', 'historical_f7e6d96244cebc779cc66d72dd7672e8'),
-(355, 91, 17, 'PhuVeJ', '10.195.128.200', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Valparaíso', 'mobile', 'Chrome', 'iOS', '2025-07-17 15:28:11', 'historical_d00cb133a4d0b319d3cb9f84588aeda7'),
-(356, 91, 17, 'PhuVeJ', '10.253.231.156', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', 'mobile', 'Chrome', 'Windows', '2025-07-18 09:09:52', 'historical_a17761d717c0f861493fe9fe4415fd1c'),
-(357, 91, 17, 'PhuVeJ', '10.38.145.34', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', 'desktop', 'Chrome', 'Windows', '2025-07-19 15:48:03', 'historical_ee846ca6b1600ac0f680bc43fe31cdb3'),
-(358, 91, 17, 'PhuVeJ', '10.40.58.223', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Concepción', 'mobile', 'Edge', 'Windows', '2025-07-20 14:50:44', 'historical_f78bb89be54b2fa5698e98ffa01cf758'),
-(363, 57, 1, 'vosNy7', '10.199.236.141', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, 'mobile', 'Chrome', 'macOS', '2025-07-13 20:53:57', 'historical_9cf6088bf5b1c695ed6125aba69a6a43'),
-(364, 57, 1, 'vosNy7', '10.207.245.121', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Mexico', 'MX', 'Tijuana', 'mobile', 'Firefox', 'macOS', '2025-07-14 21:40:23', 'historical_a2336885806c9964ee30a4e69f2b69ef'),
-(365, 57, 1, 'vosNy7', '10.213.113.9', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Ecuador', 'EC', NULL, 'desktop', 'Edge', 'Windows', '2025-07-15 14:52:37', 'historical_4663de8d625e17589066318ae7da5132'),
-(366, 57, 1, 'vosNy7', '10.188.219.237', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Madrid', 'desktop', 'Edge', 'Linux', '2025-07-16 19:21:45', 'historical_f1f2e659d24e2e2a8a2cbac44900d760'),
-(367, 34, 1, '1yVssT', '10.202.186.21', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'United States', 'US', 'Miami', 'desktop', 'Safari', 'Windows', '2025-07-11 13:17:19', 'historical_26aa88b8e477db3bc6311b03bbe7f9c7'),
-(368, 34, 1, '1yVssT', '10.137.214.129', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Córdoba', 'desktop', 'Chrome', 'Android', '2025-07-12 14:00:44', 'historical_d3a504dd09dfec7a59d93394b26ab054'),
-(369, 34, 1, '1yVssT', '10.19.230.98', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Guadalajara', 'tablet', 'Safari', 'Android', '2025-07-13 22:39:15', 'historical_7350a8a9926816ae461764ffda0c5f28'),
-(370, 34, 1, '1yVssT', '10.169.174.199', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Córdoba', 'desktop', 'Firefox', 'Linux', '2025-07-14 22:12:28', 'historical_a5996cd89aa0b36d7a384fc508340532'),
-(374, 90, 17, 'HBHXj6', '10.188.127.57', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', 'tablet', 'Chrome', 'Windows', '2025-07-17 09:23:34', 'historical_ff9e749420eea05e8a54b714091ca96b'),
-(375, 90, 17, 'HBHXj6', '10.205.29.148', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', 'desktop', 'Chrome', 'Linux', '2025-07-18 21:36:53', 'historical_fb26a5f554a4111947ed6cdae880fcb2'),
-(376, 90, 17, 'HBHXj6', '10.5.0.184', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', 'desktop', 'Chrome', 'Windows', '2025-07-19 18:50:33', 'historical_757b358036d7a7533f3cd20dd6630785'),
-(377, 89, 17, 'NyKMCD', '10.222.207.189', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Valparaíso', 'desktop', 'Chrome', 'macOS', '2025-07-17 19:00:33', 'historical_7a8080da2124fea151070ecaaaa42b3b'),
-(378, 89, 17, 'NyKMCD', '10.39.111.135', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Valparaíso', 'desktop', 'Edge', 'Windows', '2025-07-18 08:57:48', 'historical_65fb956ffbce50b351477716280ac082'),
-(379, 89, 17, 'NyKMCD', '10.128.209.193', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United Kingdom', 'GB', 'Liverpool', 'mobile', 'Chrome', 'Linux', '2025-07-19 12:16:46', 'historical_b86762cb0e14e82d0cd8de481a8a8bcc'),
-(380, 53, 1, '2Dtjhy', '10.99.129.85', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'United States', 'US', 'Phoenix', 'mobile', 'Safari', 'Windows', '2025-07-13 12:42:50', 'historical_d01720f03bf8dfb2f1b58d6793ee1dc1'),
-(381, 53, 1, '2Dtjhy', '10.200.116.199', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Málaga', 'tablet', 'Chrome', 'Windows', '2025-07-14 09:27:09', 'historical_990f4ae9723c281614e7e1420190e80b'),
-(382, 53, 1, '2Dtjhy', '10.9.30.41', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', 'mobile', 'Chrome', 'iOS', '2025-07-15 21:29:29', 'historical_6284c95500bd8662c52e8e06d7b6a6f8'),
-(383, 55, 1, 'fdeSit', '10.7.88.175', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Málaga', 'desktop', 'Edge', 'Windows', '2025-07-13 10:18:28', 'historical_3cb9417dee18b3f397a3a793ce89a2af'),
-(384, 55, 1, 'fdeSit', '10.100.249.210', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', 'tablet', 'Chrome', 'macOS', '2025-07-14 22:08:48', 'historical_d85823f0f95fd7bdd9a611aaf1a2117f'),
-(385, 55, 1, 'fdeSit', '10.60.122.77', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Tijuana', 'desktop', 'Chrome', 'Android', '2025-07-15 10:10:00', 'historical_f538d2ac5ec581aaf34117aff5bcd77e'),
-(386, 82, 11, 'gVXjHh', '10.79.99.18', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', 'tablet', 'Chrome', 'iOS', '2025-07-16 15:47:56', 'historical_8804844c8d14fd80fd6193717d5b19f9'),
-(387, 82, 11, 'gVXjHh', '10.175.178.71', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Valencia', 'desktop', 'Firefox', 'Android', '2025-07-17 14:02:14', 'historical_1562658e9fb1e3c619ee23348ac6d8a8'),
-(388, 82, 11, 'gVXjHh', '10.80.168.233', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Italy', 'IT', NULL, 'desktop', 'Edge', 'macOS', '2025-07-18 11:05:05', 'historical_244273a7beca991b5581f370dd4a60b5'),
-(389, 96, 1, 'Mi-Biblioteca_personal', '10.156.55.96', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', 'tablet', 'Chrome', 'iOS', '2025-07-18 22:11:18', 'historical_7e5b6a722d2472524a5a60c6ab7c0825'),
-(390, 96, 1, 'Mi-Biblioteca_personal', '10.138.171.34', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Guadalajara', 'desktop', 'Edge', 'Windows', '2025-07-19 12:19:35', 'historical_b0d2eac6ae39709fbbd345ef7436e56b'),
-(391, 65, 1, 'u6hcLr', '10.153.145.189', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'United States', 'US', 'Los Angeles', 'desktop', 'Edge', 'Windows', '2025-07-13 15:38:37', 'historical_094ed0d9d8e1d88bba74b4b7b031ac2b'),
-(392, 65, 1, 'u6hcLr', '10.232.118.8', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'New York', 'tablet', 'Chrome', 'macOS', '2025-07-14 10:29:07', 'historical_64bdd2471ffb87f13d5308c4e16cd3dc'),
-(393, 58, 1, 'EVYDFU', '10.245.173.240', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', 'mobile', 'Chrome', 'Windows', '2025-07-13 21:39:43', 'historical_ec695f940e39cb15b1bb8252fd5c0d02'),
-(394, 58, 1, 'EVYDFU', '10.164.64.122', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Cali', 'mobile', 'Chrome', 'iOS', '2025-07-14 12:30:48', 'historical_2499f711f5de8de73b918af0cada3165'),
-(395, 56, 1, '8zaHZF', '10.57.203.103', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', 'desktop', 'Chrome', 'macOS', '2025-07-13 15:17:55', 'historical_a5d24e245cf3d2433689bf4dd3b1f091'),
-(396, 56, 1, '8zaHZF', '10.159.220.139', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Zaragoza', 'mobile', 'Chrome', 'Linux', '2025-07-14 13:23:19', 'historical_4befd3c3c38f0d5000abe63e9fb2a384'),
-(397, 54, 1, 'lpBDcU', '10.230.93.34', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Zaragoza', 'tablet', 'Safari', 'Windows', '2025-07-13 10:13:40', 'historical_cb317cbc9db0d3412a400ed9a8c3e6d0'),
-(398, 54, 1, 'lpBDcU', '10.167.173.130', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Valparaíso', 'desktop', 'Firefox', 'macOS', '2025-07-14 10:13:07', 'historical_65ba67e27de36257ef5d500f775ec762'),
-(399, 52, 1, 'CgsEuL', '10.101.49.222', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', 'desktop', 'Chrome', 'Android', '2025-07-13 18:58:42', 'historical_0e7b507a8746abe115d9b628250c8730'),
-(400, 52, 1, 'CgsEuL', '10.231.255.74', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Mexico', 'MX', 'Ciudad de México', 'desktop', 'Firefox', 'iOS', '2025-07-14 13:26:59', 'historical_4c6bdcc819a5b4d18be17c4d75b68a29'),
-(401, 51, 1, 'IezPkI', '10.78.253.32', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', 'tablet', 'Chrome', 'Windows', '2025-07-13 22:57:34', 'historical_835ebb116888c5b6643d1b00425dd121'),
-(402, 51, 1, 'IezPkI', '10.189.226.175', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Germany', 'DE', NULL, 'desktop', 'Edge', 'Linux', '2025-07-14 13:02:13', 'historical_fd79a0120a105d1beef04d672e9ca977'),
-(403, 41, 13, 'kvB1gX', '10.213.150.6', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', 'tablet', 'Chrome', 'Android', '2025-07-12 12:10:47', 'historical_997f170741298148e7141b0ca7ec6ae3'),
-(404, 41, 13, 'kvB1gX', '10.71.19.121', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Puebla', 'mobile', 'Chrome', 'Windows', '2025-07-13 18:12:47', 'historical_788e81280ceb33ebd555b4ca130272e2'),
-(405, 40, 13, 'yhfdTJ', '10.62.80.247', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Barranquilla', 'mobile', 'Chrome', 'iOS', '2025-07-12 11:53:04', 'historical_d19941be29540152d8b4bcbf320fd1f1'),
-(406, 40, 13, 'yhfdTJ', '10.27.158.56', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Guadalajara', 'mobile', 'Chrome', 'Android', '2025-07-13 21:26:26', 'historical_baaafd375f28b220f19467aa919b00df'),
-(407, 116, 13, 'Gobierno-CAT2', '10.126.231.33', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Argentina', 'AR', 'Mendoza', 'mobile', 'Edge', 'iOS', '2025-07-19 11:53:51', 'historical_428f9087d7ee43ddc964616c1ab50fd1'),
-(408, 117, 13, 'TsMYj9', '10.192.247.183', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Los Angeles', 'mobile', 'Chrome', 'Windows', '2025-07-19 10:05:55', 'historical_d0b1cc24ae10cd5389d16d5a327f42e7'),
-(409, 118, 13, 'Y0fLh4', '10.165.91.3', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Venezuela', 'VE', NULL, 'mobile', 'Safari', 'iOS', '2025-07-19 09:02:25', 'historical_4a25e26fe7c7055c846035cb47761d87'),
-(411, 60, 1, 'liL38N', '10.60.120.97', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, 'desktop', 'Chrome', 'Windows', '2025-07-13 22:32:00', 'historical_f4c7660eed3248ef4c041596a00458c3'),
-(412, 59, 1, 'KnIyVp', '10.76.132.141', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Ciudad de México', 'desktop', 'Edge', 'Windows', '2025-07-13 08:12:37', 'historical_15db156d77d4ac7505b9b6259df00f66'),
-(413, 47, 1, 'g7AHKg', '10.35.247.232', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Barranquilla', 'desktop', 'Chrome', 'Android', '2025-07-13 18:38:12', 'historical_42014b3f670c351c99b8eb0e34d1e477'),
-(414, 45, 1, '7Mmc3X', '10.35.128.68', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Venezuela', 'VE', NULL, 'desktop', 'Edge', 'iOS', '2025-07-13 14:49:51', 'historical_cdd9c2e5ab6325765462adbd4ff0cb1c');
+INSERT INTO `url_analytics` (`id`, `url_id`, `user_id`, `short_code`, `ip_address`, `user_agent`, `referer`, `country`, `country_code`, `city`, `region`, `latitude`, `longitude`, `device_type`, `browser`, `os`, `clicked_at`, `session_id`) VALUES
+(1, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.192.236.49', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'France', 'FR', NULL, NULL, NULL, NULL, 'tablet', 'Chrome', 'Linux', '2025-07-18 13:35:34', 'historical_40dd3f79f774a878d14eb6b353b0974f'),
+(2, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.201.49.166', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Buenos Aires', NULL, NULL, NULL, 'desktop', 'Chrome', 'Android', '2025-07-18 17:44:01', 'historical_03be2aed86c422d5061ce5a58643a4d0'),
+(3, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.16.75.108', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'United Kingdom', 'GB', 'Birmingham', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-18 11:00:25', 'historical_878a99ca37aa2f9882de2c5401df4089'),
+(4, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.171.235.214', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'mobile', 'Chrome', 'macOS', '2025-07-18 12:15:58', 'historical_af0507e6d1eba1ecd9e33d79c8c110f7'),
+(5, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.69.117.80', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Buenos Aires', NULL, NULL, NULL, 'mobile', 'Chrome', 'Android', '2025-07-18 16:35:06', 'historical_63b68c085b8dff3feed044f3aaa33396'),
+(6, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.132.34.184', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-18 09:18:45', 'historical_8ca2cd8ddcb23e45ddffb96d81fd4c99'),
+(7, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.92.107.224', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'desktop', 'Edge', 'Android', '2025-07-18 17:54:35', 'historical_83a9a582fbc2788871599988bb421199'),
+(8, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.64.224.174', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Guatemala', 'GT', NULL, NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-18 15:05:46', 'historical_6dbd88ce10cd761ceae52326a9870e75'),
+(9, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.176.230.161', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Monterrey', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-18 17:18:32', 'historical_0d76bad646edb484694c468bb92951f5'),
+(10, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.143.195.113', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Ciudad de México', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-18 22:28:41', 'historical_7d466c87cdc8a38051dcb6e3ed248b41'),
+(11, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.40.217.33', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-18 12:12:29', 'historical_50b5ad8cfbf1a4744fe2166a0b158c98'),
+(12, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.44.145.114', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Barcelona', NULL, NULL, NULL, 'desktop', 'Safari', 'macOS', '2025-07-18 15:54:58', 'historical_a3ee22b0393ae10442780903f1767355'),
+(13, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.75.19.192', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Brazil', 'BR', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-18 14:24:40', 'historical_86887d74b9a8d044a1866ebbe73a5538'),
+(14, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.81.195.125', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'mobile', 'Firefox', 'iOS', '2025-07-18 14:41:36', 'historical_deb8f8a21f5ca236a0f2d6160c107bed'),
+(15, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.212.229.243', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', NULL, NULL, NULL, 'mobile', 'Chrome', 'Android', '2025-07-18 12:43:06', 'historical_0171067ff5883c12396175ff728bc2c6'),
+(16, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.117.32.182', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Ciudad de México', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-18 16:54:44', 'historical_5c4f71c643df3707553f622b3b086bcf'),
+(17, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.146.56.82', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'tablet', 'Firefox', 'Windows', '2025-07-18 09:08:08', 'historical_89d6cbd73303c1c3fcd936a91a965a25'),
+(18, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.118.211.96', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Tijuana', NULL, NULL, NULL, 'tablet', 'Safari', 'Windows', '2025-07-18 21:09:33', 'historical_7f2528fb949b991acfc704643d9e3bf3'),
+(19, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.76.236.224', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Mexico', 'MX', 'Ciudad de México', NULL, NULL, NULL, 'mobile', 'Firefox', 'Windows', '2025-07-18 20:48:50', 'historical_8d9bb4b1c61dfb7b938a5856f7895772'),
+(20, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.151.51.137', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Colombia', 'CO', 'Bogotá', NULL, NULL, NULL, 'desktop', 'Safari', 'macOS', '2025-07-18 20:13:25', 'historical_bb4cd743812cadaa789422d76ae24caf'),
+(21, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.128.181.177', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Valencia', NULL, NULL, NULL, 'desktop', 'Safari', 'iOS', '2025-07-18 12:13:29', 'historical_c35da22ef0f4e11903d55f7b581c495f'),
+(22, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.196.33.241', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-18 11:18:12', 'historical_0d0ae7893392201dcac0be83381142ae'),
+(23, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.240.24.48', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-18 21:30:19', 'historical_484c7c510fa1b314f76b05b5d0bfca9a'),
+(24, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.55.101.14', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Ecuador', 'EC', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-18 16:34:42', 'historical_0aa0daa5b64115effb7501a634419d31'),
+(25, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.31.168.147', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Valencia', NULL, NULL, NULL, 'mobile', 'Safari', 'macOS', '2025-07-18 22:14:20', 'historical_cd0bd308282fe5763b3d488dcb065714'),
+(26, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.95.109.226', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Ciudad de México', NULL, NULL, NULL, 'mobile', 'Chrome', 'Linux', '2025-07-18 22:34:13', 'historical_d6b3eed35cf7297534837840978aebd0'),
+(27, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.27.200.62', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Valencia', NULL, NULL, NULL, 'desktop', 'Safari', 'Windows', '2025-07-18 16:33:59', 'historical_aadc91bcfe704a3ae05d615b5c20b881'),
+(28, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.53.168.46', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-18 20:23:05', 'historical_14fd24aaa30f20803d96455306106171'),
+(29, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.175.120.108', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'desktop', 'Firefox', 'Linux', '2025-07-18 19:53:03', 'historical_a1d1e4310292ad455e456728a6bd6e63'),
+(30, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.212.101.66', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Ciudad de México', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-18 19:35:53', 'historical_c833100eb4b75cfc430e12f9cd828d1d'),
+(31, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.45.240.81', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Zaragoza', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-18 18:04:46', 'historical_8a5b8bc59f69b4ceda7722006464297e'),
+(32, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.66.116.228', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Argentina', 'AR', 'La Plata', NULL, NULL, NULL, 'mobile', 'Edge', 'iOS', '2025-07-18 10:59:28', 'historical_5106e70e2aa70aa46c626cf0238ba9d8'),
+(33, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.241.213.168', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Colombia', 'CO', 'Cali', NULL, NULL, NULL, 'mobile', 'Firefox', 'Windows', '2025-07-18 14:18:30', 'historical_27be3ae7a98770db5dbe6c3daa4d0828'),
+(34, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.197.252.95', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Portugal', 'PT', NULL, NULL, NULL, NULL, 'mobile', 'Firefox', 'macOS', '2025-07-18 10:24:22', 'historical_5d136154478ca5d0a233a39948912198'),
+(35, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.91.159.187', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Miami', NULL, NULL, NULL, 'mobile', 'Chrome', 'Linux', '2025-07-18 15:04:22', 'historical_c370b2ecaa201d3b5bcc8dffc758b19f'),
+(36, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.142.8.61', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Italy', 'IT', NULL, NULL, NULL, NULL, 'mobile', 'Chrome', 'macOS', '2025-07-18 21:00:01', 'historical_f3e2abc9ba8404ae581b1d606fb6579c'),
+(37, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.187.235.24', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Zaragoza', NULL, NULL, NULL, 'mobile', 'Safari', 'iOS', '2025-07-18 12:42:30', 'historical_8549975c8da55d4c2bfa7e7f5fd31c92'),
+(38, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.28.165.228', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Colombia', 'CO', 'Cartagena', NULL, NULL, NULL, 'desktop', 'Edge', 'iOS', '2025-07-18 08:11:05', 'historical_f7a844bfd5b6e6d93146a22b64793c97'),
+(39, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.7.41.252', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Germany', 'DE', NULL, NULL, NULL, NULL, 'desktop', 'Safari', 'macOS', '2025-07-18 22:01:28', 'historical_33ece5423824483bc7e353b0208da71c'),
+(40, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.5.21.103', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-18 17:51:41', 'historical_f51a699fd503a5cb44a65d8757ade452'),
+(41, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.203.97.31', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Italy', 'IT', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Android', '2025-07-18 10:01:33', 'historical_3a7ae74bd57b1a25529143999eac62a0'),
+(42, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.83.158.175', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Buenos Aires', NULL, NULL, NULL, 'desktop', 'Firefox', 'Android', '2025-07-18 17:55:47', 'historical_d90b649913b6c2a49a8ebad4eb262f87'),
+(43, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.176.133.36', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Ecuador', 'EC', NULL, NULL, NULL, NULL, 'desktop', 'Edge', 'macOS', '2025-07-18 17:53:55', 'historical_62f71030feccad116cd4ac7bdfb8bc23'),
+(44, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.140.175.37', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Ecuador', 'EC', NULL, NULL, NULL, NULL, 'tablet', 'Chrome', 'Windows', '2025-07-18 15:12:24', 'historical_7efb670fde54bcc2fc0f1b558c4555fd'),
+(45, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.223.144.196', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Zaragoza', NULL, NULL, NULL, 'desktop', 'Safari', 'iOS', '2025-07-18 11:36:57', 'historical_8f556dd03b28c78ab3fa244a369e9461'),
+(46, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.106.111.67', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Bogotá', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-18 15:51:04', 'historical_11b1c6c1d578c19513bf81b01834658f'),
+(47, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.172.33.111', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Barranquilla', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-18 19:02:34', 'historical_99173ee40e8420fbba2564268bddceec'),
+(48, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.109.88.226', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'desktop', 'Safari', 'iOS', '2025-07-18 17:34:32', 'historical_763510693bbe8ffc5a2ae73b71ac9e34'),
+(49, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.73.178.158', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Guadalajara', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-18 20:11:24', 'historical_5286de313e06a86c7c64a06816f512c8'),
+(50, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.51.135.83', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'mobile', 'Chrome', 'Linux', '2025-07-18 14:20:09', 'historical_aa91f2cf6244ec07aad82d01c08c5efc'),
+(51, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.139.122.41', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-18 08:04:14', 'historical_b7b2ef9f1e523d85844fbefadd5f7bbd'),
+(52, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.197.178.96', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Córdoba', NULL, NULL, NULL, 'tablet', 'Chrome', 'iOS', '2025-07-18 09:29:34', 'historical_b23d71b8d46de8dc75ecc013d83f3ecc'),
+(53, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.108.215.140', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Barcelona', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-18 14:00:20', 'historical_ba429dfb11323d1e1d8e815c48463a23'),
+(54, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.91.128.51', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-18 21:45:03', 'historical_05f461491e9347aa9beff3fe5ef710ef'),
+(55, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.73.181.114', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Valencia', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-18 14:48:39', 'historical_fb32094bb3e16fb0a47e7fbf8e755998'),
+(56, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.67.209.150', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'United States', 'US', 'New York', NULL, NULL, NULL, 'desktop', 'Safari', 'macOS', '2025-07-18 10:12:40', 'historical_617b73c69602621bc4f126154b701b0b'),
+(57, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.37.167.154', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-19 22:53:36', 'historical_15197403758ca351b510a6169a82548a'),
+(58, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.218.94.18', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'New York', NULL, NULL, NULL, 'desktop', 'Chrome', 'iOS', '2025-07-19 18:34:40', 'historical_2895ec213947f286b39030ee291a6c92'),
+(59, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.114.255.247', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'La Plata', NULL, NULL, NULL, 'tablet', 'Chrome', 'Windows', '2025-07-19 12:21:51', 'historical_e2f5d2082ef76bfd041a90bc0fee411a'),
+(60, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.59.123.123', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'desktop', 'Firefox', 'macOS', '2025-07-19 18:28:05', 'historical_e729946e6d3d42f988770bd91e3ddc1b'),
+(61, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.229.91.230', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'United States', 'US', 'Phoenix', NULL, NULL, NULL, 'mobile', 'Edge', 'Android', '2025-07-19 15:28:28', 'historical_3f0072e100693241e14b49968c99b805'),
+(62, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.26.35.56', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'desktop', 'Safari', 'Windows', '2025-07-19 15:19:19', 'historical_73454bf64a97c989e7677c98a7776cf2'),
+(63, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.120.73.17', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Málaga', NULL, NULL, NULL, 'mobile', 'Firefox', 'Android', '2025-07-19 16:34:03', 'historical_8a7e039fbf642fb34352a01cab8a775a'),
+(64, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.61.25.153', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'tablet', 'Edge', 'iOS', '2025-07-19 09:33:32', 'historical_5e6fb17f647992009f394628cfc2a30b'),
+(65, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.158.115.90', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', NULL, NULL, NULL, 'desktop', 'Chrome', 'Android', '2025-07-19 15:40:55', 'historical_39f35f8ff2461d6c2be0605603a0825a'),
+(66, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.164.174.50', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Phoenix', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-19 12:37:31', 'historical_548630b8a51d2604f561b7e574878762'),
+(67, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.81.2.219', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Medellín', NULL, NULL, NULL, 'mobile', 'Chrome', 'iOS', '2025-07-19 11:12:52', 'historical_17fc93074b6f9d474cc3dfb610af2791'),
+(68, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.224.60.95', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Medellín', NULL, NULL, NULL, 'desktop', 'Chrome', 'iOS', '2025-07-19 20:58:39', 'historical_57afcce1e9744feb43c886608fc510dc'),
+(69, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.33.111.240', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Puebla', NULL, NULL, NULL, 'desktop', 'Edge', 'Android', '2025-07-19 18:05:53', 'historical_3130b58e603e88c9db7b2f68ed25dadf'),
+(70, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.234.82.252', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Monterrey', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-19 19:40:09', 'historical_d42b0dd6a18ab7ea4b97c9224e3da0ca'),
+(71, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.86.59.117', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'tablet', 'Chrome', 'Windows', '2025-07-19 19:27:52', 'historical_8c494ada5279e0098e738c244425b6a0'),
+(72, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.152.50.166', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Barcelona', NULL, NULL, NULL, 'tablet', 'Firefox', 'Windows', '2025-07-19 17:53:56', 'historical_410f6733b40c3c32fb8be4fb15b97206'),
+(73, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.83.109.62', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'mobile', 'Firefox', 'Windows', '2025-07-19 22:18:33', 'historical_0ff7a07202f8af6480b5113e2d753033'),
+(74, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.146.69.233', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Málaga', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-19 15:47:49', 'historical_f6b599a6d0d82456f38e15c7a51ad41d'),
+(75, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.134.130.41', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Monterrey', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-19 21:54:17', 'historical_502b4a6f85851279edd3ba682fba6d81'),
+(76, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.78.150.66', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Mendoza', NULL, NULL, NULL, 'mobile', 'Safari', 'Windows', '2025-07-19 21:59:39', 'historical_fe606255a1d07fa80a7d8c94f286e3c4'),
+(77, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.146.6.138', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Córdoba', NULL, NULL, NULL, 'mobile', 'Firefox', 'Windows', '2025-07-19 17:26:19', 'historical_d54f2b8ac1228f28fb2ef677db64a149'),
+(78, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.62.141.254', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Medellín', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-19 18:28:39', 'historical_d5e0c19d209973a30977aa0b3bb1252c'),
+(79, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.72.137.193', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'tablet', 'Firefox', 'Windows', '2025-07-19 19:09:06', 'historical_19d5c084d0b293c89d52a2a206c9264f'),
+(80, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.54.27.28', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Mexico', 'MX', 'Tijuana', NULL, NULL, NULL, 'mobile', 'Firefox', 'macOS', '2025-07-19 08:08:38', 'historical_c9b14939bd4a0c6762c164763ee09f6f'),
+(81, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.49.98.201', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Valencia', NULL, NULL, NULL, 'tablet', 'Firefox', 'Windows', '2025-07-19 12:33:18', 'historical_4d1b13100f7b21c729e21de6fc9941eb'),
+(82, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.110.112.214', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'mobile', 'Chrome', 'macOS', '2025-07-19 09:35:08', 'historical_c2d81511f517bc5a18b3770f49e913c7'),
+(83, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.209.152.188', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Italy', 'IT', NULL, NULL, NULL, NULL, 'tablet', 'Safari', 'macOS', '2025-07-19 14:31:52', 'historical_44f20105af5568982f172954c500c0be'),
+(84, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.139.175.141', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Miami', NULL, NULL, NULL, 'desktop', 'Chrome', 'Android', '2025-07-19 14:19:58', 'historical_75ac4484f3d7efb130aa078ce60f6e3d'),
+(85, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.12.66.246', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'mobile', 'Edge', 'Android', '2025-07-19 15:21:19', 'historical_535ac9c652599ca9d97fd2aa6f1fb2a1'),
+(86, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.120.136.117', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'France', 'FR', NULL, NULL, NULL, NULL, 'tablet', 'Chrome', 'Windows', '2025-07-19 13:59:55', 'historical_618473097fbc012d7d2a3ffb85adda57'),
+(87, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.53.185.198', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Bilbao', NULL, NULL, NULL, 'desktop', 'Safari', 'Android', '2025-07-19 20:02:37', 'historical_859bcfc7ae06c8df01770c2e02294bdf'),
+(88, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.248.43.16', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Monterrey', NULL, NULL, NULL, 'tablet', 'Chrome', 'Linux', '2025-07-19 15:47:19', 'historical_dd9fb0ea6ff5ac68bac2f4863e88c8f7'),
+(89, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.142.73.96', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', NULL, NULL, NULL, 'tablet', 'Chrome', 'iOS', '2025-07-19 09:34:00', 'historical_6ca6958b79819b6f7e0165dc5e1cfb9e'),
+(90, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.218.224.248', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'tablet', 'Safari', 'iOS', '2025-07-19 18:41:09', 'historical_532092e60d6970846c0f09798197ab4b'),
+(91, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.166.164.194', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'desktop', 'Chrome', 'Android', '2025-07-19 13:21:46', 'historical_d21d8a1c0c6946f9eaf4063b89b9b66c'),
+(92, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.21.147.90', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'tablet', 'Edge', 'Windows', '2025-07-19 12:06:43', 'historical_792a592c91dd46946c7037670cf87c1f'),
+(93, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.25.32.196', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Guadalajara', NULL, NULL, NULL, 'desktop', 'Edge', 'Android', '2025-07-19 19:04:00', 'historical_5673f0d2dbd07d6c295288cce4ea164f'),
+(94, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.84.246.3', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Barranquilla', NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-19 17:22:39', 'historical_5317ba54dbfc8fbc54d26df4c35e7f24'),
+(95, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.148.150.9', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Zaragoza', NULL, NULL, NULL, 'mobile', 'Chrome', 'iOS', '2025-07-19 22:11:40', 'historical_b0390d17cf6a9b39626b77adfaec4560'),
+(96, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.150.107.60', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Barcelona', NULL, NULL, NULL, 'desktop', 'Edge', 'macOS', '2025-07-19 19:48:42', 'historical_2732efebbf4d94881f66251fb0503cf5'),
+(97, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.32.50.62', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-19 09:38:11', 'historical_b86d5c1240b09bdf7f2f5edc217cc96a'),
+(98, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.254.68.158', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'tablet', 'Chrome', 'iOS', '2025-07-19 09:59:22', 'historical_94980023f20f041de28bbcc6b7fa0138'),
+(99, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.44.37.247', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Germany', 'DE', NULL, NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-19 14:15:31', 'historical_7c8c710962c4da0528eb668bf52857c9'),
+(100, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.119.184.144', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Córdoba', NULL, NULL, NULL, 'mobile', 'Firefox', 'iOS', '2025-07-19 08:56:20', 'historical_c89851453d0cadfc0f0e9733e44a58f8'),
+(101, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.176.168.69', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'United Kingdom', 'GB', 'Manchester', NULL, NULL, NULL, 'tablet', 'Edge', 'iOS', '2025-07-19 20:25:00', 'historical_516db0120b9d84892d352f48e3a1f61e'),
+(102, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.176.70.243', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'France', 'FR', NULL, NULL, NULL, NULL, 'desktop', 'Firefox', 'iOS', '2025-07-19 08:05:18', 'historical_9566c21cd1df4355b5c36a22236d74a7'),
+(103, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.129.225.106', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Ecuador', 'EC', NULL, NULL, NULL, NULL, 'mobile', 'Chrome', 'macOS', '2025-07-19 14:25:35', 'historical_c60efe48974cd5185a35096faad68b97'),
+(104, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.182.57.56', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Guatemala', 'GT', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-20 13:13:35', 'historical_c383d63fbe9605d6f87bdcfc663e0fdc'),
+(105, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.30.79.233', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-20 12:39:30', 'historical_f155e2df628331bfbe1b6d4f6f8da1e6'),
+(106, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.223.209.86', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Tijuana', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-20 13:01:11', 'historical_8062d269023c0ab18ac9013cf29cc2c4'),
+(107, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.51.83.247', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Guadalajara', NULL, NULL, NULL, 'desktop', 'Edge', 'iOS', '2025-07-20 09:02:45', 'historical_d78fded31cb15cafbfb734aca470fece'),
+(108, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.98.4.60', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Rosario', NULL, NULL, NULL, 'tablet', 'Safari', 'Windows', '2025-07-20 15:50:44', 'historical_41d1d1d7e1a9d86b28c41b228b240758'),
+(109, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.59.51.101', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Málaga', NULL, NULL, NULL, 'desktop', 'Firefox', 'Windows', '2025-07-20 12:38:50', 'historical_b5a36c69cf1108b00d227135618ca8bf'),
+(110, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.204.255.246', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-20 09:39:02', 'historical_ceae5b3f7d2f219d42cb23eafc8179d3'),
+(111, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.187.122.145', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Bogotá', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-20 18:25:20', 'historical_560d784bcb97f28c963ab3fb2d422400'),
+(112, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.19.89.233', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Android', '2025-07-20 14:49:29', 'historical_923aa36b070150e58e882869fe1600dc'),
+(113, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.15.188.196', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Phoenix', NULL, NULL, NULL, 'desktop', 'Chrome', 'iOS', '2025-07-20 19:56:13', 'historical_6aea7f9c5813d0211c1e442ec375920e'),
+(114, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.98.86.176', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Tijuana', NULL, NULL, NULL, 'desktop', 'Edge', 'iOS', '2025-07-20 13:53:02', 'historical_ddeab391800a9b6d99bf76a1b16236c5'),
+(115, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.16.8.176', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Málaga', NULL, NULL, NULL, 'desktop', 'Edge', 'macOS', '2025-07-20 14:22:05', 'historical_9fc3367504b072c400dc42ea28df6282'),
+(116, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.215.64.177', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Barcelona', NULL, NULL, NULL, 'desktop', 'Safari', 'Windows', '2025-07-20 12:05:14', 'historical_5ada10471ffe245f398fcb868152553b'),
+(117, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.177.131.56', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'United States', 'US', 'Los Angeles', NULL, NULL, NULL, 'desktop', 'Firefox', 'Windows', '2025-07-20 18:44:44', 'historical_dd4c8de55ffdcdc7ee42f24c971d5d42'),
+(118, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.213.43.183', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-20 22:10:59', 'historical_8f69da483a21e94befbdd8fbc778e303'),
+(119, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.110.12.4', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'France', 'FR', NULL, NULL, NULL, NULL, 'desktop', 'Edge', 'iOS', '2025-07-20 08:18:51', 'historical_1c0e4346c08fe0e718c20348437d2243'),
+(120, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.206.12.72', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Bilbao', NULL, NULL, NULL, 'tablet', 'Safari', 'macOS', '2025-07-20 18:16:16', 'historical_e4f3ade74a170f7d8f70c9586e127cd3'),
+(121, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.142.38.24', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Valencia', NULL, NULL, NULL, 'desktop', 'Safari', 'Linux', '2025-07-20 12:16:43', 'historical_62454219262905d3f09789376d14eb69'),
+(122, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.61.249.219', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Houston', NULL, NULL, NULL, 'tablet', 'Chrome', 'Linux', '2025-07-20 09:01:29', 'historical_194f4b2599be39f0dd039e820680cd6f'),
+(123, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.181.236.164', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Barcelona', NULL, NULL, NULL, 'mobile', 'Firefox', 'Windows', '2025-07-20 11:27:55', 'historical_86babe04019c8d6669dc0255edd3a129'),
+(124, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.33.229.248', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Málaga', NULL, NULL, NULL, 'tablet', 'Safari', 'Windows', '2025-07-20 08:04:34', 'historical_0c5e54fb9da415d216382598454ed92c'),
+(125, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.203.96.165', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'mobile', 'Chrome', 'macOS', '2025-07-20 22:16:00', 'historical_dd79fc1d8d5dd4511e70c6cddbd46498'),
+(126, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.85.157.210', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Mendoza', NULL, NULL, NULL, 'mobile', 'Safari', 'Android', '2025-07-20 12:46:15', 'historical_fa422641eb08452134c8c019bc19b18d'),
+(127, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.181.106.230', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Miami', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-20 21:23:14', 'historical_a4e91c6e2f7e98305d221ac2c4772ce3'),
+(128, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.177.148.105', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'desktop', 'Safari', 'iOS', '2025-07-20 14:47:02', 'historical_1db3a429e39057147f4b6822fed070f7'),
+(129, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.3.178.214', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Chicago', NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-20 08:55:14', 'historical_2c8dd561525d711ffb4ec32121faca5e'),
+(130, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.125.202.150', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Colombia', 'CO', 'Medellín', NULL, NULL, NULL, 'desktop', 'Firefox', 'Android', '2025-07-20 17:17:23', 'historical_2094e6616637ebe64f720b8caf76b2fc'),
+(131, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.223.176.62', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Valencia', NULL, NULL, NULL, 'desktop', 'Safari', 'iOS', '2025-07-20 16:25:42', 'historical_dc01a39b9a195f11e4263a796f9de3ed'),
+(132, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.105.195.190', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Dominican Republic', 'DO', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'iOS', '2025-07-20 11:19:41', 'historical_4668dcc98d92cc4a3b9a119ffaaed22a'),
+(133, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.144.223.209', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'La Plata', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-20 20:33:00', 'historical_e28daff96f55f580c3198d56f09f12e5'),
+(134, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.48.105.139', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Guadalajara', NULL, NULL, NULL, 'mobile', 'Safari', 'Windows', '2025-07-20 11:51:25', 'historical_134d7e9fe9c76223775c875c8095f7d0'),
+(135, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.99.35.127', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Guatemala', 'GT', NULL, NULL, NULL, NULL, 'mobile', 'Firefox', 'Linux', '2025-07-20 19:21:49', 'historical_0efef44a193b0036e32eeae77acd76c1'),
+(136, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.23.145.48', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Colombia', 'CO', 'Cartagena', NULL, NULL, NULL, 'mobile', 'Safari', 'iOS', '2025-07-20 08:40:19', 'historical_6aec4226f0b6b64b59a1a7a39b80dd9a'),
+(137, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.200.64.109', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Ciudad de México', NULL, NULL, NULL, 'mobile', 'Edge', 'Android', '2025-07-20 18:25:14', 'historical_2d4e7f5072187d7582ff6863adcb5129'),
+(138, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.202.61.154', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Buenos Aires', NULL, NULL, NULL, 'mobile', 'Safari', 'Android', '2025-07-20 20:55:32', 'historical_e45a9cbf6e4364896fb55371b575cab2'),
+(139, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.124.91.145', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Brazil', 'BR', NULL, NULL, NULL, NULL, 'tablet', 'Safari', 'Android', '2025-07-20 13:51:34', 'historical_c1b8ea99aa84c0222ef6d769accaf538'),
+(140, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.161.213.71', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'mobile', 'Chrome', 'macOS', '2025-07-20 09:53:36', 'historical_6cec0738a5ce71a85d6c818964d44708'),
+(141, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.235.115.234', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Bilbao', NULL, NULL, NULL, 'tablet', 'Safari', 'Windows', '2025-07-20 12:40:38', 'historical_8dfac37fc50ce8b9cbc9918fff2e7a07'),
+(142, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.7.195.174', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Germany', 'DE', NULL, NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-20 15:26:45', 'historical_77fa25146c4b7aa3862cd6fe25b38f89'),
+(143, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.73.60.112', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'desktop', 'Chrome', 'Android', '2025-07-20 20:17:12', 'historical_77e375fba8486e0ee2c83cbac2f0d4cb'),
+(144, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.47.37.148', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'desktop', 'Safari', 'Windows', '2025-07-20 18:55:43', 'historical_5c503bf64517afbae11bbc7ea68f8674'),
+(145, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.48.188.71', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Puebla', NULL, NULL, NULL, 'mobile', 'Chrome', 'Linux', '2025-07-20 17:32:16', 'historical_314808ecacaeccfe479e9703c4eb1deb'),
+(146, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.63.132.252', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'La Plata', NULL, NULL, NULL, 'desktop', 'Firefox', 'Windows', '2025-07-20 14:48:11', 'historical_18301cfebd8063b354a8f94b88feb018'),
+(147, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.120.4.238', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Ciudad de México', NULL, NULL, NULL, 'mobile', 'Chrome', 'iOS', '2025-07-20 14:41:56', 'historical_359d59eb3c2d6698b19f86c1058f0165'),
+(148, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.113.254.54', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-20 08:51:38', 'historical_61b982ee3e472481d1d5ba80033c2f81'),
+(149, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.185.36.237', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'mobile', 'Safari', 'macOS', '2025-07-20 22:30:42', 'historical_df57d02d1040968ef26f3965f472f4b0'),
+(150, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.195.111.132', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Córdoba', NULL, NULL, NULL, 'tablet', 'Chrome', 'Windows', '2025-07-20 19:11:49', 'historical_a72ec90b39e3742b47a58df58e172796'),
+(151, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.131.75.126', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Ecuador', 'EC', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-20 11:25:25', 'historical_b90c9c7794ea52c169898fdb3b7dd803'),
+(152, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.209.21.154', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'desktop', 'Firefox', 'Windows', '2025-07-20 22:04:48', 'historical_7476f17faf0dcad418b38ccacf8518f7'),
+(153, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.239.208.115', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Valencia', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-20 21:17:01', 'historical_c4dd0cf8fdeb7ad5e3f14fcfacae4016'),
+(154, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.4.5.10', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'tablet', 'Edge', 'Windows', '2025-07-20 15:36:43', 'historical_9404829c487b073f0e0703ff6f76cb6d'),
+(155, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.80.90.79', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Puebla', NULL, NULL, NULL, 'mobile', 'Safari', 'Windows', '2025-07-20 15:26:01', 'historical_f9876c693b3c6b228266f47664937339'),
+(156, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.232.84.133', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'tablet', 'Chrome', 'Android', '2025-07-20 17:10:19', 'historical_cfdc9455fb990f83f9dde369e31692fc'),
+(157, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.142.166.20', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Italy', 'IT', NULL, NULL, NULL, NULL, 'tablet', 'Safari', 'Android', '2025-07-20 22:36:20', 'historical_e06e82ab4ee9d6a38c55825a549eb3c8'),
+(158, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.24.236.239', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'France', 'FR', NULL, NULL, NULL, NULL, 'desktop', 'Safari', 'macOS', '2025-07-20 16:10:58', 'historical_649de996e29bef40bce21a4a735b2783'),
+(159, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.110.2.156', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Guadalajara', NULL, NULL, NULL, 'tablet', 'Safari', 'macOS', '2025-07-20 10:17:56', 'historical_a08c60c884b8cd9f0c020cf6330bcd48'),
+(160, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.17.247.186', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-20 19:37:04', 'historical_cb94dedae3562e5d5ef29d1e5b3108d9'),
+(161, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.177.196.187', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Colombia', 'CO', 'Cartagena', NULL, NULL, NULL, 'desktop', 'Edge', 'Linux', '2025-07-20 11:29:44', 'historical_3e4f3cb1f7ea9f4e54e860f1c946ede3'),
+(162, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.149.123.80', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Zaragoza', NULL, NULL, NULL, 'mobile', 'Firefox', 'Android', '2025-07-20 09:35:08', 'historical_2b08db1c6033f2acf0ba843d36cd2a64'),
+(163, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.85.224.137', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United Kingdom', 'GB', 'Edinburgh', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-20 09:10:18', 'historical_985513a8c440eeace92f37f26e6524de'),
+(164, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.2.92.231', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Buenos Aires', NULL, NULL, NULL, 'mobile', 'Safari', 'macOS', '2025-07-20 15:30:33', 'historical_631f6ad845b07a682d7c8d676e1be59b'),
+(165, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.201.55.53', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Barcelona', NULL, NULL, NULL, 'mobile', 'Edge', 'Android', '2025-07-20 14:07:48', 'historical_94e2ba7e4d3fcfe3882247b1222bc1d2'),
+(166, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.127.164.192', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Mexico', 'MX', 'Puebla', NULL, NULL, NULL, 'tablet', 'Firefox', 'Windows', '2025-07-20 16:41:03', 'historical_9a5ac0d812ca2dc8bf0af6dd95f4fd68'),
+(167, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.14.59.229', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Italy', 'IT', NULL, NULL, NULL, NULL, 'desktop', 'Firefox', 'Linux', '2025-07-20 12:40:10', 'historical_de21ced5b5ec9dc4e9243b799a76b193'),
+(168, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.159.179.177', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Zaragoza', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-20 22:17:20', 'historical_60e2060ac6ad32ff0bc1066fb719ff97'),
+(169, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.184.182.69', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Ecuador', 'EC', NULL, NULL, NULL, NULL, 'desktop', 'Safari', 'Android', '2025-07-20 22:22:57', 'historical_d5f90c4791e6d9d34c95de7188b88cba'),
+(170, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.147.119.59', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Barcelona', NULL, NULL, NULL, 'desktop', 'Chrome', 'iOS', '2025-07-20 08:29:24', 'historical_b632e0fcb297bc2a7e9a35471c10c87e'),
+(171, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.151.0.253', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'France', 'FR', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-20 20:08:59', 'historical_b9238745cea65212c01afa19e22a54eb'),
+(172, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.5.27.187', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Dominican Republic', 'DO', NULL, NULL, NULL, NULL, 'desktop', 'Safari', 'macOS', '2025-07-20 09:51:25', 'historical_0b781bf705b8db1fcde04d6b3c0d5949'),
+(173, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.183.232.74', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-20 12:17:38', 'historical_03bc5879672b547e86a58f5723894091'),
+(174, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.15.234.108', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Ecuador', 'EC', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-20 10:42:53', 'historical_d260db2fa553f93634ba74eeb9623466'),
+(175, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.69.186.159', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Rosario', NULL, NULL, NULL, 'mobile', 'Firefox', 'Windows', '2025-07-20 14:15:40', 'historical_3f609707a7dc41b374dc15a8d8fb47cc'),
+(176, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.31.166.99', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Puebla', NULL, NULL, NULL, 'desktop', 'Safari', 'Windows', '2025-07-20 08:02:52', 'historical_f0bd303cf8ef4ca564e39097332e0fdf'),
+(177, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.183.159.204', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Colombia', 'CO', 'Barranquilla', NULL, NULL, NULL, 'mobile', 'Edge', 'Android', '2025-07-20 20:40:51', 'historical_216aa12a96d6d41ea177414b9a54cee4'),
+(178, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.99.72.235', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Bilbao', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-20 13:04:37', 'historical_2c86ec538c631c26212e230ccef373bc'),
+(179, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.109.83.106', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'mobile', 'Firefox', 'Android', '2025-07-20 19:38:59', 'historical_6d335770ac221cb3e641f6eb702bd980'),
+(180, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.40.242.216', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'desktop', 'Chrome', 'Android', '2025-07-20 17:14:17', 'historical_6880c21c2070a1c49778ea21fee9a392'),
+(181, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.76.199.10', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Buenos Aires', NULL, NULL, NULL, 'mobile', 'Firefox', 'Linux', '2025-07-20 14:55:12', 'historical_a93931279a4f5c8fe34371c1750908e4'),
+(182, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.247.47.143', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'United Kingdom', 'GB', 'Manchester', NULL, NULL, NULL, 'desktop', 'Edge', 'Linux', '2025-07-20 09:39:10', 'historical_fca08f6fd974a7f37e394fc8a1ec4d01'),
+(183, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.184.135.204', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Tijuana', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-20 12:10:57', 'historical_e96f841aabf3d156f9e24bf9963b7b80'),
+(184, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.18.149.230', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Tijuana', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-20 12:58:45', 'historical_aa7d17f3235361d57028d46589b3d78a'),
+(185, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.191.73.29', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Argentina', 'AR', 'La Plata', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-20 08:06:25', 'historical_3052a8bc19873648808c56f1579ef080'),
+(186, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.144.227.2', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'tablet', 'Safari', 'Windows', '2025-07-20 13:30:32', 'historical_8d89fa468ad852948e55d5a2c267ed20'),
+(187, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.128.78.239', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Zaragoza', NULL, NULL, NULL, 'desktop', 'Chrome', 'Android', '2025-07-20 10:00:21', 'historical_3a904b5dd8b485bef450d1eadda5550b');
+INSERT INTO `url_analytics` (`id`, `url_id`, `user_id`, `short_code`, `ip_address`, `user_agent`, `referer`, `country`, `country_code`, `city`, `region`, `latitude`, `longitude`, `device_type`, `browser`, `os`, `clicked_at`, `session_id`) VALUES
+(188, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.132.227.197', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Puebla', NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-20 12:19:15', 'historical_c241ef692d8ab2130f0f615d50fd1fc1'),
+(189, 92, 17, 'PerdidoCaT', '10.133.243.178', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'mobile', 'Chrome', 'macOS', '2025-07-17 13:21:40', 'historical_50e5d62dd405d21d7b00df638a956944'),
+(190, 92, 17, 'PerdidoCaT', '10.96.142.143', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-17 19:25:41', 'historical_05e3644b51464d306193ec82a9f938db'),
+(191, 92, 17, 'PerdidoCaT', '10.19.85.67', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Argentina', 'AR', 'Mendoza', NULL, NULL, NULL, 'desktop', 'Safari', 'macOS', '2025-07-17 18:08:38', 'historical_d71d8ef9b3a8c0085ac22fd0509cc38b'),
+(192, 92, 17, 'PerdidoCaT', '10.181.196.184', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'desktop', 'Firefox', 'Linux', '2025-07-17 18:14:14', 'historical_8bc83623c223504b07576ae867dc2d94'),
+(193, 92, 17, 'PerdidoCaT', '10.99.163.29', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'desktop', 'Edge', 'macOS', '2025-07-17 16:16:23', 'historical_b3ce57df3917b143fe640aa7ed9ebcda'),
+(194, 92, 17, 'PerdidoCaT', '10.255.129.11', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'mobile', 'Firefox', 'Windows', '2025-07-17 14:45:23', 'historical_11541ba56c010bd91791b582fb8b332f'),
+(195, 92, 17, 'PerdidoCaT', '10.225.20.159', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'desktop', 'Chrome', 'iOS', '2025-07-17 18:14:33', 'historical_cddf88383d741768c8071cd7873be76d'),
+(196, 92, 17, 'PerdidoCaT', '10.15.129.138', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Mexico', 'MX', 'Puebla', NULL, NULL, NULL, 'desktop', 'Safari', 'Windows', '2025-07-17 18:41:04', 'historical_e84192ed65f6dfb9e67b085fd41ffb8d'),
+(197, 92, 17, 'PerdidoCaT', '10.26.200.2', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'tablet', 'Firefox', 'Linux', '2025-07-17 16:01:14', 'historical_8cdef57790289c658e38c5b6b39d6819'),
+(198, 92, 17, 'PerdidoCaT', '10.99.174.60', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'tablet', 'Chrome', 'Android', '2025-07-17 08:27:30', 'historical_2721a366141b6cbe0ad8ef8846130a3b'),
+(199, 92, 17, 'PerdidoCaT', '10.119.64.27', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'desktop', 'Edge', 'iOS', '2025-07-18 12:26:46', 'historical_c7e948d5e2ce135a06fdbb37b41ca04f'),
+(200, 92, 17, 'PerdidoCaT', '10.134.157.75', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-18 22:00:47', 'historical_7ecc70a7f6d0ca8439d698f7d2216844'),
+(201, 92, 17, 'PerdidoCaT', '10.11.222.204', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'desktop', 'Firefox', 'Windows', '2025-07-18 18:56:41', 'historical_63d01b98297b716456aa006524d0951a'),
+(202, 92, 17, 'PerdidoCaT', '10.213.126.197', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Zaragoza', NULL, NULL, NULL, 'mobile', 'Chrome', 'macOS', '2025-07-18 09:25:14', 'historical_d074577321987c2b1b5862c81fcf5af9'),
+(203, 92, 17, 'PerdidoCaT', '10.72.197.147', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'desktop', 'Edge', 'Android', '2025-07-18 15:39:48', 'historical_a711079df0b8be63c4c05049beec159b'),
+(204, 92, 17, 'PerdidoCaT', '10.116.230.7', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-18 17:10:55', 'historical_24acdedd1defb0980f2d21c38395ea2d'),
+(205, 92, 17, 'PerdidoCaT', '10.119.39.124', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Argentina', 'AR', 'Mendoza', NULL, NULL, NULL, 'desktop', 'Edge', 'Android', '2025-07-18 10:09:07', 'historical_1004b66fb13b2e85d192612c7451f7ca'),
+(206, 92, 17, 'PerdidoCaT', '10.1.32.112', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'United States', 'US', 'New York', NULL, NULL, NULL, 'mobile', 'Firefox', 'Windows', '2025-07-18 15:27:36', 'historical_737a3418fc130d5b9f42393d88054ff6'),
+(207, 92, 17, 'PerdidoCaT', '10.99.178.5', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-18 13:58:52', 'historical_31d0618823c9b053fa397aaf880643f0'),
+(208, 92, 17, 'PerdidoCaT', '10.225.95.208', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'desktop', 'Safari', 'Android', '2025-07-19 08:33:40', 'historical_349581abdb579fc6cb67f7a9da1bfd09'),
+(209, 92, 17, 'PerdidoCaT', '10.217.138.9', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-19 14:36:48', 'historical_8e741c96d374eba87779290d6700d67a'),
+(210, 92, 17, 'PerdidoCaT', '10.35.254.126', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-19 13:34:11', 'historical_93675d21a2813d9b012c700f88c55537'),
+(211, 92, 17, 'PerdidoCaT', '10.177.6.233', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-19 10:04:05', 'historical_64b76fde049f5a8031d65ff89ba773c8'),
+(212, 92, 17, 'PerdidoCaT', '10.8.188.30', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'desktop', 'Edge', 'Android', '2025-07-19 21:52:50', 'historical_06b9ceeaada88dafc0c56096c51592f3'),
+(213, 92, 17, 'PerdidoCaT', '10.8.41.146', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'tablet', 'Safari', 'Windows', '2025-07-19 17:07:04', 'historical_e90d8f401679a403d9fc719b57124745'),
+(214, 92, 17, 'PerdidoCaT', '10.141.14.162', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'mobile', 'Chrome', 'macOS', '2025-07-19 10:27:21', 'historical_71d75a47b1e01b0832786f13aea5e0b3'),
+(215, 92, 17, 'PerdidoCaT', '10.45.219.254', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'desktop', 'Firefox', 'Linux', '2025-07-19 21:28:34', 'historical_7e4c00ecb75593b821ecdc55f61c6570'),
+(216, 92, 17, 'PerdidoCaT', '10.238.127.230', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Guadalajara', NULL, NULL, NULL, 'mobile', 'Chrome', 'Android', '2025-07-19 21:41:01', 'historical_e559d7fda46cdbae609742ccefde1130'),
+(217, 92, 17, 'PerdidoCaT', '10.222.9.126', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'mobile', 'Safari', 'iOS', '2025-07-20 19:31:29', 'historical_4a1fc1f8777bcec170bdc3e4a2102a1e'),
+(218, 92, 17, 'PerdidoCaT', '10.231.51.148', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'desktop', 'Chrome', 'Android', '2025-07-20 10:54:07', 'historical_be98c21c3d73e1ec420fd27abcd0be80'),
+(219, 92, 17, 'PerdidoCaT', '10.199.121.91', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Málaga', NULL, NULL, NULL, 'tablet', 'Chrome', 'iOS', '2025-07-20 09:16:56', 'historical_194c553acf4f277e167012a1848e7db4'),
+(220, 92, 17, 'PerdidoCaT', '10.14.58.254', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'tablet', 'Firefox', 'Android', '2025-07-20 17:47:40', 'historical_3d7672d6ea18d564d705160e9ac3c92c'),
+(221, 92, 17, 'PerdidoCaT', '10.194.44.150', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Valencia', NULL, NULL, NULL, 'mobile', 'Safari', 'Windows', '2025-07-20 19:36:20', 'historical_41dc296f2be9eebcb7607c1bbc7f4178'),
+(222, 92, 17, 'PerdidoCaT', '10.111.137.120', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'desktop', 'Edge', 'iOS', '2025-07-20 19:33:03', 'historical_8cad9d06ce4822df999e761d3fd42928'),
+(223, 92, 17, 'PerdidoCaT', '10.221.207.221', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'desktop', 'Firefox', 'Windows', '2025-07-20 20:46:28', 'historical_ece0237e111c55b83ca4613a0aeab8a6'),
+(224, 92, 17, 'PerdidoCaT', '10.89.105.133', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'mobile', 'Chrome', 'iOS', '2025-07-20 19:09:22', 'historical_6644d77cf293de2e8cd9dbd8105f2564'),
+(225, 92, 17, 'PerdidoCaT', '10.9.116.17', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'tablet', 'Chrome', 'Android', '2025-07-20 21:42:03', 'historical_6f278ef713b561d3b033076a972aedec'),
+(226, 92, 17, 'PerdidoCaT', '10.151.249.76', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'tablet', 'Edge', 'Windows', '2025-07-20 17:17:45', 'historical_97eed94b8d7aa894c79edd7a01419859'),
+(227, 92, 17, 'PerdidoCaT', '10.144.204.241', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'mobile', 'Chrome', 'Linux', '2025-07-20 10:31:08', 'historical_19422e6dedc2a7912d3bbbda3d7886e1'),
+(228, 92, 17, 'PerdidoCaT', '10.220.136.186', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'desktop', 'Safari', 'macOS', '2025-07-20 15:20:43', 'historical_95cdfa0239bbb61922897a0e1d555b47'),
+(229, 92, 17, 'PerdidoCaT', '10.12.8.196', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'tablet', 'Chrome', 'Linux', '2025-07-20 22:01:11', 'historical_21cbcd6e755848f00e439b357127004f'),
+(230, 92, 17, 'PerdidoCaT', '10.96.130.175', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'desktop', 'Firefox', 'Windows', '2025-07-20 17:11:49', 'historical_822f33b84b14920d202f82c13b294aa6'),
+(231, 92, 17, 'PerdidoCaT', '10.81.31.252', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Phoenix', NULL, NULL, NULL, 'desktop', 'Chrome', 'iOS', '2025-07-20 17:05:51', 'historical_31d7f5eb6243f2843d4b06f538fe4292'),
+(232, 92, 17, 'PerdidoCaT', '10.251.165.169', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'mobile', 'Edge', 'Windows', '2025-07-20 08:43:08', 'historical_33c58841bb43c49a096b82248153d77f'),
+(233, 92, 17, 'PerdidoCaT', '10.208.200.219', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'mobile', 'Safari', 'Linux', '2025-07-20 21:32:18', 'historical_20066eba19f66195974deaf8cbb58256'),
+(234, 92, 17, 'PerdidoCaT', '10.149.92.159', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'desktop', 'Edge', 'iOS', '2025-07-20 18:41:40', 'historical_5d816646963acd0862262010e1988728'),
+(235, 92, 17, 'PerdidoCaT', '10.62.205.199', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'tablet', 'Chrome', 'Linux', '2025-07-20 15:12:25', 'historical_a5f58f2783c678a3e11ac5ef600ddca9'),
+(261, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.26.36.208', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-18 17:00:10', 'historical_3a4cb456078e7e1895fe1e9651029e13'),
+(262, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.68.94.70', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'desktop', 'Edge', 'Linux', '2025-07-18 15:11:40', 'historical_91195580bd666c370d753215cb1ab6ad'),
+(263, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.98.200.194', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-18 12:16:57', 'historical_f6a8114aec901de3b151d96e83f1f2fa'),
+(264, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.251.166.224', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Italy', 'IT', NULL, NULL, NULL, NULL, 'tablet', 'Safari', 'iOS', '2025-07-18 16:34:48', 'historical_ac0c7e81df69efb125593d4f0b8b320d'),
+(265, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.23.212.142', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'tablet', 'Edge', 'Linux', '2025-07-18 15:29:18', 'historical_4744f7a257208ca91ec6147dc6bd133f'),
+(266, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.4.154.72', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'desktop', 'Safari', 'Windows', '2025-07-18 21:16:41', 'historical_80e12050169d05753fb05039ff053d3b'),
+(267, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.129.189.29', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Puebla', NULL, NULL, NULL, 'tablet', 'Chrome', 'iOS', '2025-07-18 16:03:40', 'historical_a38e44b217d5a7a3ccbd45fd502b7bbc'),
+(268, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.56.206.211', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Guadalajara', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-19 18:27:25', 'historical_0e231624a383af2d72cc4373affd9a83'),
+(269, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.150.168.30', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Guatemala', 'GT', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-19 16:05:22', 'historical_3ae51ec030d770bbb7c9d0491767ed78'),
+(270, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.164.94.211', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Mendoza', NULL, NULL, NULL, 'tablet', 'Chrome', 'Windows', '2025-07-19 11:50:33', 'historical_5ee713fab720493a02d216e56d132ba8'),
+(271, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.123.155.235', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'tablet', 'Firefox', 'Android', '2025-07-19 13:11:36', 'historical_e4415f8fa53bd4d78c5fbd1b21e0e6f7'),
+(272, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.204.163.6', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Mendoza', NULL, NULL, NULL, 'mobile', 'Chrome', 'macOS', '2025-07-19 18:58:17', 'historical_315eda0c42148ab01a5ee07ab0cc5aff'),
+(273, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.6.121.228', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-20 12:20:44', 'historical_e0b22c1378166781c33d04d88ba5e4eb'),
+(274, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.134.253.181', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-20 15:12:01', 'historical_7c0b6a8844370a4712a8b975071af06a'),
+(275, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.174.44.51', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Puebla', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-20 17:37:27', 'historical_638b058f057b831f4265930e9b90e005'),
+(276, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.125.43.5', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Puebla', NULL, NULL, NULL, 'tablet', 'Chrome', 'macOS', '2025-07-20 19:49:20', 'historical_28e6b8e6a0f716c7ffd37fd19bcbc0a0'),
+(277, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.39.108.171', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'La Plata', NULL, NULL, NULL, 'desktop', 'Firefox', 'macOS', '2025-07-20 20:22:41', 'historical_27c42fa89f13d02ff415618b45f69f50'),
+(278, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.254.168.244', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Ecuador', 'EC', NULL, NULL, NULL, NULL, 'tablet', 'Chrome', 'Windows', '2025-07-20 09:22:37', 'historical_b7fc7cdedf5f9deda3a3ee8883b4157d'),
+(279, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.254.57.217', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Argentina', 'AR', 'Rosario', NULL, NULL, NULL, 'mobile', 'Chrome', 'Linux', '2025-07-20 17:28:28', 'historical_be4932d61295ab1d2a23af9fa565ec3b'),
+(280, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.205.71.205', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Zaragoza', NULL, NULL, NULL, 'tablet', 'Chrome', 'iOS', '2025-07-20 08:06:44', 'historical_e05dcd25e0509efc872295e3503f3c9f'),
+(339, 97, 1, 'la_biblioteca_personal', '10.162.233.110', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Guatemala', 'GT', NULL, NULL, NULL, NULL, 'mobile', 'Chrome', 'Linux', '2025-07-18 13:17:26', 'historical_eaa50f69dc0c7229bced31dc5ca0b5c1'),
+(340, 97, 1, 'la_biblioteca_personal', '10.20.215.135', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Ecuador', 'EC', NULL, NULL, NULL, NULL, 'tablet', 'Firefox', 'macOS', '2025-07-18 22:47:16', 'historical_33d9d60a83ef132e3fb5bc40a6eec176'),
+(341, 97, 1, 'la_biblioteca_personal', '10.40.25.223', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Colombia', 'CO', 'Cartagena', NULL, NULL, NULL, 'mobile', 'Edge', 'Windows', '2025-07-19 22:31:43', 'historical_91196d1937ce30f32861d1c25469e8cf'),
+(342, 97, 1, 'la_biblioteca_personal', '10.200.173.172', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'United States', 'US', 'Houston', NULL, NULL, NULL, 'desktop', 'Firefox', 'macOS', '2025-07-19 09:24:12', 'historical_27930f6ca20e7f66798be78cc42ad796'),
+(343, 97, 1, 'la_biblioteca_personal', '10.122.22.124', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Argentina', 'AR', 'Rosario', NULL, NULL, NULL, 'mobile', 'Firefox', 'Linux', '2025-07-20 11:46:48', 'historical_43ba5910ccffda0fc0f2e38de26e6ca2'),
+(344, 97, 1, 'la_biblioteca_personal', '10.57.179.42', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Los Angeles', NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-20 18:16:52', 'historical_47855f8a05d86e2f3821b825a611b039'),
+(355, 91, 17, 'PhuVeJ', '10.195.128.200', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'mobile', 'Chrome', 'iOS', '2025-07-17 15:28:11', 'historical_d00cb133a4d0b319d3cb9f84588aeda7'),
+(356, 91, 17, 'PhuVeJ', '10.253.231.156', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-18 09:09:52', 'historical_a17761d717c0f861493fe9fe4415fd1c'),
+(357, 91, 17, 'PhuVeJ', '10.38.145.34', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-19 15:48:03', 'historical_ee846ca6b1600ac0f680bc43fe31cdb3'),
+(358, 91, 17, 'PhuVeJ', '10.40.58.223', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'mobile', 'Edge', 'Windows', '2025-07-20 14:50:44', 'historical_f78bb89be54b2fa5698e98ffa01cf758'),
+(363, 57, 1, 'vosNy7', '10.199.236.141', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'mobile', 'Chrome', 'macOS', '2025-07-13 20:53:57', 'historical_9cf6088bf5b1c695ed6125aba69a6a43'),
+(364, 57, 1, 'vosNy7', '10.207.245.121', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Mexico', 'MX', 'Tijuana', NULL, NULL, NULL, 'mobile', 'Firefox', 'macOS', '2025-07-14 21:40:23', 'historical_a2336885806c9964ee30a4e69f2b69ef'),
+(365, 57, 1, 'vosNy7', '10.213.113.9', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Ecuador', 'EC', NULL, NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-15 14:52:37', 'historical_4663de8d625e17589066318ae7da5132'),
+(366, 57, 1, 'vosNy7', '10.188.219.237', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'desktop', 'Edge', 'Linux', '2025-07-16 19:21:45', 'historical_f1f2e659d24e2e2a8a2cbac44900d760'),
+(374, 90, 17, 'HBHXj6', '10.188.127.57', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'La Serena', NULL, NULL, NULL, 'tablet', 'Chrome', 'Windows', '2025-07-17 09:23:34', 'historical_ff9e749420eea05e8a54b714091ca96b'),
+(375, 90, 17, 'HBHXj6', '10.205.29.148', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Santiago', NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-18 21:36:53', 'historical_fb26a5f554a4111947ed6cdae880fcb2'),
+(376, 90, 17, 'HBHXj6', '10.5.0.184', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-19 18:50:33', 'historical_757b358036d7a7533f3cd20dd6630785'),
+(377, 89, 17, 'NyKMCD', '10.222.207.189', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-17 19:00:33', 'historical_7a8080da2124fea151070ecaaaa42b3b'),
+(378, 89, 17, 'NyKMCD', '10.39.111.135', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-18 08:57:48', 'historical_65fb956ffbce50b351477716280ac082'),
+(379, 89, 17, 'NyKMCD', '10.128.209.193', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United Kingdom', 'GB', 'Liverpool', NULL, NULL, NULL, 'mobile', 'Chrome', 'Linux', '2025-07-19 12:16:46', 'historical_b86762cb0e14e82d0cd8de481a8a8bcc'),
+(380, 53, 1, '2Dtjhy', '10.99.129.85', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'United States', 'US', 'Phoenix', NULL, NULL, NULL, 'mobile', 'Safari', 'Windows', '2025-07-13 12:42:50', 'historical_d01720f03bf8dfb2f1b58d6793ee1dc1'),
+(381, 53, 1, '2Dtjhy', '10.200.116.199', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Málaga', NULL, NULL, NULL, 'tablet', 'Chrome', 'Windows', '2025-07-14 09:27:09', 'historical_990f4ae9723c281614e7e1420190e80b'),
+(382, 53, 1, '2Dtjhy', '10.9.30.41', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'mobile', 'Chrome', 'iOS', '2025-07-15 21:29:29', 'historical_6284c95500bd8662c52e8e06d7b6a6f8'),
+(383, 55, 1, 'fdeSit', '10.7.88.175', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Spain', 'ES', 'Málaga', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-13 10:18:28', 'historical_3cb9417dee18b3f397a3a793ce89a2af'),
+(384, 55, 1, 'fdeSit', '10.100.249.210', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Bilbao', NULL, NULL, NULL, 'tablet', 'Chrome', 'macOS', '2025-07-14 22:08:48', 'historical_d85823f0f95fd7bdd9a611aaf1a2117f'),
+(385, 55, 1, 'fdeSit', '10.60.122.77', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Mexico', 'MX', 'Tijuana', NULL, NULL, NULL, 'desktop', 'Chrome', 'Android', '2025-07-15 10:10:00', 'historical_f538d2ac5ec581aaf34117aff5bcd77e'),
+(389, 96, 1, 'Mi-Biblioteca_personal', '10.156.55.96', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'tablet', 'Chrome', 'iOS', '2025-07-18 22:11:18', 'historical_7e5b6a722d2472524a5a60c6ab7c0825'),
+(390, 96, 1, 'Mi-Biblioteca_personal', '10.138.171.34', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Guadalajara', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-19 12:19:35', 'historical_b0d2eac6ae39709fbbd345ef7436e56b'),
+(391, 65, 1, 'u6hcLr', '10.153.145.189', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'United States', 'US', 'Los Angeles', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-13 15:38:37', 'historical_094ed0d9d8e1d88bba74b4b7b031ac2b'),
+(392, 65, 1, 'u6hcLr', '10.232.118.8', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'New York', NULL, NULL, NULL, 'tablet', 'Chrome', 'macOS', '2025-07-14 10:29:07', 'historical_64bdd2471ffb87f13d5308c4e16cd3dc'),
+(393, 58, 1, 'EVYDFU', '10.245.173.240', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Chile', 'CL', 'Concepción', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-13 21:39:43', 'historical_ec695f940e39cb15b1bb8252fd5c0d02'),
+(394, 58, 1, 'EVYDFU', '10.164.64.122', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Colombia', 'CO', 'Cali', NULL, NULL, NULL, 'mobile', 'Chrome', 'iOS', '2025-07-14 12:30:48', 'historical_2499f711f5de8de73b918af0cada3165'),
+(395, 56, 1, '8zaHZF', '10.57.203.103', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-13 15:17:55', 'historical_a5d24e245cf3d2433689bf4dd3b1f091'),
+(396, 56, 1, '8zaHZF', '10.159.220.139', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Zaragoza', NULL, NULL, NULL, 'mobile', 'Chrome', 'Linux', '2025-07-14 13:23:19', 'historical_4befd3c3c38f0d5000abe63e9fb2a384'),
+(397, 54, 1, 'lpBDcU', '10.230.93.34', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Spain', 'ES', 'Zaragoza', NULL, NULL, NULL, 'tablet', 'Safari', 'Windows', '2025-07-13 10:13:40', 'historical_cb317cbc9db0d3412a400ed9a8c3e6d0'),
+(398, 54, 1, 'lpBDcU', '10.167.173.130', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Chile', 'CL', 'Valparaíso', NULL, NULL, NULL, 'desktop', 'Firefox', 'macOS', '2025-07-14 10:13:07', 'historical_65ba67e27de36257ef5d500f775ec762'),
+(399, 52, 1, 'CgsEuL', '10.101.49.222', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Sevilla', NULL, NULL, NULL, 'desktop', 'Chrome', 'Android', '2025-07-13 18:58:42', 'historical_0e7b507a8746abe115d9b628250c8730'),
+(400, 52, 1, 'CgsEuL', '10.231.255.74', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Mexico', 'MX', 'Ciudad de México', NULL, NULL, NULL, 'desktop', 'Firefox', 'iOS', '2025-07-14 13:26:59', 'historical_4c6bdcc819a5b4d18be17c4d75b68a29'),
+(401, 51, 1, 'IezPkI', '10.78.253.32', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Madrid', NULL, NULL, NULL, 'tablet', 'Chrome', 'Windows', '2025-07-13 22:57:34', 'historical_835ebb116888c5b6643d1b00425dd121'),
+(402, 51, 1, 'IezPkI', '10.189.226.175', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Germany', 'DE', NULL, NULL, NULL, NULL, 'desktop', 'Edge', 'Linux', '2025-07-14 13:02:13', 'historical_fd79a0120a105d1beef04d672e9ca977'),
+(407, 116, 13, 'Gobierno-CAT2', '10.126.231.33', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Argentina', 'AR', 'Mendoza', NULL, NULL, NULL, 'mobile', 'Edge', 'iOS', '2025-07-19 11:53:51', 'historical_428f9087d7ee43ddc964616c1ab50fd1'),
+(408, 117, 13, 'TsMYj9', '10.192.247.183', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'United States', 'US', 'Los Angeles', NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-19 10:05:55', 'historical_d0b1cc24ae10cd5389d16d5a327f42e7'),
+(411, 60, 1, 'liL38N', '10.60.120.97', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Peru', 'PE', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-13 22:32:00', 'historical_f4c7660eed3248ef4c041596a00458c3'),
+(412, 59, 1, 'KnIyVp', '10.76.132.141', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Mexico', 'MX', 'Ciudad de México', NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-13 08:12:37', 'historical_15db156d77d4ac7505b9b6259df00f66'),
+(416, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.243.111.55', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'macOS', '2025-07-18 09:55:17', 'historical_2ccd6032cd4d3b2842acc6c8e9264b6b'),
+(417, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.35.150.99', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'desktop', 'Firefox', 'Windows', '2025-07-18 10:05:12', 'historical_a52ee4f1928675746d5644a282451eb3'),
+(418, 111, 1, 'ElGobiernoLoDaPorPerdidoElCat', '10.27.2.232', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-19 10:44:00', 'historical_31ae3245d50784f09758f552f07aad38'),
+(419, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.244.33.201', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'mobile', 'Safari', 'Linux', '2025-07-18 22:00:34', 'historical_739276864deab98f3b3e29e83ff43ce7'),
+(420, 112, 1, 'PasoAtrasDeSanchezConElCatEnLaUE', '10.50.233.237', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'desktop', 'Firefox', 'macOS', '2025-07-19 11:08:48', 'historical_b6b0ee15215e3e037f6925ae8267be21'),
+(421, 97, 1, 'la_biblioteca_personal', '10.25.217.39', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Spain', 'ES', 'Málaga', NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-18 16:00:35', 'historical_a243c327a905156760b49da86ee1a401'),
+(422, 65, 1, 'u6hcLr', '10.42.28.176', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'mobile', 'Safari', 'Linux', '2025-07-13 08:03:21', 'historical_165ef3b846ee1de8a91f1d30d2483487'),
+(423, 96, 1, 'Mi-Biblioteca_personal', '10.132.171.162', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'desktop', 'Safari', 'Android', '2025-07-18 13:45:24', 'historical_649ffd982d1a75b311d02f14a319f25b'),
+(424, 152, 1, 'RXua4A', '10.227.127.95', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Linux', '2025-07-21 10:04:32', 'historical_141bb2f8c0f8e51953ce322fc788b9ec'),
+(425, 152, 1, 'RXua4A', '10.141.108.249', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-21 09:18:36', 'historical_8524e9d243136c9c3584717ac9b52e7c'),
+(426, 152, 1, 'RXua4A', '10.87.8.2', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'Germany', 'DE', NULL, NULL, NULL, NULL, 'desktop', 'Chrome', 'Windows', '2025-07-21 10:33:31', 'historical_8bf3a4237fb048630cd4d19acdf8c4dd'),
+(427, 132, 12, 'GyIf6O', '10.106.101.232', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'France', 'FR', NULL, NULL, NULL, NULL, 'tablet', 'Edge', 'Android', '2025-07-21 09:46:40', 'historical_4ddf2252e8b3aa5d80ef51c7fe1528c7'),
+(428, 132, 12, 'GyIf6O', '10.75.201.182', 'Mozilla/5.0 (Compatible; HistoricalClick/Chrome)', NULL, 'France', 'FR', NULL, NULL, NULL, NULL, 'mobile', 'Chrome', 'Windows', '2025-07-21 17:55:21', 'historical_7a012a665936cd0eea17b49c4e2bee85'),
+(429, 153, 1, 'qc2L24', '10.207.215.8', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'mobile', 'Safari', 'Windows', '2025-07-21 10:24:02', 'historical_41ccf69cab4c2533b8ccc450b7264721'),
+(430, 153, 1, 'qc2L24', '10.185.7.104', 'Mozilla/5.0 (Compatible; HistoricalClick/Firefox)', NULL, 'Venezuela', 'VE', NULL, NULL, NULL, NULL, 'mobile', 'Firefox', 'Windows', '2025-07-21 08:07:12', 'historical_df1d4258eefb91b30aba5746a6c119ea'),
+(431, 136, 12, 'i4V4Y2', '10.251.70.85', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'France', 'FR', NULL, NULL, NULL, NULL, 'mobile', 'Safari', 'Android', '2025-07-21 18:25:15', 'historical_3ad059782501e96a449d9479fcd0d827'),
+(432, 139, 12, 'mmg0p8', '10.89.84.172', 'Mozilla/5.0 (Compatible; HistoricalClick/Edge)', NULL, 'France', 'FR', NULL, NULL, NULL, NULL, 'desktop', 'Edge', 'Windows', '2025-07-21 15:57:34', 'historical_5b9f41bd1875ddc1c023d8fd96cd71ad'),
+(433, 141, 11, 'kiaNQu', '10.165.222.8', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'United States', 'US', 'Houston', NULL, NULL, NULL, 'desktop', 'Safari', 'Windows', '2025-07-21 12:33:30', 'historical_ba8da669476f66dbb8194b3da0354481'),
+(434, 160, 13, 'rzNzbq', '10.169.180.209', 'Mozilla/5.0 (Compatible; HistoricalClick/Safari)', NULL, 'United Kingdom', 'GB', 'Edinburgh', NULL, NULL, NULL, 'mobile', 'Safari', 'Windows', '2025-06-22 10:56:54', 'historical_0ea8087ea428919b6634db7865e5a4e2');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `url_blacklist`
+--
+
+CREATE TABLE `url_blacklist` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `short_code` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -1402,20 +1338,22 @@ CREATE TABLE `users` (
   `is_active` tinyint(1) DEFAULT '1',
   `last_ip` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `login_count` int DEFAULT '0',
-  `api_key` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `api_key` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_extension_sync` datetime DEFAULT NULL,
+  `extension_sync_count` int DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `full_name`, `status`, `role`, `created_at`, `updated_at`, `last_login`, `email_verified`, `verification_token`, `password_reset_token`, `password_reset_expires`, `banned_reason`, `banned_at`, `banned_by`, `failed_login_attempts`, `locked_until`, `is_active`, `last_ip`, `login_count`, `api_key`) VALUES
-(1, 'admin', 'admin@localhost', '$2y$12$JWbc9yPcKUQWGWs3YSC1qOl9CdXfrX4wsX3kzJ4vI1o.rw36Ac2Mi', 'Administrador', 'active', 'admin', '2025-07-09 20:22:44', '2025-07-21 02:32:24', '2025-07-21 02:32:24', 1, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, 0, 'f7cc7fa1f5f6f3322bfca0f56c6f6e9a'),
-(11, 'capitan', 'b@a.net', '$2y$12$pdzYpwYF/L8z7dSXiPvRQu6akfe4cmCfyVqNacFZGJiDl14496Hj6', '', 'active', 'user', '2025-07-12 12:45:21', '2025-07-20 23:32:59', '2025-07-16 13:37:34', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, 0, '80c91be387fd11a71268c5b9a4d86d89'),
-(12, 'Chino', 'chino@china.org', '$2y$12$oOLzbxiw22kZJ8hkVJxS9.lrEA1mLcQq7DyvN3dqZ0/Qa5FedgHUG', '', 'active', 'user', '2025-07-12 13:22:13', '2025-07-20 23:32:59', '2025-07-20 01:40:30', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, 0, 'd0ff6dc7682df98bbb25257af6d9ef01'),
-(13, 'Antonio', 'budino@antonio.org', '$2y$12$JhsrPDK3gAIzt0kDV9523esjTotHnay7sPBmhQRnRUybR.oBrjcg6', '', 'active', 'admin', '2025-07-12 16:55:32', '2025-07-20 23:32:59', '2025-07-20 23:02:22', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, 0, 'ec1ea2eceb6daeeb0d659117b54d4e0b'),
-(16, 'Pollito', 'Pollo@avecrem.com', '$2y$12$7br9tFiyw0hpE3ncgBMpyu0GelrM6hi4MoIklfDo00fE3jUPhi3La', 'Pollo perez', 'active', 'user', '2025-07-15 18:00:14', '2025-07-20 23:32:59', '2025-07-16 06:18:10', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, 0, 'b905780256ca0b6eafce57daf5f7756f'),
-(17, 'anaaaa', 'mondalironda@hotmail.com', '$2y$12$WujXjVZQj4zuM5rGFmZnDOgcYWYib.q4nTS7UgCRHqks9HlLscH8W', 'anaaaa', 'active', 'user', '2025-07-17 20:27:35', '2025-07-21 00:27:02', '2025-07-21 00:27:02', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, 0, '5394c265b597fae954901affafdd4b3e');
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `full_name`, `status`, `role`, `created_at`, `updated_at`, `last_login`, `email_verified`, `verification_token`, `password_reset_token`, `password_reset_expires`, `banned_reason`, `banned_at`, `banned_by`, `failed_login_attempts`, `locked_until`, `is_active`, `last_ip`, `login_count`, `api_key`, `last_extension_sync`, `extension_sync_count`) VALUES
+(1, 'admin', 'admin@localhost', '$2y$12$JWbc9yPcKUQWGWs3YSC1qOl9CdXfrX4wsX3kzJ4vI1o.rw36Ac2Mi', 'Administrador', 'active', 'admin', '2025-07-09 20:22:44', '2025-07-22 21:42:12', '2025-07-22 21:42:12', 1, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, 0, 'f7cc7fa1f5f6f3322bfca0f56c6f6e9a', NULL, 0),
+(11, 'capitan', 'b@a.net', '$2y$12$pdzYpwYF/L8z7dSXiPvRQu6akfe4cmCfyVqNacFZGJiDl14496Hj6', '', 'active', 'user', '2025-07-12 12:45:21', '2025-07-22 20:36:36', '2025-07-22 20:36:36', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, 0, '80c91be387fd11a71268c5b9a4d86d89', NULL, 0),
+(12, 'Chino', 'chino@china.org', '$2y$12$oOLzbxiw22kZJ8hkVJxS9.lrEA1mLcQq7DyvN3dqZ0/Qa5FedgHUG', '', 'active', 'user', '2025-07-12 13:22:13', '2025-07-22 20:52:31', '2025-07-22 20:52:31', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, 0, 'd0ff6dc7682df98bbb25257af6d9ef01', NULL, 0),
+(13, 'Antonio', 'budino@antonio.org', '$2y$12$JhsrPDK3gAIzt0kDV9523esjTotHnay7sPBmhQRnRUybR.oBrjcg6', '', 'active', 'admin', '2025-07-12 16:55:32', '2025-07-22 19:00:12', '2025-07-22 19:00:12', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, 0, 'ec1ea2eceb6daeeb0d659117b54d4e0b', NULL, 0),
+(16, 'Pollito', 'Pollo@avecrem.com', '$2y$12$7br9tFiyw0hpE3ncgBMpyu0GelrM6hi4MoIklfDo00fE3jUPhi3La', 'Pollo perez', 'active', 'user', '2025-07-15 18:00:14', '2025-07-22 20:45:25', '2025-07-22 20:45:25', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, 0, 'b905780256ca0b6eafce57daf5f7756f', NULL, 0),
+(17, 'anaaaa', 'mondalironda@hotmail.com', '$2y$12$WujXjVZQj4zuM5rGFmZnDOgcYWYib.q4nTS7UgCRHqks9HlLscH8W', 'anaaaa', 'active', 'user', '2025-07-17 20:27:35', '2025-07-21 06:53:38', '2025-07-21 06:53:38', 0, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 1, NULL, 0, '5394c265b597fae954901affafdd4b3e', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -1499,13 +1437,13 @@ CREATE TABLE `user_sessions` (
 -- (Véase abajo para la vista actual)
 --
 CREATE TABLE `user_stats` (
-`active_users` bigint
-,`admin_users` bigint
+`total_users` bigint
+,`active_users` bigint
 ,`banned_users` bigint
-,`logins_today` bigint
 ,`pending_users` bigint
+,`admin_users` bigint
 ,`registrations_today` bigint
-,`total_users` bigint
+,`logins_today` bigint
 );
 
 -- --------------------------------------------------------
@@ -1705,6 +1643,13 @@ ALTER TABLE `settings`
   ADD PRIMARY KEY (`key`);
 
 --
+-- Indices de la tabla `sync_logs`
+--
+ALTER TABLE `sync_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user_sync` (`user_id`,`created_at`);
+
+--
 -- Indices de la tabla `system_settings`
 --
 ALTER TABLE `system_settings`
@@ -1722,7 +1667,8 @@ ALTER TABLE `urls`
   ADD KEY `idx_urls_user_status` (`user_id`,`active`),
   ADD KEY `idx_domain_id` (`domain_id`),
   ADD KEY `idx_urls_short_code_active` (`short_code`,`active`),
-  ADD KEY `idx_user_deleted` (`user_id`,`deleted_at`);
+  ADD KEY `idx_user_deleted` (`user_id`,`deleted_at`),
+  ADD KEY `idx_last_accessed` (`last_accessed`);
 
 --
 -- Indices de la tabla `urls_deleted_history`
@@ -1743,7 +1689,17 @@ ALTER TABLE `url_analytics`
   ADD KEY `idx_country` (`country_code`),
   ADD KEY `idx_device` (`device_type`),
   ADD KEY `idx_analytics_date_range` (`clicked_at`,`user_id`),
-  ADD KEY `idx_analytics_url_date` (`url_id`,`clicked_at`);
+  ADD KEY `idx_analytics_url_date` (`url_id`,`clicked_at`),
+  ADD KEY `idx_country_code` (`country_code`),
+  ADD KEY `idx_geo` (`latitude`,`longitude`),
+  ADD KEY `idx_url_geo` (`url_id`,`latitude`,`longitude`);
+
+--
+-- Indices de la tabla `url_blacklist`
+--
+ALTER TABLE `url_blacklist`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_code` (`user_id`,`short_code`);
 
 --
 -- Indices de la tabla `users`
@@ -1826,7 +1782,7 @@ ALTER TABLE `api_keys`
 -- AUTO_INCREMENT de la tabla `api_tokens`
 --
 ALTER TABLE `api_tokens`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `bookmarks`
@@ -1838,7 +1794,7 @@ ALTER TABLE `bookmarks`
 -- AUTO_INCREMENT de la tabla `click_stats`
 --
 ALTER TABLE `click_stats`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=796;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=849;
 
 --
 -- AUTO_INCREMENT de la tabla `config`
@@ -1850,7 +1806,7 @@ ALTER TABLE `config`
 -- AUTO_INCREMENT de la tabla `custom_domains`
 --
 ALTER TABLE `custom_domains`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT de la tabla `daily_stats`
@@ -1883,6 +1839,12 @@ ALTER TABLE `security_logs`
   MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `sync_logs`
+--
+ALTER TABLE `sync_logs`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT de la tabla `system_settings`
 --
 ALTER TABLE `system_settings`
@@ -1892,7 +1854,7 @@ ALTER TABLE `system_settings`
 -- AUTO_INCREMENT de la tabla `urls`
 --
 ALTER TABLE `urls`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=122;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=161;
 
 --
 -- AUTO_INCREMENT de la tabla `urls_deleted_history`
@@ -1904,7 +1866,13 @@ ALTER TABLE `urls_deleted_history`
 -- AUTO_INCREMENT de la tabla `url_analytics`
 --
 ALTER TABLE `url_analytics`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=416;
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=435;
+
+--
+-- AUTO_INCREMENT de la tabla `url_blacklist`
+--
+ALTER TABLE `url_blacklist`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `users`
@@ -1986,6 +1954,12 @@ ALTER TABLE `remember_tokens`
   ADD CONSTRAINT `remember_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
+-- Filtros para la tabla `sync_logs`
+--
+ALTER TABLE `sync_logs`
+  ADD CONSTRAINT `sync_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
 -- Filtros para la tabla `urls`
 --
 ALTER TABLE `urls`
@@ -1998,6 +1972,12 @@ ALTER TABLE `urls`
 ALTER TABLE `url_analytics`
   ADD CONSTRAINT `fk_analytics_url` FOREIGN KEY (`url_id`) REFERENCES `urls` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_analytics_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `url_blacklist`
+--
+ALTER TABLE `url_blacklist`
+  ADD CONSTRAINT `url_blacklist_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `user_activity`
