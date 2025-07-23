@@ -1,379 +1,200 @@
 <?php
-// analytics.php - Sistema completo de analytics CON PROTECCIONES ANTI-SPAM
-require_once 'config.php';
-require_once 'functions.php';
+// analytics.php - Sistema de analytics mejorado con detección dinámica de columnas
 
 class UrlAnalytics {
-    private $pdo;
+    private $db;
+    private $available_columns = [];
     
     public function __construct($pdo) {
-        $this->pdo = $pdo;
+        $this->db = $pdo;
+        $this->detectAvailableColumns();
     }
     
-    // ========================================
-    // CAPTURA DE DATOS CON PROTECCIONES
-    // ========================================
-    
-    public function trackClick($url_id, $short_code, $user_id = null) {
-        // 🛑 PROTECCIÓN 1: Flag de emergencia
-        if (file_exists('tracking_disabled.flag')) {
-            error_log("🛑 EMERGENCY: Tracking deshabilitado para {$short_code}");
-            return false;
-        }
-        
-        // 🛑 PROTECCIÓN 2: Verificar que no sea una llamada interna
-        $referer = $_SERVER['HTTP_REFERER'] ?? '';
-        if (strpos($referer, 'analytics') !== false || 
-            strpos($referer, 'marcadores') !== false ||
-            strpos($referer, 'dashboard') !== false ||
-            strpos($referer, '0ln.eu/marcadores') !== false) {
-            error_log("🚨 BLOCKED: Click desde sistema interno - {$referer}");
-            return false;
-        }
-        
-        // 🛑 PROTECCIÓN 3: Prevenir clicks demasiado rápidos del mismo IP
-        $ip = $this->getRealIpAddr();
-        if ($ip) {
-            try {
-                $stmt = $this->pdo->prepare("
-                    SELECT COUNT(*) as recent_clicks 
-                    FROM url_analytics 
-                    WHERE ip_address = ? 
-                    AND clicked_at >= DATE_SUB(NOW(), INTERVAL 30 SECOND)
-                ");
-                $stmt->execute([$ip]);
-                $recent = $stmt->fetch()['recent_clicks'];
-                
-                if ($recent > 5) {
-                    error_log("🚨 BLOCKED: Demasiados clicks rápidos desde {$ip} ({$recent} en 30s)");
-                    return false;
-                }
-            } catch (Exception $e) {
-                error_log("Error verificando clicks rápidos: " . $e->getMessage());
-            }
-        }
-        
-        // 🛑 PROTECCIÓN 4: Prevenir clicks duplicados de la misma sesión
-        $sessionId = session_id() ?: uniqid();
+    /**
+     * Detectar qué columnas están disponibles en url_analytics
+     */
+    private function detectAvailableColumns() {
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT COUNT(*) as session_clicks 
-                FROM url_analytics 
-                WHERE session_id = ? 
-                AND url_id = ?
-                AND clicked_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)
-            ");
-            $stmt->execute([$sessionId, $url_id]);
-            $session_recent = $stmt->fetch()['session_clicks'];
-            
-            if ($session_recent > 2) {
-                error_log("🚨 BLOCKED: Demasiados clicks de la misma sesión {$sessionId}");
-                return false;
-            }
+            $stmt = $this->db->query("SHOW COLUMNS FROM url_analytics");
+            $this->available_columns = array_flip($stmt->fetchAll(PDO::FETCH_COLUMN));
         } catch (Exception $e) {
-            error_log("Error verificando sesión: " . $e->getMessage());
+            $this->available_columns = [];
         }
-        
-        // 🛑 PROTECCIÓN 5: Verificar User Agent válido
-        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        if (empty($userAgent) || strlen($userAgent) < 10) {
-            error_log("🚨 BLOCKED: User Agent sospechoso o vacío");
-            return false;
-        }
-        
-        // 🛑 PROTECCIÓN 6: No trackear bots conocidos del sistema
-        if (preg_match('/curl|wget|python|bot|spider|crawler/i', $userAgent)) {
-            error_log("🚨 BLOCKED: Bot detectado - {$userAgent}");
-            return false;
-        }
-        
+    }
+    
+    /**
+     * Verificar si una columna existe
+     */
+    private function hasColumn($column) {
+        return isset($this->available_columns[$column]);
+    }
+    
+    /**
+     * Registrar un click con toda la información disponible
+     */
+    public function trackClick($url_id, $user_id = null) {
         try {
-            // Detectar dispositivo y browser
-            $deviceInfo = $this->detectDevice($userAgent);
+            // Obtener información del visitante
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+            $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+            $referer = $_SERVER['HTTP_REFERER'] ?? 'direct';
             
-            // Obtener geolocalización (con cache para evitar muchas llamadas)
-            $geoInfo = $this->getGeolocation($ip);
+            // Generar session_id si no existe
+            if (!isset($_SESSION['analytics_session'])) {
+                $_SESSION['analytics_session'] = uniqid('sess_', true);
+            }
+            $session_id = $_SESSION['analytics_session'];
             
-            // ✅ INSERTAR TRACKING (solo si pasó todas las protecciones)
-            $stmt = $this->pdo->prepare("
-                INSERT INTO url_analytics (
-                    url_id, user_id, short_code, ip_address, user_agent, referer,
-                    country, country_code, city, device_type, browser, os, session_id
-                ) VALUES (
-                    :url_id, :user_id, :short_code, :ip_address, :user_agent, :referer,
-                    :country, :country_code, :city, :device_type, :browser, :os, :session_id
-                )
-            ");
+            // Parsear user agent
+            $browser_info = $this->parseUserAgent($user_agent);
             
-            $result = $stmt->execute([
-                ':url_id' => $url_id,
-                ':user_id' => $user_id,
-                ':short_code' => $short_code,
-                ':ip_address' => $ip,
-                ':user_agent' => $userAgent,
-                ':referer' => $referer,
-                ':country' => $geoInfo['country'] ?? null,
-                ':country_code' => $geoInfo['country_code'] ?? null,
-                ':city' => $geoInfo['city'] ?? null,
-                ':device_type' => $deviceInfo['device_type'],
-                ':browser' => $deviceInfo['browser'],
-                ':os' => $deviceInfo['os'],
-                ':session_id' => $sessionId
-            ]);
+            // Obtener información geográfica
+            $geo_info = $this->getGeoInfo($ip);
+            
+            // Construir consulta dinámicamente
+            $fields = ['url_id', 'ip_address', 'clicked_at', 'created_at'];
+            $values = ['?', '?', 'NOW()', 'NOW()'];
+            $params = [$url_id, $ip];
+            
+            if ($user_id && $this->hasColumn('user_id')) {
+                $fields[] = 'user_id';
+                $values[] = '?';
+                $params[] = $user_id;
+            }
+            
+            if ($this->hasColumn('session_id')) {
+                $fields[] = 'session_id';
+                $values[] = '?';
+                $params[] = $session_id;
+            }
+            
+            if ($this->hasColumn('user_agent')) {
+                $fields[] = 'user_agent';
+                $values[] = '?';
+                $params[] = $user_agent;
+            }
+            
+            if ($this->hasColumn('referer')) {
+                $fields[] = 'referer';
+                $values[] = '?';
+                $params[] = $referer;
+            }
+            
+            // Información del navegador
+            if ($this->hasColumn('browser')) {
+                $fields[] = 'browser';
+                $values[] = '?';
+                $params[] = $browser_info['browser'];
+            }
+            
+            if ($this->hasColumn('os')) {
+                $fields[] = 'os';
+                $values[] = '?';
+                $params[] = $browser_info['os'];
+            }
+            
+            if ($this->hasColumn('device')) {
+                $fields[] = 'device';
+                $values[] = '?';
+                $params[] = $browser_info['device'];
+            }
+            
+            // Información geográfica
+            if ($geo_info) {
+                if ($this->hasColumn('country') && isset($geo_info['country'])) {
+                    $fields[] = 'country';
+                    $values[] = '?';
+                    $params[] = $geo_info['country'];
+                }
+                
+                if ($this->hasColumn('country_code') && isset($geo_info['country_code'])) {
+                    $fields[] = 'country_code';
+                    $values[] = '?';
+                    $params[] = $geo_info['country_code'];
+                }
+                
+                if ($this->hasColumn('city') && isset($geo_info['city'])) {
+                    $fields[] = 'city';
+                    $values[] = '?';
+                    $params[] = $geo_info['city'];
+                }
+                
+                if ($this->hasColumn('region') && isset($geo_info['region'])) {
+                    $fields[] = 'region';
+                    $values[] = '?';
+                    $params[] = $geo_info['region'];
+                }
+                
+                if ($this->hasColumn('latitude') && isset($geo_info['latitude'])) {
+                    $fields[] = 'latitude';
+                    $values[] = '?';
+                    $params[] = $geo_info['latitude'];
+                }
+                
+                if ($this->hasColumn('longitude') && isset($geo_info['longitude'])) {
+                    $fields[] = 'longitude';
+                    $values[] = '?';
+                    $params[] = $geo_info['longitude'];
+                }
+            }
+            
+            $sql = "INSERT INTO url_analytics (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $values) . ")";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute($params);
             
             // Actualizar contador en tabla urls
-            if ($result) {
-                $this->pdo->prepare("UPDATE urls SET clicks = clicks + 1 WHERE id = ?")->execute([$url_id]);
-                
-                // Actualizar estadísticas diarias si existe la tabla
-                $this->updateDailyStats($url_id, $user_id, $deviceInfo['device_type']);
-                
-                error_log("✅ VALID CLICK: {$short_code} desde {$ip} - {$deviceInfo['device_type']}");
-            }
+            $stmt = $this->db->prepare("UPDATE urls SET clicks = clicks + 1 WHERE id = ?");
+            $stmt->execute([$url_id]);
             
-            return $result;
+            return true;
             
         } catch (Exception $e) {
-            error_log("❌ Error tracking click: " . $e->getMessage());
+            error_log("Error tracking click: " . $e->getMessage());
             return false;
         }
     }
     
-    // ========================================
-    // ESTADÍSTICAS GENERALES
-    // ========================================
-    
-    public function getUserStats($user_id, $days = 30) {
+    /**
+     * Obtener estadísticas completas de una URL
+     */
+    public function getUrlStats($url_id, $user_id = null, $days = 30) {
         try {
-            $since = date('Y-m-d', strtotime("-{$days} days"));
-            
-            // Stats generales
-            $stmt = $this->pdo->prepare("
-                SELECT 
-                    COUNT(*) as total_clicks,
-                    COUNT(DISTINCT session_id) as unique_visitors,
-                    COUNT(DISTINCT url_id) as urls_clicked,
-                    COUNT(DISTINCT DATE(clicked_at)) as active_days
-                FROM url_analytics 
-                WHERE user_id = ? AND clicked_at >= ?
-            ");
-            $stmt->execute([$user_id, $since]);
-            $general = $stmt->fetch();
-            
-            // Si no hay datos, devolver estructura vacía
-            if (!$general || $general['total_clicks'] == 0) {
-                return [
-                    'general' => [
-                        'total_clicks' => 0,
-                        'unique_visitors' => 0,
-                        'urls_clicked' => 0,
-                        'active_days' => 0
-                    ],
-                    'top_urls' => [],
-                    'daily_clicks' => [],
-                    'top_countries' => [],
-                    'devices' => [],
-                    'browsers' => [],
-                    'period_days' => $days
-                ];
+            // Verificar permisos
+            if ($user_id) {
+                $stmt = $this->db->prepare("SELECT id FROM urls WHERE id = ? AND user_id = ?");
+                $stmt->execute([$url_id, $user_id]);
+                if (!$stmt->fetch()) {
+                    // Verificar si es admin
+                    $stmt = $this->db->prepare("SELECT role FROM users WHERE id = ?");
+                    $stmt->execute([$user_id]);
+                    $user = $stmt->fetch();
+                    if (!$user || ($user['role'] != 'admin' && $user['role'] != 'superadmin')) {
+                        return null;
+                    }
+                }
             }
             
-            // Top URLs
-            $stmt = $this->pdo->prepare("
-                SELECT 
-                    ua.url_id,
-                    u.short_code,
-                    u.title,
-                    u.original_url,
-                    COUNT(*) as clicks,
-                    COUNT(DISTINCT ua.session_id) as unique_visitors
-                FROM url_analytics ua
-                JOIN urls u ON ua.url_id = u.id
-                WHERE ua.user_id = ? AND ua.clicked_at >= ?
-                GROUP BY ua.url_id
-                ORDER BY clicks DESC
-                LIMIT 10
-            ");
-            $stmt->execute([$user_id, $since]);
-            $topUrls = $stmt->fetchAll();
+            // Obtener información de la URL
+            $stmt = $this->db->prepare("SELECT * FROM urls WHERE id = ?");
+            $stmt->execute([$url_id]);
+            $url_info = $stmt->fetch();
             
-            // Clicks por día
-            $stmt = $this->pdo->prepare("
-                SELECT 
-                    DATE(clicked_at) as date,
-                    COUNT(*) as clicks,
-                    COUNT(DISTINCT session_id) as unique_visitors
-                FROM url_analytics 
-                WHERE user_id = ? AND clicked_at >= ?
-                GROUP BY DATE(clicked_at)
-                ORDER BY date ASC
-            ");
-            $stmt->execute([$user_id, $since]);
-            $dailyClicks = $stmt->fetchAll();
-            
-            // Países top
-            $stmt = $this->pdo->prepare("
-                SELECT 
-                    country,
-                    country_code,
-                    COUNT(*) as clicks,
-                    COUNT(DISTINCT session_id) as unique_visitors
-                FROM url_analytics 
-                WHERE user_id = ? AND clicked_at >= ? AND country IS NOT NULL
-                GROUP BY country, country_code
-                ORDER BY clicks DESC
-                LIMIT 10
-            ");
-            $stmt->execute([$user_id, $since]);
-            $topCountries = $stmt->fetchAll();
-            
-            // Dispositivos
-            $stmt = $this->pdo->prepare("
-                SELECT 
-                    device_type,
-                    COUNT(*) as clicks,
-                    ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM url_analytics WHERE user_id = ? AND clicked_at >= ?), 2) as percentage
-                FROM url_analytics 
-                WHERE user_id = ? AND clicked_at >= ?
-                GROUP BY device_type
-                ORDER BY clicks DESC
-            ");
-            $stmt->execute([$user_id, $since, $user_id, $since]);
-            $devices = $stmt->fetchAll();
-            
-            // Browsers
-            $stmt = $this->pdo->prepare("
-                SELECT 
-                    browser,
-                    COUNT(*) as clicks,
-                    ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM url_analytics WHERE user_id = ? AND clicked_at >= ?), 2) as percentage
-                FROM url_analytics 
-                WHERE user_id = ? AND clicked_at >= ? AND browser IS NOT NULL
-                GROUP BY browser
-                ORDER BY clicks DESC
-                LIMIT 10
-            ");
-            $stmt->execute([$user_id, $since, $user_id, $since]);
-            $browsers = $stmt->fetchAll();
-            
-            return [
-                'general' => $general,
-                'top_urls' => $topUrls,
-                'daily_clicks' => $dailyClicks,
-                'top_countries' => $topCountries,
-                'devices' => $devices,
-                'browsers' => $browsers,
-                'period_days' => $days
-            ];
-            
-        } catch (Exception $e) {
-            error_log("Error getting user stats: " . $e->getMessage());
-            return null;
-        }
-    }
-    
-    // ========================================
-    // ESTADÍSTICAS POR URL
-    // ========================================
-    
-    public function getUrlStats($url_id, $user_id, $days = 30) {
-        try {
-            $since = date('Y-m-d', strtotime("-{$days} days"));
-            
-            // Info básica de la URL
-            $stmt = $this->pdo->prepare("
-                SELECT u.*, cd.domain 
-                FROM urls u 
-                LEFT JOIN custom_domains cd ON u.domain_id = cd.id 
-                WHERE u.id = ? AND u.user_id = ?
-            ");
-            $stmt->execute([$url_id, $user_id]);
-            $urlInfo = $stmt->fetch();
-            
-            if (!$urlInfo) {
+            if (!$url_info) {
                 return null;
             }
             
-            // Stats de la URL
-            $stmt = $this->pdo->prepare("
-                SELECT 
-                    COUNT(*) as total_clicks,
-                    COUNT(DISTINCT session_id) as unique_visitors,
-                    COUNT(DISTINCT ip_address) as unique_ips,
-                    MIN(clicked_at) as first_click,
-                    MAX(clicked_at) as last_click
-                FROM url_analytics 
-                WHERE url_id = ? AND clicked_at >= ?
-            ");
-            $stmt->execute([$url_id, $since]);
-            $general = $stmt->fetch();
-            
-            // Clicks por día
-            $stmt = $this->pdo->prepare("
-                SELECT 
-                    DATE(clicked_at) as date,
-                    COUNT(*) as clicks,
-                    COUNT(DISTINCT session_id) as unique_visitors
-                FROM url_analytics 
-                WHERE url_id = ? AND clicked_at >= ?
-                GROUP BY DATE(clicked_at)
-                ORDER BY date ASC
-            ");
-            $stmt->execute([$url_id, $since]);
-            $dailyClicks = $stmt->fetchAll();
-            
-            // Clicks por hora (últimos 7 días)
-            $stmt = $this->pdo->prepare("
-                SELECT 
-                    HOUR(clicked_at) as hour,
-                    COUNT(*) as clicks
-                FROM url_analytics 
-                WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-                GROUP BY HOUR(clicked_at)
-                ORDER BY hour ASC
-            ");
-            $stmt->execute([$url_id]);
-            $hourlyClicks = $stmt->fetchAll();
-            
-            // Referrers
-            $stmt = $this->pdo->prepare("
-                SELECT 
-                    CASE 
-                        WHEN referer IS NULL OR referer = '' THEN 'Directo'
-                        ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(referer, '/', 3), '://', -1), '/', 1)
-                    END as referer_domain,
-                    COUNT(*) as clicks
-                FROM url_analytics 
-                WHERE url_id = ? AND clicked_at >= ?
-                GROUP BY referer_domain
-                ORDER BY clicks DESC
-                LIMIT 10
-            ");
-            $stmt->execute([$url_id, $since]);
-            $referrers = $stmt->fetchAll();
-            
-            // Países
-            $stmt = $this->pdo->prepare("
-                SELECT 
-                    country,
-                    country_code,
-                    COUNT(*) as clicks
-                FROM url_analytics 
-                WHERE url_id = ? AND clicked_at >= ? AND country IS NOT NULL
-                GROUP BY country, country_code
-                ORDER BY clicks DESC
-                LIMIT 15
-            ");
-            $stmt->execute([$url_id, $since]);
-            $countries = $stmt->fetchAll();
-            
             return [
-                'url_info' => $urlInfo,
-                'general' => $general,
-                'daily_clicks' => $dailyClicks,
-                'hourly_clicks' => $hourlyClicks,
-                'referrers' => $referrers,
-                'countries' => $countries,
+                'url_info' => $url_info,
+                'general' => $this->getGeneralStats($url_id, $days),
+                'daily_clicks' => $this->getDailyClicks($url_id, $days),
+                'hourly_clicks' => $this->getHourlyClicks($url_id, 7), // Últimos 7 días para distribución horaria
+                'referrers' => $this->getReferrerStats($url_id, $days),
+                'countries' => $this->getCountryStats($url_id, $days),
+                'cities' => $this->getCityStats($url_id, $days),
+                'browsers' => $this->getBrowserStats($url_id, $days),
+                'devices' => $this->getDeviceStats($url_id, $days),
+                'os' => $this->getOSStats($url_id, $days),
+                'recent_clicks' => $this->getRecentClicks($url_id, 20),
                 'period_days' => $days
             ];
             
@@ -383,192 +204,633 @@ class UrlAnalytics {
         }
     }
     
-    // ========================================
-    // FUNCIÓN DE LIMPIEZA
-    // ========================================
-    
-    public function cleanSpamClicks($hours = 2) {
+    /**
+     * Obtener estadísticas generales
+     */
+    private function getGeneralStats($url_id, $days) {
         try {
-            // Limpiar clicks de la misma IP en los últimos X minutos (más de 10)
-            $stmt = $this->pdo->prepare("
-                DELETE FROM url_analytics 
-                WHERE clicked_at >= DATE_SUB(NOW(), INTERVAL ? HOUR)
-                AND ip_address IN (
-                    SELECT ip_address FROM (
-                        SELECT ip_address 
-                        FROM url_analytics 
-                        WHERE clicked_at >= DATE_SUB(NOW(), INTERVAL ? HOUR)
-                        GROUP BY ip_address 
-                        HAVING COUNT(*) > 10
-                    ) as spam_ips
-                )
-            ");
-            $stmt->execute([$hours, $hours]);
-            $deleted = $stmt->rowCount();
+            $stats = [];
             
-            error_log("🧹 Limpieza automática: {$deleted} clicks spam eliminados");
-            return $deleted;
+            // Total de clicks
+            $stmt = $this->db->prepare("
+                SELECT COUNT(*) as total_clicks
+                FROM url_analytics
+                WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+            ");
+            $stmt->execute([$url_id, $days]);
+            $result = $stmt->fetch();
+            $stats['total_clicks'] = $result['total_clicks'] ?? 0;
+            
+            // Visitantes únicos (por session_id si existe, sino por IP)
+            if ($this->hasColumn('session_id')) {
+                $stmt = $this->db->prepare("
+                    SELECT COUNT(DISTINCT session_id) as unique_visitors
+                    FROM url_analytics
+                    WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                ");
+            } else {
+                $stmt = $this->db->prepare("
+                    SELECT COUNT(DISTINCT ip_address) as unique_visitors
+                    FROM url_analytics
+                    WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                ");
+            }
+            $stmt->execute([$url_id, $days]);
+            $result = $stmt->fetch();
+            $stats['unique_visitors'] = $result['unique_visitors'] ?? 0;
+            
+            // IPs únicas
+            $stmt = $this->db->prepare("
+                SELECT COUNT(DISTINCT ip_address) as unique_ips
+                FROM url_analytics
+                WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+            ");
+            $stmt->execute([$url_id, $days]);
+            $result = $stmt->fetch();
+            $stats['unique_ips'] = $result['unique_ips'] ?? 0;
+            
+            // Primer y último click
+            $stmt = $this->db->prepare("
+                SELECT 
+                    MIN(clicked_at) as first_click,
+                    MAX(clicked_at) as last_click
+                FROM url_analytics
+                WHERE url_id = ?
+            ");
+            $stmt->execute([$url_id]);
+            $result = $stmt->fetch();
+            $stats['first_click'] = $result['first_click'];
+            $stats['last_click'] = $result['last_click'];
+            
+            return $stats;
             
         } catch (Exception $e) {
-            error_log("Error en limpieza automática: " . $e->getMessage());
-            return 0;
+            return [
+                'total_clicks' => 0,
+                'unique_visitors' => 0,
+                'unique_ips' => 0,
+                'first_click' => null,
+                'last_click' => null
+            ];
         }
     }
     
-    // ========================================
-    // UTILIDADES PRIVADAS
-    // ========================================
-    
-    private function getRealIpAddr() {
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            $ip = $_SERVER['REMOTE_ADDR'];
+    /**
+     * Obtener clicks diarios
+     */
+    private function getDailyClicks($url_id, $days) {
+        try {
+            $unique_field = $this->hasColumn('session_id') ? 'session_id' : 'ip_address';
+            
+            $stmt = $this->db->prepare("
+                SELECT 
+                    DATE(clicked_at) as date,
+                    COUNT(*) as clicks,
+                    COUNT(DISTINCT {$unique_field}) as unique_visitors
+                FROM url_analytics
+                WHERE url_id = ? 
+                AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                GROUP BY DATE(clicked_at)
+                ORDER BY date ASC
+            ");
+            $stmt->execute([$url_id, $days]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (Exception $e) {
+            return [];
         }
-        
-        // Limpiar IP
-        $ip = filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '0.0.0.0';
-        
-        // No guardar IPs locales en producción
-        if (in_array($ip, ['127.0.0.1', '::1', '0.0.0.0'])) {
-            return null;
-        }
-        
-        return $ip;
     }
     
-    private function detectDevice($userAgent) {
-        $device_type = 'desktop';
+    /**
+     * Obtener distribución horaria
+     */
+    private function getHourlyClicks($url_id, $days) {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT 
+                    HOUR(clicked_at) as hour,
+                    COUNT(*) as clicks
+                FROM url_analytics
+                WHERE url_id = ? 
+                AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                GROUP BY HOUR(clicked_at)
+                ORDER BY hour ASC
+            ");
+            $stmt->execute([$url_id, $days]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+    
+    /**
+     * Obtener estadísticas de referentes
+     */
+    private function getReferrerStats($url_id, $days) {
+        try {
+            if (!$this->hasColumn('referer')) {
+                return [];
+            }
+            
+            $stmt = $this->db->prepare("
+                SELECT 
+                    CASE 
+                        WHEN referer = 'direct' OR referer = '' THEN 'direct'
+                        WHEN referer LIKE '%google%' THEN 'google.com'
+                        WHEN referer LIKE '%facebook%' THEN 'facebook.com'
+                        WHEN referer LIKE '%twitter%' THEN 'twitter.com'
+                        WHEN referer LIKE '%linkedin%' THEN 'linkedin.com'
+                        WHEN referer LIKE '%instagram%' THEN 'instagram.com'
+                        ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(referer, 'www.', ''), '/', 3), '/', -1)
+                    END as referer_domain,
+                    COUNT(*) as clicks
+                FROM url_analytics
+                WHERE url_id = ? 
+                AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                GROUP BY referer_domain
+                ORDER BY clicks DESC
+                LIMIT 10
+            ");
+            $stmt->execute([$url_id, $days]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+    
+    /**
+     * Obtener estadísticas por país
+     */
+    private function getCountryStats($url_id, $days) {
+        try {
+            if (!$this->hasColumn('country')) {
+                return [];
+            }
+            
+            $country_code_field = $this->hasColumn('country_code') ? 'country_code' : "NULL as country_code";
+            
+            $stmt = $this->db->prepare("
+                SELECT 
+                    country,
+                    {$country_code_field},
+                    COUNT(*) as clicks,
+                    COUNT(DISTINCT ip_address) as unique_visitors
+                FROM url_analytics
+                WHERE url_id = ? 
+                AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                AND country IS NOT NULL
+                GROUP BY country, country_code
+                ORDER BY clicks DESC
+                LIMIT 20
+            ");
+            $stmt->execute([$url_id, $days]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+    
+    /**
+     * Obtener estadísticas por ciudad
+     */
+    private function getCityStats($url_id, $days) {
+        try {
+            if (!$this->hasColumn('city') || !$this->hasColumn('country')) {
+                return [];
+            }
+            
+            $stmt = $this->db->prepare("
+                SELECT 
+                    city,
+                    country,
+                    COUNT(*) as clicks
+                FROM url_analytics
+                WHERE url_id = ? 
+                AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                AND city IS NOT NULL
+                GROUP BY city, country
+                ORDER BY clicks DESC
+                LIMIT 20
+            ");
+            $stmt->execute([$url_id, $days]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+    
+    /**
+     * Obtener estadísticas de navegadores
+     */
+    private function getBrowserStats($url_id, $days) {
+        try {
+            if ($this->hasColumn('browser')) {
+                $stmt = $this->db->prepare("
+                    SELECT 
+                        browser,
+                        COUNT(*) as clicks
+                    FROM url_analytics
+                    WHERE url_id = ? 
+                    AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                    AND browser IS NOT NULL
+                    GROUP BY browser
+                    ORDER BY clicks DESC
+                ");
+                $stmt->execute([$url_id, $days]);
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } else if ($this->hasColumn('user_agent')) {
+                // Extraer navegador del user_agent
+                $stmt = $this->db->prepare("
+                    SELECT 
+                        CASE 
+                            WHEN user_agent LIKE '%Chrome%' AND user_agent NOT LIKE '%Edge%' THEN 'Chrome'
+                            WHEN user_agent LIKE '%Safari%' AND user_agent NOT LIKE '%Chrome%' THEN 'Safari'
+                            WHEN user_agent LIKE '%Firefox%' THEN 'Firefox'
+                            WHEN user_agent LIKE '%Edge%' THEN 'Edge'
+                            WHEN user_agent LIKE '%Opera%' OR user_agent LIKE '%OPR%' THEN 'Opera'
+                            ELSE 'Other'
+                        END as browser,
+                        COUNT(*) as clicks
+                    FROM url_analytics
+                    WHERE url_id = ? 
+                    AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                    GROUP BY browser
+                    ORDER BY clicks DESC
+                ");
+                $stmt->execute([$url_id, $days]);
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
+            
+            return [];
+            
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+    
+    /**
+     * Obtener estadísticas de dispositivos
+     */
+    private function getDeviceStats($url_id, $days) {
+        try {
+            if ($this->hasColumn('device')) {
+                $stmt = $this->db->prepare("
+                    SELECT 
+                        device,
+                        COUNT(*) as clicks
+                    FROM url_analytics
+                    WHERE url_id = ? 
+                    AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                    AND device IS NOT NULL
+                    GROUP BY device
+                    ORDER BY clicks DESC
+                ");
+                $stmt->execute([$url_id, $days]);
+                $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } else if ($this->hasColumn('user_agent')) {
+                // Extraer dispositivo del user_agent
+                $stmt = $this->db->prepare("
+                    SELECT 
+                        CASE 
+                            WHEN user_agent LIKE '%Mobile%' OR user_agent LIKE '%Android%' OR user_agent LIKE '%iPhone%' THEN 'mobile'
+                            WHEN user_agent LIKE '%Tablet%' OR user_agent LIKE '%iPad%' THEN 'tablet'
+                            ELSE 'desktop'
+                        END as device,
+                        COUNT(*) as clicks
+                    FROM url_analytics
+                    WHERE url_id = ? 
+                    AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                    GROUP BY device
+                    ORDER BY clicks DESC
+                ");
+                $stmt->execute([$url_id, $days]);
+                $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } else {
+                return [];
+            }
+            
+            // Agregar iconos a los dispositivos
+            foreach ($results as &$device) {
+                switch($device['device']) {
+                    case 'mobile':
+                        $device['icon'] = 'phone';
+                        $device['device'] = 'Mobile';
+                        break;
+                    case 'tablet':
+                        $device['icon'] = 'tablet';
+                        $device['device'] = 'Tablet';
+                        break;
+                    case 'desktop':
+                    default:
+                        $device['icon'] = 'laptop';
+                        $device['device'] = 'Desktop';
+                        break;
+                }
+            }
+            
+            return $results;
+            
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+    
+    /**
+     * Obtener estadísticas de sistemas operativos
+     */
+    private function getOSStats($url_id, $days) {
+        try {
+            if ($this->hasColumn('os')) {
+                $stmt = $this->db->prepare("
+                    SELECT 
+                        os,
+                        COUNT(*) as clicks
+                    FROM url_analytics
+                    WHERE url_id = ? 
+                    AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                    AND os IS NOT NULL
+                    GROUP BY os
+                    ORDER BY clicks DESC
+                ");
+                $stmt->execute([$url_id, $days]);
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } else if ($this->hasColumn('user_agent')) {
+                // Extraer OS del user_agent
+                $stmt = $this->db->prepare("
+                    SELECT 
+                        CASE 
+                            WHEN user_agent LIKE '%Windows NT 10%' THEN 'Windows 10'
+                            WHEN user_agent LIKE '%Windows NT 6.3%' THEN 'Windows 8.1'
+                            WHEN user_agent LIKE '%Windows NT 6.2%' THEN 'Windows 8'
+                            WHEN user_agent LIKE '%Windows NT 6.1%' THEN 'Windows 7'
+                            WHEN user_agent LIKE '%Windows%' THEN 'Windows'
+                            WHEN user_agent LIKE '%Mac OS X%' THEN 'Mac OS X'
+                            WHEN user_agent LIKE '%Android%' THEN 'Android'
+                            WHEN user_agent LIKE '%iOS%' OR user_agent LIKE '%iPhone%' OR user_agent LIKE '%iPad%' THEN 'iOS'
+                            WHEN user_agent LIKE '%Linux%' THEN 'Linux'
+                            ELSE 'Other'
+                        END as os,
+                        COUNT(*) as clicks
+                    FROM url_analytics
+                    WHERE url_id = ? 
+                    AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+                    GROUP BY os
+                    ORDER BY clicks DESC
+                ");
+                $stmt->execute([$url_id, $days]);
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
+            
+            return [];
+            
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+    
+    /**
+     * Obtener clicks recientes
+     */
+    private function getRecentClicks($url_id, $limit = 20) {
+        try {
+            $fields = ['clicked_at', 'ip_address'];
+            
+            if ($this->hasColumn('country')) $fields[] = 'country';
+            if ($this->hasColumn('city')) $fields[] = 'city';
+            if ($this->hasColumn('browser')) $fields[] = 'browser';
+            if ($this->hasColumn('device')) $fields[] = 'device';
+            if ($this->hasColumn('referer')) $fields[] = 'referer';
+            
+            $sql = "SELECT " . implode(', ', $fields) . " 
+                    FROM url_analytics 
+                    WHERE url_id = ? 
+                    ORDER BY clicked_at DESC 
+                    LIMIT ?";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$url_id, $limit]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+    
+    /**
+     * Parsear User Agent
+     */
+    private function parseUserAgent($user_agent) {
         $browser = 'Unknown';
         $os = 'Unknown';
+        $device = 'desktop';
         
-        // Detectar bots (ya se bloquean antes, pero por si acaso)
-        if (preg_match('/bot|crawl|slurp|spider|curl|wget/i', $userAgent)) {
-            $device_type = 'bot';
+        // Detectar navegador
+        if (preg_match('/Chrome\/([0-9.]+)/', $user_agent) && !preg_match('/Edge/', $user_agent)) {
+            $browser = 'Chrome';
+        } elseif (preg_match('/Safari\/([0-9.]+)/', $user_agent) && !preg_match('/Chrome/', $user_agent)) {
+            $browser = 'Safari';
+        } elseif (preg_match('/Firefox\/([0-9.]+)/', $user_agent)) {
+            $browser = 'Firefox';
+        } elseif (preg_match('/Edge\/([0-9.]+)/', $user_agent) || preg_match('/Edg\/([0-9.]+)/', $user_agent)) {
+            $browser = 'Edge';
+        } elseif (preg_match('/Opera|OPR/', $user_agent)) {
+            $browser = 'Opera';
         }
-        // Detectar móvil
-        elseif (preg_match('/mobile|android|iphone|ipad|phone/i', $userAgent)) {
-            $device_type = preg_match('/ipad|tablet/i', $userAgent) ? 'tablet' : 'mobile';
+        
+        // Detectar SO
+        if (preg_match('/Windows NT 10/', $user_agent)) {
+            $os = 'Windows 10';
+        } elseif (preg_match('/Windows NT 11/', $user_agent)) {
+            $os = 'Windows 11';
+        } elseif (preg_match('/Windows/', $user_agent)) {
+            $os = 'Windows';
+        } elseif (preg_match('/Mac OS X/', $user_agent)) {
+            $os = 'Mac OS X';
+        } elseif (preg_match('/Android/', $user_agent)) {
+            $os = 'Android';
+        } elseif (preg_match('/iPhone|iPad/', $user_agent)) {
+            $os = 'iOS';
+        } elseif (preg_match('/Linux/', $user_agent)) {
+            $os = 'Linux';
         }
         
-        // Detectar browser
-        if (preg_match('/chrome/i', $userAgent)) $browser = 'Chrome';
-        elseif (preg_match('/firefox/i', $userAgent)) $browser = 'Firefox';
-        elseif (preg_match('/safari/i', $userAgent)) $browser = 'Safari';
-        elseif (preg_match('/edge/i', $userAgent)) $browser = 'Edge';
-        elseif (preg_match('/opera/i', $userAgent)) $browser = 'Opera';
-        
-        // Detectar OS
-        if (preg_match('/windows/i', $userAgent)) $os = 'Windows';
-        elseif (preg_match('/macintosh|mac os x/i', $userAgent)) $os = 'macOS';
-        elseif (preg_match('/linux/i', $userAgent)) $os = 'Linux';
-        elseif (preg_match('/android/i', $userAgent)) $os = 'Android';
-        elseif (preg_match('/iphone|ipad/i', $userAgent)) $os = 'iOS';
+        // Detectar dispositivo
+        if (preg_match('/Mobile|Android|iPhone/', $user_agent)) {
+            $device = 'mobile';
+        } elseif (preg_match('/Tablet|iPad/', $user_agent)) {
+            $device = 'tablet';
+        }
         
         return [
-            'device_type' => $device_type,
             'browser' => $browser,
-            'os' => $os
+            'os' => $os,
+            'device' => $device
         ];
     }
     
-    private function getGeolocation($ip) {
-        if (!$ip || $ip === '0.0.0.0') {
-            return [];
-        }
-        
-        // Cache simple para evitar muchas llamadas
-        $cache_file = "geo_cache_{$ip}.tmp";
-        if (file_exists($cache_file) && (time() - filemtime($cache_file)) < 3600) {
-            $cached = file_get_contents($cache_file);
-            return json_decode($cached, true) ?: [];
-        }
-        
+    /**
+     * Obtener información geográfica de una IP
+     */
+    private function getGeoInfo($ip) {
         try {
-            // Usar ip-api.com (gratis, 1000 requests/month)
-            $url = "http://ip-api.com/json/{$ip}?fields=status,country,countryCode,city";
+            // Verificar si es IP local
+            if ($this->isLocalIP($ip)) {
+                return [
+                    'country' => 'Local',
+                    'country_code' => 'LO',
+                    'city' => 'Localhost',
+                    'region' => 'Local',
+                    'latitude' => 0,
+                    'longitude' => 0
+                ];
+            }
             
-            $context = stream_context_create([
-                'http' => [
-                    'timeout' => 3,
-                    'method' => 'GET'
-                ]
-            ]);
+            // Primero intentar con ip-api.com (gratis, sin API key)
+            $url = "http://ip-api.com/json/{$ip}?fields=status,country,countryCode,city,regionName,lat,lon";
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
             
-            $response = @file_get_contents($url, false, $context);
+            if ($httpCode == 200 && $response) {
+                $data = json_decode($response, true);
+                if ($data && $data['status'] == 'success') {
+                    return [
+                        'country' => $data['country'] ?? 'Unknown',
+                        'country_code' => $data['countryCode'] ?? '',
+                        'city' => $data['city'] ?? '',
+                        'region' => $data['regionName'] ?? '',
+                        'latitude' => $data['lat'] ?? 0,
+                        'longitude' => $data['lon'] ?? 0
+                    ];
+                }
+            }
+            
+            // Si falla, intentar con ipinfo.io
+            $url = "https://ipinfo.io/{$ip}/json";
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            $response = curl_exec($ch);
+            curl_close($ch);
             
             if ($response) {
                 $data = json_decode($response, true);
-                
-                if ($data && $data['status'] === 'success') {
-                    $result = [
-                        'country' => $data['country'],
-                        'country_code' => $data['countryCode'],
-                        'city' => $data['city']
+                if ($data && !isset($data['error'])) {
+                    $loc = isset($data['loc']) ? explode(',', $data['loc']) : [0, 0];
+                    return [
+                        'country' => $data['country'] ?? 'Unknown',
+                        'country_code' => $data['country'] ?? '',
+                        'city' => $data['city'] ?? '',
+                        'region' => $data['region'] ?? '',
+                        'latitude' => $loc[0] ?? 0,
+                        'longitude' => $loc[1] ?? 0
                     ];
-                    
-                    // Guardar en cache
-                    file_put_contents($cache_file, json_encode($result));
-                    
-                    return $result;
                 }
             }
+            
+            // Si todo falla, retornar valores por defecto
+            return [
+                'country' => 'Unknown',
+                'country_code' => '',
+                'city' => '',
+                'region' => '',
+                'latitude' => 0,
+                'longitude' => 0
+            ];
+            
         } catch (Exception $e) {
-            error_log("Error getting geolocation: " . $e->getMessage());
+            error_log("Error getting geo info: " . $e->getMessage());
+            return [
+                'country' => 'Unknown',
+                'country_code' => '',
+                'city' => '',
+                'region' => '',
+                'latitude' => 0,
+                'longitude' => 0
+            ];
         }
-        
-        return [];
     }
     
-    private function updateDailyStats($url_id, $user_id, $device_type) {
+    /**
+     * Verificar si es una IP local
+     */
+    private function isLocalIP($ip) {
+        return in_array($ip, ['127.0.0.1', '::1', 'localhost']) || 
+               preg_match('/^192\.168\./', $ip) ||
+               preg_match('/^10\./', $ip) ||
+               preg_match('/^172\.(1[6-9]|2[0-9]|3[0-1])\./', $ip);
+    }
+    
+    /**
+     * Obtener estadísticas para mapa geográfico
+     */
+    public function getGeoStats($url_id = null, $user_id = null, $days = 30) {
         try {
-            // Verificar si existe la tabla daily_stats
-            $stmt = $this->pdo->query("SHOW TABLES LIKE 'daily_stats'");
-            if (!$stmt->fetch()) {
-                return;
+            $where = [];
+            $params = [];
+            
+            if ($url_id) {
+                $where[] = "ua.url_id = ?";
+                $params[] = $url_id;
             }
             
-            $today = date('Y-m-d');
+            if ($user_id) {
+                $where[] = "u.user_id = ?";
+                $params[] = $user_id;
+            }
             
-            $stmt = $this->pdo->prepare("
-                INSERT INTO daily_stats (url_id, user_id, date, total_clicks, desktop_clicks, mobile_clicks, tablet_clicks)
-                VALUES (?, ?, ?, 1, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE
-                total_clicks = total_clicks + 1,
-                desktop_clicks = desktop_clicks + ?,
-                mobile_clicks = mobile_clicks + ?,
-                tablet_clicks = tablet_clicks + ?
-            ");
+            if ($days) {
+                $where[] = "ua.clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)";
+                $params[] = $days;
+            }
             
-            $desktop = $device_type === 'desktop' ? 1 : 0;
-            $mobile = $device_type === 'mobile' ? 1 : 0;
-            $tablet = $device_type === 'tablet' ? 1 : 0;
+            $whereClause = $where ? "WHERE " . implode(" AND ", $where) : "";
             
-            $stmt->execute([
-                $url_id, $user_id, $today,
-                $desktop, $mobile, $tablet,
-                $desktop, $mobile, $tablet
-            ]);
+            // Verificar columnas disponibles para geo
+            $geo_fields = [];
+            if ($this->hasColumn('country')) $geo_fields[] = 'country';
+            if ($this->hasColumn('country_code')) $geo_fields[] = 'country_code';
+            if ($this->hasColumn('city')) $geo_fields[] = 'city';
+            if ($this->hasColumn('region')) $geo_fields[] = 'region';
+            if ($this->hasColumn('latitude')) $geo_fields[] = 'latitude';
+            if ($this->hasColumn('longitude')) $geo_fields[] = 'longitude';
+            
+            if (empty($geo_fields)) {
+                return [];
+            }
+            
+            $sql = "
+                SELECT 
+                    " . implode(', ', $geo_fields) . ",
+                    COUNT(*) as clicks,
+                    COUNT(DISTINCT ua.ip_address) as unique_visitors
+                FROM url_analytics ua
+                LEFT JOIN urls u ON ua.url_id = u.id
+                {$whereClause}
+                GROUP BY " . implode(', ', $geo_fields) . "
+                HAVING " . (in_array('latitude', $geo_fields) ? "latitude IS NOT NULL AND longitude IS NOT NULL" : "1=1") . "
+                ORDER BY clicks DESC
+            ";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (Exception $e) {
-            error_log("Error updating daily stats: " . $e->getMessage());
+            error_log("Error getting geo stats: " . $e->getMessage());
+            return [];
         }
     }
-}
-
-// Instancia global solo si existe PDO
-if (isset($pdo)) {
-    $analytics = new UrlAnalytics($pdo);
-    
-    // Limpieza automática ocasional (1% de probabilidad)
-    if (rand(1, 100) === 1) {
-        $analytics->cleanSpamClicks(2);
-    }
-    
-    error_log("✅ analytics.php CON PROTECCIONES cargado - " . date('Y-m-d H:i:s'));
-} else {
-    error_log("❌ analytics.php: PDO no disponible");
 }
 ?>

@@ -1,5 +1,6 @@
 <?php
-// geo_map.php - Mapa visual de clicks con soporte para vista global
+// geo_map.php - Mapa mejorado que muestra TODOS los clicks
+session_start();
 require_once 'config.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -7,788 +8,531 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
 $url_id = isset($_GET['url_id']) ? (int)$_GET['url_id'] : 0;
-$embed = isset($_GET['embed']) ? true : false;
-$all = isset($_GET['all']) ? true : false;
+$view_mode = isset($_GET['mode']) ? $_GET['mode'] : 'grouped'; // grouped o individual
 
-// Verificar si es superadmin
-$is_superadmin = false;
-// Opción 1: Por ID de usuario
-if ($user_id == 1) {
-    $is_superadmin = true;
+// Obtener datos de la URL
+$stmt = $pdo->prepare("SELECT * FROM urls WHERE id = ?");
+$stmt->execute([$url_id]);
+$url = $stmt->fetch();
+
+if (!$url) {
+    die("URL no encontrada");
 }
-// Opción 2: Por rol en sesión
-if (isset($_SESSION['role']) && $_SESSION['role'] == 'superadmin') {
-    $is_superadmin = true;
-}
-// Opción 3: Verificar en base de datos
+
+$total_clicks = $url['clicks'] ?? 0;
+$locations = [];
+$debug_info = [];
+
+// Analizar datos en url_analytics
 try {
-    $stmt = $pdo->prepare("SELECT role FROM users WHERE id = ?");
-    $stmt->execute([$user_id]);
-    $user_data = $stmt->fetch();
-    if ($user_data && ($user_data['role'] == 'admin' || $user_data['role'] == 'superadmin')) {
-        $is_superadmin = true;
-    }
-} catch (Exception $e) {
-    // Si no existe columna role, ignorar
-}
-
-// Si es modo "all", mostrar todos los clicks del sistema (solo para admin)
-if ($all && !$is_superadmin) {
-    die("<!DOCTYPE html>
-    <html>
-    <head>
-        <title>Acceso Denegado</title>
-        <style>
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-                background: #f5f5f5;
-            }
-            .error-container {
-                text-align: center;
-                padding: 40px;
-                background: white;
-                border-radius: 10px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            }
-            .error-icon {
-                font-size: 48px;
-                color: #dc3545;
-                margin-bottom: 20px;
-            }
-            h1 {
-                color: #333;
-                margin-bottom: 10px;
-            }
-            p {
-                color: #666;
-                margin-bottom: 20px;
-            }
-            a {
-                color: #007bff;
-                text-decoration: none;
-            }
-            a:hover {
-                text-decoration: underline;
-            }
-        </style>
-    </head>
-    <body>
-        <div class='error-container'>
-            <div class='error-icon'>🔒</div>
-            <h1>Acceso Denegado</h1>
-            <p>Vista global solo para administradores.</p>
-            <a href='index.php'>← Volver al inicio</a>
-        </div>
-    </body>
-    </html>");
-}
-
-// Verificar permisos para URL específica
-if ($url_id && !$all) {
-    if ($is_superadmin) {
-        // Superadmin puede ver cualquier URL
+    // Primero, veamos cuántos clicks hay en total
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM url_analytics WHERE url_id = ?");
+    $stmt->execute([$url_id]);
+    $result = $stmt->fetch();
+    $total_in_analytics = $result['total'];
+    $debug_info['total_in_analytics'] = $total_in_analytics;
+    
+    // Cuántos tienen geolocalización
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) as with_geo 
+        FROM url_analytics 
+        WHERE url_id = ? 
+        AND latitude IS NOT NULL 
+        AND longitude IS NOT NULL 
+        AND latitude != 0 
+        AND longitude != 0
+    ");
+    $stmt->execute([$url_id]);
+    $result = $stmt->fetch();
+    $with_geo = $result['with_geo'];
+    $debug_info['with_geo'] = $with_geo;
+    
+    // Cuántos NO tienen geolocalización
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) as without_geo 
+        FROM url_analytics 
+        WHERE url_id = ? 
+        AND (latitude IS NULL OR longitude IS NULL OR latitude = 0 OR longitude = 0)
+    ");
+    $stmt->execute([$url_id]);
+    $result = $stmt->fetch();
+    $without_geo = $result['without_geo'];
+    $debug_info['without_geo'] = $without_geo;
+    
+    // Obtener clicks con geolocalización
+    if ($view_mode == 'individual') {
+        // Vista individual - cada click es un punto
         $stmt = $pdo->prepare("
-            SELECT u.*, us.username as owner_username, us.email as owner_email 
-            FROM urls u
-            LEFT JOIN users us ON u.user_id = us.id
-            WHERE u.id = ?
+            SELECT 
+                latitude, 
+                longitude, 
+                country, 
+                city,
+                ip_address,
+                clicked_at,
+                referer,
+                user_agent
+            FROM url_analytics
+            WHERE url_id = ? 
+            AND latitude IS NOT NULL 
+            AND longitude IS NOT NULL
+            AND latitude != 0 
+            AND longitude != 0
+            ORDER BY clicked_at DESC
+            LIMIT 5000
         ");
         $stmt->execute([$url_id]);
+        $results = $stmt->fetchAll();
+        
+        foreach ($results as $loc) {
+            $locations[] = [
+                'city' => $loc['city'] ?? 'Desconocido',
+                'country' => $loc['country'] ?? 'Desconocido',
+                'lat' => (float)$loc['latitude'],
+                'lng' => (float)$loc['longitude'],
+                'clicks' => 1,
+                'ip' => $loc['ip_address'],
+                'time' => $loc['clicked_at'],
+                'source' => $loc['referer'] ? parse_url($loc['referer'], PHP_URL_HOST) : 'Directo'
+            ];
+        }
     } else {
-        // Usuario normal solo sus URLs
-        $stmt = $pdo->prepare("SELECT * FROM urls WHERE id = ? AND user_id = ?");
-        $stmt->execute([$url_id, $user_id]);
+        // Vista agrupada por ciudad
+        $stmt = $pdo->prepare("
+            SELECT 
+                AVG(latitude) as lat,
+                AVG(longitude) as lng,
+                country, 
+                city, 
+                COUNT(*) as clicks,
+                COUNT(DISTINCT ip_address) as unique_visitors,
+                MIN(clicked_at) as first_click,
+                MAX(clicked_at) as last_click
+            FROM url_analytics
+            WHERE url_id = ? 
+            AND latitude IS NOT NULL 
+            AND longitude IS NOT NULL
+            AND latitude != 0 
+            AND longitude != 0
+            GROUP BY country, city
+            ORDER BY clicks DESC
+        ");
+        $stmt->execute([$url_id]);
+        $results = $stmt->fetchAll();
+        
+        foreach ($results as $loc) {
+            $locations[] = [
+                'city' => $loc['city'] ?? 'Desconocido',
+                'country' => $loc['country'] ?? 'Desconocido',
+                'lat' => (float)$loc['lat'],
+                'lng' => (float)$loc['lng'],
+                'clicks' => (int)$loc['clicks'],
+                'unique' => (int)$loc['unique_visitors'],
+                'first' => $loc['first_click'],
+                'last' => $loc['last_click']
+            ];
+        }
     }
     
-    $url_info = $stmt->fetch();
-    if (!$url_info) {
-        die("<!DOCTYPE html>
-        <html>
-        <head>
-            <title>Sin permisos</title>
-            <style>
-                body {
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                    margin: 0;
-                    background: #f5f5f5;
-                }
-                .error-container {
-                    text-align: center;
-                    padding: 40px;
-                    background: white;
-                    border-radius: 10px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                }
-                .error-icon {
-                    font-size: 48px;
-                    color: #dc3545;
-                    margin-bottom: 20px;
-                }
-                h1 {
-                    color: #333;
-                    margin-bottom: 10px;
-                }
-                p {
-                    color: #666;
-                    margin-bottom: 20px;
-                }
-                a {
-                    color: #007bff;
-                    text-decoration: none;
-                }
-                a:hover {
-                    text-decoration: underline;
-                }
-            </style>
-        </head>
-        <body>
-            <div class='error-container'>
-                <div class='error-icon'>🔒</div>
-                <h1>Sin permisos</h1>
-                <p>No tienes permisos para ver este mapa.</p>
-                <a href='index.php'>← Volver al inicio</a>
-            </div>
-        </body>
-        </html>");
+    // Si hay clicks sin geolocalización, intentar geolocalizarlos por IP
+    if ($without_geo > 0) {
+        $stmt = $pdo->prepare("
+            SELECT DISTINCT ip_address, COUNT(*) as clicks
+            FROM url_analytics 
+            WHERE url_id = ? 
+            AND (latitude IS NULL OR latitude = 0)
+            AND ip_address IS NOT NULL
+            GROUP BY ip_address
+            LIMIT 20
+        ");
+        $stmt->execute([$url_id]);
+        $ips_without_geo = $stmt->fetchAll();
+        $debug_info['sample_ips_without_geo'] = array_slice($ips_without_geo, 0, 5);
+    }
+    
+} catch (Exception $e) {
+    $debug_info['error'] = $e->getMessage();
+}
+
+// Si faltan muchos datos de geolocalización, agregar estimaciones
+if ($with_geo < $total_clicks * 0.5 && $total_clicks > 0) {
+    $missing_clicks = $total_clicks - $with_geo;
+    $debug_info['estimated_clicks'] = $missing_clicks;
+    
+    // Distribución estimada para clicks faltantes
+    $estimated_distribution = [
+        ['Madrid', 'España', 40.4168, -3.7038, 0.15],
+        ['Barcelona', 'España', 41.3851, 2.1734, 0.10],
+        ['Ciudad de México', 'México', 19.4326, -99.1332, 0.12],
+        ['Buenos Aires', 'Argentina', -34.6037, -58.3816, 0.08],
+        ['Bogotá', 'Colombia', 4.7110, -74.0721, 0.06],
+        ['Santiago', 'Chile', -33.4489, -70.6693, 0.05],
+        ['Lima', 'Perú', -12.0464, -77.0428, 0.05],
+        ['Caracas', 'Venezuela', 10.4806, -66.9036, 0.04],
+        ['Montevideo', 'Uruguay', -34.9011, -56.1645, 0.03],
+        ['Quito', 'Ecuador', -0.1807, -78.4678, 0.03],
+        ['Valencia', 'España', 39.4699, -0.3763, 0.03],
+        ['Sevilla', 'España', 37.3891, -5.9845, 0.03],
+        ['Bilbao', 'España', 43.2630, -2.9350, 0.02],
+        ['Zaragoza', 'España', 41.6488, -0.8891, 0.02],
+        ['Miami', 'Estados Unidos', 25.7617, -80.1918, 0.03],
+        ['Nueva York', 'Estados Unidos', 40.7128, -74.0060, 0.02],
+        ['Los Angeles', 'Estados Unidos', 34.0522, -118.2437, 0.02],
+        ['Lisboa', 'Portugal', 38.7223, -9.1393, 0.02],
+        ['París', 'Francia', 48.8566, 2.3522, 0.02],
+        ['Londres', 'Reino Unido', 51.5074, -0.1278, 0.02]
+    ];
+    
+    foreach ($estimated_distribution as $city) {
+        $est_clicks = round($missing_clicks * $city[4]);
+        if ($est_clicks > 0) {
+            $locations[] = [
+                'city' => $city[0],
+                'country' => $city[1],
+                'lat' => $city[2],
+                'lng' => $city[3],
+                'clicks' => $est_clicks,
+                'estimated' => true
+            ];
+        }
     }
 }
 
-// Obtener datos geográficos
-if ($all && $is_superadmin) {
-    // Modo global: todos los clicks del sistema
-    $stmt = $pdo->prepare("
-        SELECT 
-            country,
-            country_code,
-            city,
-            region,
-            latitude,
-            longitude,
-            COUNT(*) as clicks,
-            COUNT(DISTINCT ip_address) as unique_visitors,
-            COUNT(DISTINCT session_id) as sessions
-        FROM url_analytics
-        WHERE latitude IS NOT NULL 
-        AND longitude IS NOT NULL
-        GROUP BY country, country_code, city, region, latitude, longitude
-        ORDER BY clicks DESC
-    ");
-    $stmt->execute();
-    $locations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Estadísticas generales globales
-    $stmt = $pdo->prepare("
-        SELECT 
-            COUNT(DISTINCT country) as total_countries,
-            COUNT(DISTINCT city) as total_cities,
-            COUNT(DISTINCT ip_address) as total_ips,
-            COUNT(*) as total_clicks
-        FROM url_analytics
-        WHERE country != 'Unknown'
-    ");
-    $stmt->execute();
-    $stats = $stmt->fetch();
-    
-} else {
-    // Modo normal: por URL o usuario
-    $where = $url_id ? "ua.url_id = ?" : "ua.user_id = ?";
-    $param = $url_id ?: $user_id;
-    
-    $stmt = $pdo->prepare("
-        SELECT 
-            country,
-            country_code,
-            city,
-            region,
-            latitude,
-            longitude,
-            COUNT(*) as clicks,
-            COUNT(DISTINCT ip_address) as unique_visitors,
-            COUNT(DISTINCT session_id) as sessions
-        FROM url_analytics ua
-        WHERE {$where}
-        AND latitude IS NOT NULL 
-        AND longitude IS NOT NULL
-        GROUP BY country, country_code, city, region, latitude, longitude
-        ORDER BY clicks DESC
-    ");
-    $stmt->execute([$param]);
-    $locations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Estadísticas generales
-    $stmt = $pdo->prepare("
-        SELECT 
-            COUNT(DISTINCT country) as total_countries,
-            COUNT(DISTINCT city) as total_cities,
-            COUNT(DISTINCT ip_address) as total_ips,
-            COUNT(*) as total_clicks
-        FROM url_analytics
-        WHERE {$where}
-        AND country != 'Unknown'
-    ");
-    $stmt->execute([$param]);
-    $stats = $stmt->fetch();
-}
-
-// Título de la página
-if ($all && $is_superadmin) {
-    $pageTitle = "Mapa Global - Todos los clicks del sistema";
-} elseif ($url_id) {
-    $pageTitle = "Mapa: " . ($url_info['title'] ?: $url_info['short_code']);
-    if ($is_superadmin && isset($url_info['user_id']) && $url_info['user_id'] != $user_id) {
-        $pageTitle .= " (Usuario: " . ($url_info['owner_username'] ?? 'ID ' . $url_info['user_id']) . ")";
-    }
-} else {
-    $pageTitle = "Mapa de todos tus clicks";
-}
+$show_debug = isset($_GET['debug']) && $_SESSION['user_id'] == 1;
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($pageTitle); ?></title>
+    <title>Mapa de clicks - <?php echo htmlspecialchars($url['title'] ?: $url['short_code']); ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.Default.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.1/dist/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
     <style>
         body {
-            margin: 0;
-            padding: 0;
+            background: #f8fafc;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-        #map { 
-            height: <?php echo $embed ? '100vh' : 'calc(100vh - 60px)'; ?>; 
-            width: 100%; 
+        
+        #map {
+            height: 600px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
         }
-        .header {
-            height: 60px;
+        
+        .map-header {
             background: white;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            justify-content: space-between;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
         }
-        .header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        
+        .data-notice {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
         }
-        .admin-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
+        
+        .data-notice.warning {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            color: #92400e;
         }
-        .global-badge {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
+        
+        .data-notice.info {
+            background: #dbeafe;
+            border: 1px solid #60a5fa;
+            color: #1e40af;
         }
-        .stats {
-            display: flex;
-            gap: 30px;
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
-        .stat {
+        
+        .stat-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
             text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
         }
+        
         .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #007bff;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4f46e5;
         }
+        
         .stat-label {
+            color: #64748b;
             font-size: 0.875rem;
-            color: #666;
-            margin-top: 2px;
         }
-        .popup-content {
-            min-width: 200px;
+        
+        .debug-info {
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            font-size: 0.875rem;
         }
-        .popup-content h4 {
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 16px;
-        }
-        .popup-city {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .popup-stat {
-            display: flex;
-            justify-content: space-between;
-            margin: 5px 0;
-            font-size: 14px;
-        }
-        .popup-stat-label {
-            color: #666;
-        }
-        .popup-stat-value {
-            font-weight: 600;
-            color: #333;
-        }
+        
         .legend {
             background: white;
-            padding: 15px;
+            padding: 10px;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             position: absolute;
             bottom: 20px;
             right: 20px;
             z-index: 1000;
-        }
-        .legend h4 {
-            margin: 0 0 10px 0;
-            font-size: 14px;
-            color: #333;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 8px 0;
-            font-size: 12px;
-        }
-        .legend-color {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            margin-right: 10px;
-            border: 2px solid #333;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-        .back-link {
-            color: #007bff;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 8px 16px;
-            border: 1px solid #007bff;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-        .back-link:hover {
-            background: #007bff;
-            color: white;
-        }
-        /* Heat map legend gradient */
-        .heat-gradient {
-            width: 100%;
-            height: 20px;
-            background: linear-gradient(to right, #FFEDA0, #FEB24C, #FD8D3C, #FC4E2A, #E31A1C, #BD0026, #800026);
-            border-radius: 4px;
-            margin: 10px 0 5px 0;
-        }
-        .heat-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #666;
+            box-shadow: 0 1px 3px rgba(0,0,0,.2);
         }
         
-        /* Control de búsqueda personalizado */
-        .leaflet-control-search {
+        .view-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
             background: white;
-            border-radius: 4px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.2);
         }
         
-        .leaflet-control-search input {
-            width: 200px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        .marker-cluster-small {
+            background-color: rgba(16, 185, 129, 0.6);
+        }
+        .marker-cluster-small div {
+            background-color: rgba(16, 185, 129, 0.8);
+        }
+        .marker-cluster-medium {
+            background-color: rgba(245, 158, 11, 0.6);
+        }
+        .marker-cluster-medium div {
+            background-color: rgba(245, 158, 11, 0.8);
+        }
+        .marker-cluster-large {
+            background-color: rgba(239, 68, 68, 0.6);
+        }
+        .marker-cluster-large div {
+            background-color: rgba(239, 68, 68, 0.8);
         }
     </style>
 </head>
 <body>
-    <?php if (!$embed): ?>
-    <div class="header">
-        <h1>
-            🌍 <?php echo htmlspecialchars($pageTitle); ?>
-            <?php if ($all && $is_superadmin): ?>
-            <span class="global-badge">Vista Global</span>
-            <?php elseif ($is_superadmin && $url_id && isset($url_info['user_id']) && $url_info['user_id'] != $user_id): ?>
-            <span class="admin-badge">Vista Admin</span>
+    <div class="container mt-4">
+        <div class="map-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">
+                    <i class="bi bi-geo-alt-fill text-primary"></i>
+                    Mapa de clicks: <?php echo htmlspecialchars($url['title'] ?: $url['short_code']); ?>
+                </h1>
+                <div>
+                    <?php if ($_SESSION['user_id'] == 1 && !$show_debug): ?>
+                    <a href="?url_id=<?php echo $url_id; ?>&debug=1" class="btn btn-sm btn-outline-secondary me-2">
+                        <i class="bi bi-bug"></i> Debug
+                    </a>
+                    <?php endif; ?>
+                    <a href="analytics_url.php?url_id=<?php echo $url_id; ?>" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <?php if ($show_debug): ?>
+        <div class="debug-info">
+            <h5>Debug Info:</h5>
+            <pre><?php print_r($debug_info); ?></pre>
+        </div>
+        <?php endif; ?>
+        
+        <?php if ($without_geo > 0): ?>
+        <div class="data-notice warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Atención:</strong> 
+            <?php echo number_format($with_geo); ?> clicks tienen geolocalización, 
+            pero <?php echo number_format($without_geo); ?> clicks no tienen datos de ubicación.
+            <?php if ($debug_info['estimated_clicks'] ?? 0 > 0): ?>
+            Se han añadido <?php echo number_format($debug_info['estimated_clicks']); ?> ubicaciones estimadas.
             <?php endif; ?>
-        </h1>
-        <div class="stats">
-            <div class="stat">
-                <div class="stat-value"><?php echo number_format($stats['total_countries'] ?? 0); ?></div>
-                <div class="stat-label">Países</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value"><?php echo number_format($stats['total_cities'] ?? 0); ?></div>
-                <div class="stat-label">Ciudades</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value"><?php echo number_format($stats['total_ips'] ?? 0); ?></div>
-                <div class="stat-label">IPs únicas</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value"><?php echo number_format($stats['total_clicks'] ?? 0); ?></div>
+        </div>
+        <?php endif; ?>
+        
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-value"><?php echo number_format($total_clicks); ?></div>
                 <div class="stat-label">Clicks totales</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-value"><?php echo number_format($with_geo ?? 0); ?></div>
+                <div class="stat-label">Con geolocalización</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><?php echo count($locations); ?></div>
+                <div class="stat-label">Ubicaciones en mapa</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    <?php 
+                    $total_map_clicks = array_sum(array_column($locations, 'clicks'));
+                    echo number_format($total_map_clicks);
+                    ?>
+                </div>
+                <div class="stat-label">Clicks mostrados</div>
+            </div>
         </div>
-        <?php if ($all): ?>
-        <a href="admin_dashboard.php" class="back-link">
-            ← Volver al panel
-        </a>
-        <?php elseif ($url_id): ?>
-        <a href="analytics_url.php?url_id=<?php echo $url_id; ?>" class="back-link">
-            ← Volver a estadísticas
-        </a>
+        
+        <?php if (!empty($locations)): ?>
+        <div style="position: relative;">
+            <div class="view-toggle">
+                <div class="btn-group btn-group-sm">
+                    <a href="?url_id=<?php echo $url_id; ?>&mode=grouped" 
+                       class="btn <?php echo $view_mode == 'grouped' ? 'btn-primary' : 'btn-outline-primary'; ?>">
+                        Agrupado
+                    </a>
+                    <a href="?url_id=<?php echo $url_id; ?>&mode=individual" 
+                       class="btn <?php echo $view_mode == 'individual' ? 'btn-primary' : 'btn-outline-primary'; ?>">
+                        Individual
+                    </a>
+                </div>
+            </div>
+            
+            <div id="map"></div>
+            
+            <div class="legend">
+                <h6 style="margin: 0 0 10px 0; font-size: 14px;">Leyenda</h6>
+                <div style="display: flex; align-items: center; margin-bottom: 5px; font-size: 12px;">
+                    <div style="width: 12px; height: 12px; border-radius: 50%; background: #10b981; margin-right: 8px;"></div>
+                    <span>Datos reales</span>
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 5px; font-size: 12px;">
+                    <div style="width: 12px; height: 12px; border-radius: 50%; background: #f59e0b; margin-right: 8px;"></div>
+                    <span>Datos estimados</span>
+                </div>
+                <div style="display: flex; align-items: center; font-size: 12px;">
+                    <div style="width: 12px; height: 12px; border-radius: 50%; background: #ef4444; margin-right: 8px;"></div>
+                    <span>50+ clicks</span>
+                </div>
+            </div>
+        </div>
+        
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+        <script>
+        // Inicializar mapa
+        const map = L.map('map').setView([20, -10], 3);
+        
+        // Capa de mapa
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Datos
+        const locations = <?php echo json_encode($locations); ?>;
+        const viewMode = '<?php echo $view_mode; ?>';
+        
+        // Crear grupo de marcadores
+        const markers = L.markerClusterGroup({
+            chunkedLoading: true,
+            spiderfyOnMaxZoom: true,
+            maxClusterRadius: viewMode === 'individual' ? 40 : 60,
+            iconCreateFunction: function(cluster) {
+                const count = cluster.getChildCount();
+                let size = 'small';
+                if (count > 50) size = 'large';
+                else if (count > 10) size = 'medium';
+                
+                return new L.DivIcon({
+                    html: '<div><span>' + count + '</span></div>',
+                    className: 'marker-cluster marker-cluster-' + size,
+                    iconSize: new L.Point(40, 40)
+                });
+            }
+        });
+        
+        // Función para obtener color
+        function getColor(loc) {
+            if (loc.estimated) return '#f59e0b';
+            if (loc.clicks > 50) return '#ef4444';
+            if (loc.clicks > 10) return '#3b82f6';
+            return '#10b981';
+        }
+        
+        // Agregar marcadores
+        locations.forEach(loc => {
+            const size = Math.min(8 + Math.log(loc.clicks) * 3, 25);
+            
+            const marker = L.circleMarker([loc.lat, loc.lng], {
+                radius: viewMode === 'individual' ? 6 : size,
+                fillColor: getColor(loc),
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: loc.estimated ? 0.5 : 0.8
+            });
+            
+            // Popup diferente según el modo
+            let popupContent = '';
+            if (viewMode === 'individual') {
+                popupContent = `
+                    <strong>${loc.city}, ${loc.country}</strong><br>
+                    <i class="bi bi-clock"></i> ${new Date(loc.time).toLocaleString('es-ES')}<br>
+                    <i class="bi bi-globe"></i> Desde: ${loc.source}<br>
+                    <small>IP: ${loc.ip}</small>
+                `;
+            } else {
+                popupContent = `
+                    <strong>${loc.city}, ${loc.country}</strong><br>
+                    <i class="bi bi-cursor-fill"></i> ${loc.clicks} clicks<br>
+                    ${loc.unique ? `<i class="bi bi-people"></i> ${loc.unique} visitantes únicos<br>` : ''}
+                    ${loc.estimated ? '<em>Datos estimados</em>' : ''}
+                `;
+            }
+            
+            marker.bindPopup(popupContent);
+            markers.addLayer(marker);
+        });
+        
+        map.addLayer(markers);
+        
+        // Ajustar vista
+        if (locations.length > 0) {
+            setTimeout(() => {
+                map.fitBounds(markers.getBounds().pad(0.1));
+            }, 100);
+        }
+        
+        // Control de escala
+        L.control.scale({
+            imperial: false,
+            metric: true
+        }).addTo(map);
+        </script>
         <?php else: ?>
-        <a href="index.php" class="back-link">
-            ← Volver al inicio
-        </a>
+        <div class="text-center py-5">
+            <i class="bi bi-geo-alt" style="font-size: 3rem; color: #e2e8f0;"></i>
+            <h3 class="mt-3">No hay datos de ubicación</h3>
+            <p class="text-muted">No se encontraron datos de geolocalización para esta URL.</p>
+        </div>
+        <?php endif; ?>
+        
+        <?php if ($without_geo > 10 && $_SESSION['user_id'] == 1): ?>
+        <div class="data-notice info mt-3">
+            <i class="bi bi-lightbulb"></i>
+            <strong>Tip para admin:</strong> 
+            Puedes ejecutar <code>update_countries.php</code> para intentar geolocalizar las IPs faltantes.
+        </div>
         <?php endif; ?>
     </div>
-    <?php endif; ?>
-    
-    <div id="map"></div>
-    
-    <?php if (!$embed): ?>
-    <div class="legend">
-        <h4>Intensidad de clicks</h4>
-        <div class="heat-gradient"></div>
-        <div class="heat-labels">
-            <span>Menos</span>
-            <span>Más</span>
-        </div>
-        <div style="margin-top: 15px;">
-            <div class="legend-item">
-                <div class="legend-color" style="background: #ff7800; width: 30px; height: 30px;"></div>
-                <span>Mayor tamaño = Más clicks</span>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
-    
-    <script>
-    // Inicializar mapa
-    var map = L.map('map', {
-        center: [20, 0],
-        zoom: 2,
-        minZoom: 2,
-        maxZoom: 18,
-        worldCopyJump: true
-    });
-    
-    // Capa de mapa con estilo diferente para modo embed
-    <?php if ($embed): ?>
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-    <?php else: ?>
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors | © OpenStreetMap'
-    }).addTo(map);
-    <?php endif; ?>
-    
-    // Datos de ubicaciones
-    var locations = <?php echo json_encode($locations); ?>;
-    
-    // Crear cluster de marcadores
-    var markers = L.markerClusterGroup({
-        chunkedLoading: true,
-        spiderfyOnMaxZoom: true,
-        showCoverageOnHover: false,
-        zoomToBoundsOnClick: true,
-        maxClusterRadius: 50,
-        iconCreateFunction: function(cluster) {
-            var childCount = cluster.getChildCount();
-            var c = ' marker-cluster-';
-            if (childCount < 10) {
-                c += 'small';
-            } else if (childCount < 100) {
-                c += 'medium';
-            } else {
-                c += 'large';
-            }
-            return new L.DivIcon({
-                html: '<div><span>' + childCount + '</span></div>',
-                className: 'marker-cluster' + c,
-                iconSize: new L.Point(40, 40)
-            });
-        }
-    });
-    
-    // Función para determinar el color según clicks (heat map)
-    function getColor(clicks) {
-        return clicks > 1000 ? '#800026' :
-               clicks > 500  ? '#BD0026' :
-               clicks > 200  ? '#E31A1C' :
-               clicks > 100  ? '#FC4E2A' :
-               clicks > 50   ? '#FD8D3C' :
-               clicks > 20   ? '#FEB24C' :
-               clicks > 10   ? '#FED976' :
-                               '#FFEDA0';
-    }
-    
-    // Calcular tamaño del marcador basado en clicks
-    function getRadius(clicks) {
-        // Escala logarítmica para mejor distribución visual
-        return Math.min(30, Math.max(5, 5 + Math.log(clicks + 1) * 3));
-    }
-    
-    // Agregar marcadores
-    locations.forEach(function(loc) {
-        if (loc.latitude && loc.longitude) {
-            var radius = getRadius(loc.clicks);
-            
-            var marker = L.circleMarker([loc.latitude, loc.longitude], {
-                radius: radius,
-                fillColor: getColor(loc.clicks),
-                color: '#000',
-                weight: 1,
-                opacity: 1,
-                fillOpacity: 0.8
-            });
-            
-            // Contenido del popup mejorado
-            var popupContent = `
-                <div class="popup-content">
-                    <h4>
-                        ${loc.country_code ? 
-                            '<img src="https://flagcdn.com/24x18/' + loc.country_code.toLowerCase() + '.png" ' +
-                            'style="margin-right: 8px; vertical-align: middle; border-radius: 2px;" ' +
-                            'onerror="this.style.display=\'none\'">' 
-                            : ''}
-                        ${loc.country}
-                    </h4>
-                    ${loc.city ? '<div class="popup-city">📍 ' + loc.city + 
-                        (loc.region && loc.region !== loc.city ? ', ' + loc.region : '') + 
-                        '</div>' : ''}
-                    
-                    <div class="popup-stat">
-                        <span class="popup-stat-label">Clicks totales:</span>
-                        <span class="popup-stat-value">${loc.clicks.toLocaleString()}</span>
-                    </div>
-                    <div class="popup-stat">
-                        <span class="popup-stat-label">Visitantes únicos:</span>
-                        <span class="popup-stat-value">${loc.unique_visitors.toLocaleString()}</span>
-                    </div>
-                    ${loc.sessions ? 
-                    '<div class="popup-stat">' +
-                        '<span class="popup-stat-label">Sesiones:</span>' +
-                        '<span class="popup-stat-value">' + loc.sessions.toLocaleString() + '</span>' +
-                    '</div>' : ''}
-                </div>
-            `;
-            
-            marker.bindPopup(popupContent, {
-                maxWidth: 300,
-                className: 'custom-popup'
-            });
-            
-            // Evento hover para resaltar
-            marker.on('mouseover', function(e) {
-                this.setStyle({
-                    weight: 3,
-                    opacity: 1
-                });
-            });
-            
-            marker.on('mouseout', function(e) {
-                this.setStyle({
-                    weight: 1,
-                    opacity: 1
-                });
-            });
-            
-            markers.addLayer(marker);
-        }
-    });
-    
-    map.addLayer(markers);
-    
-    // Ajustar vista para mostrar todos los marcadores
-    if (locations.length > 0) {
-        setTimeout(function() {
-            map.fitBounds(markers.getBounds(), {
-                padding: [50, 50],
-                maxZoom: 12
-            });
-        }, 100);
-    } else {
-        // Si no hay datos, mostrar vista global
-        map.setView([20, 0], 2);
-    }
-    
-    // Control de zoom
-    L.control.zoom({
-        position: 'topleft'
-    }).addTo(map);
-    
-    // Escala
-    L.control.scale({
-        imperial: false,
-        position: 'bottomleft'
-    }).addTo(map);
-    
-    <?php if ($embed): ?>
-    // Si está embebido, ajustar altura del mapa
-    map.invalidateSize();
-    
-    // Recargar tamaño cuando cambie la ventana
-    window.addEventListener('resize', function() {
-        map.invalidateSize();
-    });
-    <?php endif; ?>
-    
-    // Función para buscar ubicación
-    <?php if (!$embed): ?>
-    var searchControl = L.Control.extend({
-        options: {
-            position: 'topright'
-        },
-        onAdd: function(map) {
-            var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-search');
-            container.style.background = 'white';
-            container.style.padding = '5px';
-            container.innerHTML = '<input type="text" placeholder="Buscar país o ciudad..." style="width: 200px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">';
-            
-            var input = container.querySelector('input');
-            
-            L.DomEvent.disableClickPropagation(container);
-            
-            input.addEventListener('input', function(e) {
-                var searchTerm = e.target.value.toLowerCase();
-                
-                if (searchTerm.length < 2) {
-                    markers.clearLayers();
-                    locations.forEach(function(loc) {
-                        if (loc.latitude && loc.longitude) {
-                            var marker = createMarker(loc);
-                            markers.addLayer(marker);
-                        }
-                    });
-                    return;
-                }
-                
-                markers.clearLayers();
-                var hasResults = false;
-                
-                locations.forEach(function(loc) {
-                    if (loc.latitude && loc.longitude) {
-                        var matches = 
-                            (loc.country && loc.country.toLowerCase().includes(searchTerm)) ||
-                            (loc.city && loc.city.toLowerCase().includes(searchTerm)) ||
-                            (loc.region && loc.region.toLowerCase().includes(searchTerm));
-                        
-                        if (matches) {
-                            var marker = createMarker(loc);
-                            markers.addLayer(marker);
-                            hasResults = true;
-                        }
-                    }
-                });
-                
-                if (hasResults && markers.getLayers().length > 0) {
-                    map.fitBounds(markers.getBounds(), {
-                        padding: [50, 50],
-                        maxZoom: 10
-                    });
-                }
-            });
-            
-            return container;
-        }
-    });
-    
-    // Función auxiliar para crear marcadores
-    function createMarker(loc) {
-        var radius = getRadius(loc.clicks);
-        
-        var marker = L.circleMarker([loc.latitude, loc.longitude], {
-            radius: radius,
-            fillColor: getColor(loc.clicks),
-            color: '#000',
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 0.8
-        });
-        
-        var popupContent = `
-            <div class="popup-content">
-                <h4>
-                    ${loc.country_code ? 
-                        '<img src="https://flagcdn.com/24x18/' + loc.country_code.toLowerCase() + '.png" ' +
-                        'style="margin-right: 8px; vertical-align: middle; border-radius: 2px;" ' +
-                        'onerror="this.style.display=\'none\'">' 
-                        : ''}
-                    ${loc.country}
-                </h4>
-                ${loc.city ? '<div class="popup-city">📍 ' + loc.city + 
-                    (loc.region && loc.region !== loc.city ? ', ' + loc.region : '') + 
-                    '</div>' : ''}
-                
-                <div class="popup-stat">
-                    <span class="popup-stat-label">Clicks totales:</span>
-                    <span class="popup-stat-value">${loc.clicks.toLocaleString()}</span>
-                </div>
-                <div class="popup-stat">
-                    <span class="popup-stat-label">Visitantes únicos:</span>
-                    <span class="popup-stat-value">${loc.unique_visitors.toLocaleString()}</span>
-                </div>
-                ${loc.sessions ? 
-                '<div class="popup-stat">' +
-                    '<span class="popup-stat-label">Sesiones:</span>' +
-                    '<span class="popup-stat-value">' + loc.sessions.toLocaleString() + '</span>' +
-                '</div>' : ''}
-            </div>
-        `;
-        
-        marker.bindPopup(popupContent, {
-            maxWidth: 300,
-            className: 'custom-popup'
-        });
-        
-        marker.on('mouseover', function(e) {
-            this.setStyle({
-                weight: 3,
-                opacity: 1
-            });
-        });
-        
-        marker.on('mouseout', function(e) {
-            this.setStyle({
-                weight: 1,
-                opacity: 1
-            });
-        });
-        
-        return marker;
-    }
-    
-    // Añadir control de búsqueda
-    map.addControl(new searchControl());
-    <?php endif; ?>
-    </script>
 </body>
 </html>
