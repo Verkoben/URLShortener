@@ -528,4 +528,21 @@ IMPORTANTE
 Setear el directorio de instalación
 sudo ln -s /var/www/html/ acortador
 sudo chown www-data:www-data acortador
+-----
+O si se prefiere se añade al .htpaccess esto
+-----
+# Redirecciones automáticas de /admin/ a la raíz
+RewriteEngine On
+
+# Redireccionar /admin/login.php a /login.php
+RewriteRule ^admin/login\.php$ /login.php [R=301,L]
+
+# Redireccionar /admin/logout.php a /logout.php
+RewriteRule ^admin/logout\.php$ /logout.php [R=301,L]
+
+# Redireccionar /admin/panel_simple.php a /panel_simple.php
+RewriteRule ^admin/panel_simple\.php$ /panel_simple.php [R=301,L,QSA]
+
+# Si estás en un subdirectorio, usa:
+# RewriteRule ^admin/login\.php$ /tu-subdirectorio/login.php [R=301,L]
 --------------------------------------------------------------------------------
