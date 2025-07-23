@@ -522,3 +522,10 @@ ALTER TABLE urls ADD COLUMN description TEXT AFTER title;
 
 -- Si falta 'og_image':
 ALTER TABLE urls ADD COLUMN og_image VARCHAR(500) AFTER description;
+-------------------------------------------------------------------------------
+IMPORTANTE
+--------------------------------------------------------------------------------
+Setear el directorio de instalación
+sudo ln -s /var/www/html/ acortador
+sudo chown www-data:www-data acortador
+--------------------------------------------------------------------------------
