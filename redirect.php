@@ -1,344 +1,313 @@
 <?php
-// redirect.php - CON TRACKING, GEOLOCALIZACIÓN Y METADATOS PARA REDES SOCIALES
 require_once 'conf.php';
 
-// Función mejorada de geolocalización
-function getGeoLocation($ip) {
-    // IPs privadas/locales
-    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-        return [
-            'country' => 'Local Network',
-            'country_code' => 'XX',
-            'city' => 'Private',
-            'region' => null,
-            'lat' => null,
-            'lon' => null
-        ];
+// Obtener el código corto de la URL
+$request_uri = $_SERVER['REQUEST_URI'];
+$short_code = trim($request_uri, '/');
+
+// Si no hay código, redirigir al index
+if (empty($short_code)) {
+    header('Location: index.php');
+    exit();
+}
+
+// Conectar a la base de datos
+try {
+    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    die("Error de conexión");
+}
+
+// NUEVA VERIFICACIÓN: Obtener el dominio desde el que se está accediendo
+$current_domain = $_SERVER['HTTP_HOST'];
+$main_domain = parse_url(BASE_URL, PHP_URL_HOST);
+
+// Buscar la URL con información del dominio asignado
+$stmt = $pdo->prepare("
+    SELECT u.*, cd.domain as assigned_domain, cd.user_id as domain_owner
+    FROM urls u 
+    LEFT JOIN custom_domains cd ON u.domain_id = cd.id
+    WHERE u.short_code = ? AND u.active = 1
+");
+$stmt->execute([$short_code]);
+$url = $stmt->fetch();
+
+if ($url) {
+    // VERIFICACIÓN DE DOMINIO
+    $can_redirect = false;
+    
+    // Si la URL tiene un dominio asignado
+    if ($url['domain_id'] && $url['assigned_domain']) {
+        // Solo permitir redirección desde el dominio asignado
+        if ($current_domain === $url['assigned_domain']) {
+            $can_redirect = true;
+        }
+    } else {
+        // Si no tiene dominio asignado, solo funciona desde el dominio principal
+        if ($current_domain === $main_domain) {
+            $can_redirect = true;
+        }
     }
     
-    // Intentar con múltiples servicios de geolocalización
-    $services = [
-        // ip-api.com (100 requests per minute free)
-        function($ip) {
-            $url = "http://ip-api.com/json/{$ip}?fields=status,message,country,countryCode,region,regionName,city,lat,lon";
-            $response = @file_get_contents($url, false, stream_context_create([
-                'http' => ['timeout' => 3]
-            ]));
-            
-            if ($response) {
-                $data = json_decode($response, true);
-                if ($data && $data['status'] == 'success') {
-                    return [
-                        'country' => $data['country'] ?? 'Unknown',
-                        'country_code' => $data['countryCode'] ?? null,
-                        'city' => $data['city'] ?? null,
-                        'region' => $data['regionName'] ?? null,
-                        'lat' => $data['lat'] ?? null,
-                        'lon' => $data['lon'] ?? null
-                    ];
+    // Verificar si puede redirigir
+    if (!$can_redirect) {
+        // Mostrar error o redirigir al dominio correcto
+        ?>
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Dominio Incorrecto</title>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+                    background: #f5f5f5;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    margin: 0;
                 }
-            }
-            return false;
-        },
-        
-        // ipapi.co (1000 requests per day free)
-        function($ip) {
-            $url = "https://ipapi.co/{$ip}/json/";
-            $response = @file_get_contents($url, false, stream_context_create([
-                'http' => [
-                    'timeout' => 3,
-                    'header' => "User-Agent: PHP\r\n"
-                ]
-            ]));
-            
-            if ($response) {
-                $data = json_decode($response, true);
-                if ($data && !isset($data['error'])) {
-                    return [
-                        'country' => $data['country_name'] ?? 'Unknown',
-                        'country_code' => $data['country_code'] ?? null,
-                        'city' => $data['city'] ?? null,
-                        'region' => $data['region'] ?? null,
-                        'lat' => $data['latitude'] ?? null,
-                        'lon' => $data['longitude'] ?? null
-                    ];
+                .error-box {
+                    background: white;
+                    padding: 40px;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    text-align: center;
+                    max-width: 500px;
                 }
-            }
-            return false;
-        }
+                .error-icon {
+                    font-size: 4em;
+                    margin-bottom: 20px;
+                }
+                h1 {
+                    color: #333;
+                    margin-bottom: 20px;
+                }
+                p {
+                    color: #666;
+                    line-height: 1.6;
+                    margin-bottom: 30px;
+                }
+                .btn {
+                    display: inline-block;
+                    padding: 12px 30px;
+                    background: #667eea;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    transition: background 0.3s;
+                }
+                .btn:hover {
+                    background: #5a67d8;
+                }
+                .correct-url {
+                    background: #f8f9fa;
+                    padding: 10px;
+                    border-radius: 5px;
+                    margin: 20px 0;
+                    font-family: monospace;
+                    word-break: break-all;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="error-box">
+                <div class="error-icon">🚫</div>
+                <h1>Dominio Incorrecto</h1>
+                <p>Esta URL corta no está disponible en este dominio.</p>
+                
+                <?php if ($url['assigned_domain']): ?>
+                    <p>Esta URL solo funciona desde:</p>
+                    <div class="correct-url">
+                        https://<?php echo htmlspecialchars($url['assigned_domain']); ?>/<?php echo htmlspecialchars($short_code); ?>
+                    </div>
+                    <a href="https://<?php echo htmlspecialchars($url['assigned_domain']); ?>/<?php echo htmlspecialchars($short_code); ?>" class="btn">
+                        Ir al dominio correcto
+                    </a>
+                <?php else: ?>
+                    <p>Esta URL solo funciona desde el dominio principal:</p>
+                    <div class="correct-url">
+                        <?php echo rtrim(BASE_URL, '/'); ?>/<?php echo htmlspecialchars($short_code); ?>
+                    </div>
+                    <a href="<?php echo rtrim(BASE_URL, '/'); ?>/<?php echo htmlspecialchars($short_code); ?>" class="btn">
+                        Ir al dominio principal
+                    </a>
+                <?php endif; ?>
+            </div>
+        </body>
+        </html>
+        <?php
+        exit();
+    }
+    
+    // Si llegamos aquí, el dominio es correcto, proceder con la redirección
+    
+    // NUEVO: DETECTAR BOTS DE REDES SOCIALES
+    $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    $is_bot = false;
+    
+    // Lista de bots de redes sociales
+    $social_bots = [
+        'facebookexternalhit',
+        'Facebot',
+        'Twitterbot',
+        'LinkedInBot',
+        'WhatsApp',
+        'TelegramBot',
+        'Slackbot',
+        'Discord',
+        'Applebot',
+        'Pinterestbot',
+        'Skype'
     ];
     
-    // Intentar con cada servicio
-    foreach ($services as $service) {
-        $result = $service($ip);
-        if ($result !== false) {
+    foreach ($social_bots as $bot) {
+        if (stripos($user_agent, $bot) !== false) {
+            $is_bot = true;
+            break;
+        }
+    }
+    
+    // SI ES UN BOT DE REDES SOCIALES, MOSTRAR META TAGS
+    if ($is_bot) {
+        // Función para obtener meta tags
+        function getMetaTags($url_to_fetch) {
+            $default = [
+                'title' => 'Ver contenido',
+                'description' => 'Haz clic para ver el contenido completo',
+                'image' => ''
+            ];
+            
+            // Configurar contexto con timeout
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 5,
+                    'user_agent' => 'Mozilla/5.0 (compatible; URLShortener/1.0)',
+                    'follow_location' => true
+                ]
+            ]);
+            
+            // Obtener contenido (solo primeros 50KB para no cargar todo)
+            $html = @file_get_contents($url_to_fetch, false, $context, 0, 50000);
+            
+            if (!$html) {
+                return $default;
+            }
+            
+            $result = $default;
+            
+            // Obtener título
+            if (preg_match('/<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+                $result['title'] = html_entity_decode($matches[1], ENT_QUOTES, 'UTF-8');
+            } elseif (preg_match('/<title[^>]*>(.*?)<\/title>/is', $html, $matches)) {
+                $result['title'] = html_entity_decode(trim(strip_tags($matches[1])), ENT_QUOTES, 'UTF-8');
+            }
+            
+            // Obtener descripción
+            if (preg_match('/<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+                $result['description'] = html_entity_decode($matches[1], ENT_QUOTES, 'UTF-8');
+            } elseif (preg_match('/<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+                $result['description'] = html_entity_decode($matches[1], ENT_QUOTES, 'UTF-8');
+            }
+            
+            // Obtener imagen
+            if (preg_match('/<meta\s+property=["\']og:image["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+                $result['image'] = $matches[1];
+                // Si la imagen es relativa, convertirla a absoluta
+                if (!filter_var($result['image'], FILTER_VALIDATE_URL)) {
+                    $parsed = parse_url($url_to_fetch);
+                    $base = $parsed['scheme'] . '://' . $parsed['host'];
+                    if (strpos($result['image'], '/') === 0) {
+                        $result['image'] = $base . $result['image'];
+                    } else {
+                        $result['image'] = $base . '/' . $result['image'];
+                    }
+                }
+            }
+            
             return $result;
         }
-    }
-    
-    // Si todos fallan
-    return [
-        'country' => 'Unknown',
-        'country_code' => null,
-        'city' => null,
-        'region' => null,
-        'lat' => null,
-        'lon' => null
-    ];
-}
-
-// Obtener el código de la URL
-$request_uri = $_SERVER['REQUEST_URI'];
-$code = trim($request_uri, '/');
-
-// Limpiar código de parámetros
-if (strpos($code, '?') !== false) {
-    $code = substr($code, 0, strpos($code, '?'));
-}
-
-// Validar código
-if (empty($code) || !preg_match('/^[a-zA-Z0-9\-_]+$/', $code)) {
-    header('Location: ' . BASE_URL);
-    exit;
-}
-
-try {
-    // Conexión a base de datos
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
-        DB_USER,
-        DB_PASS,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-    
-    // Buscar URL con más información para metadatos
-    $stmt = $pdo->prepare("
-        SELECT u.*, cd.domain 
-        FROM urls u 
-        LEFT JOIN custom_domains cd ON u.domain_id = cd.id 
-        WHERE u.short_code = ? 
-        LIMIT 1
-    ");
-    $stmt->execute([$code]);
-    $url = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($url) {
-        // Detectar bots de redes sociales
-        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        $is_bot = false;
-        $bot_patterns = [
-            'facebookexternalhit',
-            'Facebot',
-            'Twitterbot',
-            'LinkedInBot',
-            'WhatsApp',
-            'TelegramBot',
-            'Slackbot',
-            'Discordbot',
-            'Pinterest',
-            'Applebot'
-        ];
         
-        foreach ($bot_patterns as $pattern) {
-            if (stripos($user_agent, $pattern) !== false) {
-                $is_bot = true;
-                break;
-            }
-        }
+        // Obtener meta tags del sitio original
+        $meta_tags = getMetaTags($url['original_url']);
         
-        // Si es un bot, mostrar página con metadatos
-        if ($is_bot) {
-            // Generar URL completa
-            $short_url = !empty($url['domain']) 
-                ? "https://" . $url['domain'] . "/" . $url['short_code']
-                : BASE_URL . $url['short_code'];
-            
-            // Preparar metadatos
-            $title = !empty($url['title']) ? htmlspecialchars($url['title']) : 'Enlace compartido';
-            $description = !empty($url['description']) ? htmlspecialchars($url['description']) : 'Visita este enlace';
-            $image = !empty($url['og_image']) ? htmlspecialchars($url['og_image']) : BASE_URL . 'assets/og-default.png';
-            
-            // Mostrar página HTML con metadatos
-            ?>
+        // Construir la URL corta completa
+        $short_url = 'https://' . $current_domain . '/' . $short_code;
+        
+        // Mostrar página con meta tags para el bot
+        ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title><?php echo $title; ?></title>
     
-    <!-- Metadatos Open Graph para Facebook -->
-    <meta property="og:title" content="<?php echo $title; ?>" />
-    <meta property="og:description" content="<?php echo $description; ?>" />
-    <meta property="og:url" content="<?php echo $short_url; ?>" />
-    <meta property="og:image" content="<?php echo $image; ?>" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="<?php echo SITE_NAME; ?>" />
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="<?php echo htmlspecialchars($meta_tags['title']); ?>">
+    <meta property="og:description" content="<?php echo htmlspecialchars($meta_tags['description']); ?>">
+    <?php if (!empty($meta_tags['image'])): ?>
+    <meta property="og:image" content="<?php echo htmlspecialchars($meta_tags['image']); ?>">
+    <?php endif; ?>
+    <meta property="og:url" content="<?php echo htmlspecialchars($short_url); ?>">
+    <meta property="og:type" content="website">
     
-    <!-- Metadatos para Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="<?php echo $title; ?>" />
-    <meta name="twitter:description" content="<?php echo $description; ?>" />
-    <meta name="twitter:image" content="<?php echo $image; ?>" />
-    <meta name="twitter:url" content="<?php echo $short_url; ?>" />
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="<?php echo !empty($meta_tags['image']) ? 'summary_large_image' : 'summary'; ?>">
+    <meta name="twitter:title" content="<?php echo htmlspecialchars($meta_tags['title']); ?>">
+    <meta name="twitter:description" content="<?php echo htmlspecialchars($meta_tags['description']); ?>">
+    <?php if (!empty($meta_tags['image'])): ?>
+    <meta name="twitter:image" content="<?php echo htmlspecialchars($meta_tags['image']); ?>">
+    <?php endif; ?>
     
-    <!-- Metadatos adicionales -->
-    <meta name="description" content="<?php echo $description; ?>" />
-    <link rel="canonical" href="<?php echo $short_url; ?>" />
+    <!-- Redirección automática para usuarios normales (por si acaso) -->
+    <meta http-equiv="refresh" content="1;url=<?php echo htmlspecialchars($url['original_url']); ?>">
     
-    <!-- Redirección para navegadores normales -->
-    <meta http-equiv="refresh" content="0;url=<?php echo htmlspecialchars($url['original_url']); ?>">
-    <script>window.location.href = "<?php echo htmlspecialchars($url['original_url']); ?>";</script>
+    <title><?php echo htmlspecialchars($meta_tags['title']); ?></title>
 </head>
 <body>
-    <p>Redirigiendo a <a href="<?php echo htmlspecialchars($url['original_url']); ?>"><?php echo $title; ?></a>...</p>
+    <p>Redirigiendo...</p>
+    <script>
+        // Redirección por JavaScript como backup
+        window.location.href = "<?php echo htmlspecialchars($url['original_url']); ?>";
+    </script>
 </body>
 </html>
-            <?php
-            exit;
-        }
-        
-        // Para usuarios normales, continuar con el tracking
-        
-        // Obtener IP real del visitante
-        $ip = $_SERVER['REMOTE_ADDR'];
-        if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-            $ip = $_SERVER['HTTP_CF_CONNECTING_IP']; // Cloudflare
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-            $ip = trim($ips[0]);
-        }
-        
-        // Obtener información de geolocalización
-        $geo = getGeoLocation($ip);
-        
-        // Obtener otros datos
-        $referer = $_SERVER['HTTP_REFERER'] ?? 'direct';
-        
-        // Parsear referer domain
-        $referer_domain = 'direct';
-        if ($referer != 'direct') {
-            $parsed = parse_url($referer);
-            $referer_domain = isset($parsed['host']) ? $parsed['host'] : 'unknown';
-        }
-        
-        // Detectar browser, OS y device
-        $ua_lower = strtolower($user_agent);
-        
-        // Browser
-        $browser = 'Unknown';
-        if (strpos($ua_lower, 'firefox') !== false) $browser = 'Firefox';
-        elseif (strpos($ua_lower, 'edg') !== false) $browser = 'Edge';
-        elseif (strpos($ua_lower, 'chrome') !== false) $browser = 'Chrome';
-        elseif (strpos($ua_lower, 'safari') !== false) $browser = 'Safari';
-        elseif (strpos($ua_lower, 'opera') !== false || strpos($ua_lower, 'opr') !== false) $browser = 'Opera';
-        
-        // OS
-        $os = 'Unknown';
-        if (strpos($ua_lower, 'windows') !== false) $os = 'Windows';
-        elseif (strpos($ua_lower, 'mac') !== false) $os = 'macOS';
-        elseif (strpos($ua_lower, 'linux') !== false) $os = 'Linux';
-        elseif (strpos($ua_lower, 'android') !== false) $os = 'Android';
-        elseif (strpos($ua_lower, 'iphone') !== false || strpos($ua_lower, 'ipad') !== false) $os = 'iOS';
-        
-        // Device
-        $device = 'desktop';
-        if (strpos($ua_lower, 'mobile') !== false || strpos($ua_lower, 'android') !== false || strpos($ua_lower, 'iphone') !== false) {
-            $device = 'mobile';
-        } elseif (strpos($ua_lower, 'tablet') !== false || strpos($ua_lower, 'ipad') !== false) {
-            $device = 'tablet';
-        }
-        
-        // Generar session ID
-        $session_id = md5($ip . $user_agent . date('Y-m-d'));
-        
-        // Actualizar estadísticas básicas
-        $stmt = $pdo->prepare("
-            UPDATE urls 
-            SET clicks = clicks + 1, 
-                last_accessed = NOW() 
-            WHERE short_code = ?
-        ");
-        $stmt->execute([$code]);
-        
-        // Registrar click detallado en click_stats (tabla legacy)
-        try {
-            $stmt = $pdo->prepare("
-                INSERT INTO click_stats 
-                (url_id, ip_address, user_agent, referer, clicked_at, country, country_code, city) 
-                VALUES (?, ?, ?, ?, NOW(), ?, ?, ?)
-            ");
-            $stmt->execute([
-                $url['id'], 
-                $ip, 
-                $user_agent, 
-                $referer,
-                $geo['country'],
-                $geo['country_code'],
-                $geo['city']
-            ]);
-            $click_stats_id = $pdo->lastInsertId();
-        } catch (Exception $e) {
-            $click_stats_id = null;
-            error_log("Error en click_stats: " . $e->getMessage());
-        }
-        
-        // Insertar en url_analytics (nueva tabla con geolocalización completa)
-        try {
-            // Verificar si existe la tabla
-            $tableExists = $pdo->query("SHOW TABLES LIKE 'url_analytics'")->rowCount() > 0;
-            
-            if ($tableExists) {
-                $stmt = $pdo->prepare("
-                    INSERT INTO url_analytics (
-                        url_id, user_id, clicked_at, ip_address, 
-                        country, country_code, city, region, latitude, longitude,
-                        user_agent, referer, referer_domain, 
-                        browser, os, device, session_id, click_stats_id
-                    ) VALUES (
-                        ?, ?, NOW(), ?, 
-                        ?, ?, ?, ?, ?, ?,
-                        ?, ?, ?, 
-                        ?, ?, ?, ?, ?
-                    )
-                ");
-                
-                $stmt->execute([
-                    $url['id'],
-                    $url['user_id'],
-                    $ip,
-                    $geo['country'],
-                    $geo['country_code'],
-                    $geo['city'],
-                    $geo['region'],
-                    $geo['lat'],
-                    $geo['lon'],
-                    $user_agent,
-                    $referer,
-                    $referer_domain,
-                    $browser,
-                    $os,
-                    $device,
-                    $session_id,
-                    $click_stats_id
-                ]);
-            }
-        } catch (Exception $e) {
-            error_log("Error en url_analytics: " . $e->getMessage());
-        }
-        
-        // Redirigir
-        header("Location: " . $url['original_url'], true, 301);
-        exit;
-        
-    } else {
-        // URL no encontrada
-        header('Location: ' . BASE_URL . '?error=not_found');
-        exit;
+        <?php
+        exit();
     }
     
-} catch (Exception $e) {
-    error_log("Error en redirect.php: " . $e->getMessage());
-    header('Location: ' . BASE_URL . '?error=server');
-    exit;
+    // PARA USUARIOS NORMALES (NO BOTS): Proceder con redirección normal
+    
+    // Incrementar contador de clicks
+    $stmt = $pdo->prepare("UPDATE urls SET clicks = clicks + 1 WHERE id = ?");
+    $stmt->execute([$url['id']]);
+    
+    // Registrar estadísticas detalladas
+    try {
+        $stmt = $pdo->prepare("
+            INSERT INTO click_stats (url_id, clicked_at, ip_address, user_agent, referer) 
+            VALUES (?, NOW(), ?, ?, ?)
+        ");
+        $stmt->execute([
+            $url['id'],
+            $_SERVER['REMOTE_ADDR'] ?? '',
+            $_SERVER['HTTP_USER_AGENT'] ?? '',
+            $_SERVER['HTTP_REFERER'] ?? ''
+        ]);
+    } catch (Exception $e) {
+        // Si falla el registro de stats, continuar con la redirección
+    }
+    
+    // Redirigir a la URL original
+    header('Location: ' . $url['original_url']);
+    exit();
+    
+} else {
+    // URL no encontrada
+    header('HTTP/1.0 404 Not Found');
+    include '404.php';
+    exit();
 }
 ?>
