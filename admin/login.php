@@ -1,6 +1,17 @@
 <?php
+// login.php - Sistema completo con recuperación de contraseña por email
 session_start();
 require_once '../conf.php';
+require_once '../email_config.php'; // Configuración de email
+
+// Cargar PHPMailer
+require_once '../libraries/PHPMailer/PHPMailer.php';
+require_once '../libraries/PHPMailer/SMTP.php';
+require_once '../libraries/PHPMailer/Exception.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
 // SEGURIDAD: Verificar que se está accediendo desde el dominio principal
 $allowed_domain = parse_url(BASE_URL, PHP_URL_HOST);
@@ -8,7 +19,6 @@ $current_domain = $_SERVER['HTTP_HOST'];
 
 // Si no está accediendo desde el dominio principal, denegar acceso
 if ($current_domain !== $allowed_domain) {
-    // Redirigir al dominio principal con mensaje
     $main_login_url = rtrim(BASE_URL, '/') . '/admin/login.php';
     header("Location: $main_login_url?error=wrong_domain");
     exit();
@@ -31,15 +41,395 @@ try {
 $error = '';
 $success = '';
 $show_register = isset($_GET['register']);
+$show_forgot = isset($_GET['forgot']);
+$show_reset = isset($_GET['reset']) && isset($_GET['token']);
+
+// Crear tabla de reset tokens si no existe
+try {
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS password_resets (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            token VARCHAR(64) NOT NULL UNIQUE,
+            expires_at TIMESTAMP NOT NULL,
+            used BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            INDEX idx_token (token),
+            INDEX idx_expires (expires_at)
+        )
+    ");
+} catch (PDOException $e) {
+    // Tabla ya existe o error
+}
+
+// Limpiar tokens expirados
+$db->exec("DELETE FROM password_resets WHERE expires_at < NOW() OR used = TRUE");
 
 // Verificar si hay mensaje de error por dominio incorrecto
 if (isset($_GET['error']) && $_GET['error'] === 'wrong_domain') {
     $error = '⚠️ Por seguridad, el acceso al panel solo está permitido desde el dominio principal.';
 }
 
-// Procesar login
+// Función para enviar email con PHPMailer
+function sendResetEmail($email, $username, $resetLink) {
+    $mail = new PHPMailer(true);
+    
+    try {
+        // Configuración del servidor
+        $mail->isSMTP();
+        $mail->Host       = SMTP_HOST;
+        $mail->SMTPAuth   = SMTP_AUTH;
+        $mail->Username   = SMTP_USERNAME;
+        $mail->Password   = SMTP_PASSWORD;
+        $mail->SMTPSecure = SMTP_SECURE;
+        $mail->Port       = SMTP_PORT;
+        
+        // Debug (quitar en producción)
+        $mail->SMTPDebug = SMTP_DEBUG;
+        $mail->Debugoutput = function($str, $level) {
+            error_log("PHPMailer: $str");
+        };
+        
+        // Configuración adicional para evitar problemas
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
+        
+        // Destinatarios
+        $mail->setFrom(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+        $mail->addAddress($email, $username);
+        $mail->addReplyTo(SMTP_FROM_EMAIL, SMTP_FROM_NAME);
+        
+        // Contenido del email
+        $mail->isHTML(true);
+        $mail->CharSet = 'UTF-8';
+        $mail->Subject = '🔐 Recuperar contraseña - URL Shortener';
+        
+        // Crear un diseño bonito para el email
+        $message = '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    background-color: #f4f4f4;
+                    color: #333333;
+                }
+                .email-wrapper {
+                    width: 100%;
+                    background-color: #f4f4f4;
+                    padding: 40px 0;
+                }
+                .email-container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background-color: #ffffff;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                }
+                .email-header {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: #ffffff;
+                    padding: 40px 30px;
+                    text-align: center;
+                }
+                .email-header h1 {
+                    margin: 0;
+                    font-size: 28px;
+                    font-weight: 600;
+                }
+                .email-header p {
+                    margin: 10px 0 0 0;
+                    font-size: 16px;
+                    opacity: 0.9;
+                }
+                .email-body {
+                    padding: 40px 30px;
+                }
+                .email-body h2 {
+                    color: #333;
+                    font-size: 20px;
+                    margin-bottom: 20px;
+                }
+                .email-body p {
+                    color: #666;
+                    font-size: 16px;
+                    line-height: 1.6;
+                    margin-bottom: 20px;
+                }
+                .button-container {
+                    text-align: center;
+                    margin: 30px 0;
+                }
+                .reset-button {
+                    display: inline-block;
+                    padding: 14px 40px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: #ffffff;
+                    text-decoration: none;
+                    border-radius: 50px;
+                    font-weight: 600;
+                    font-size: 16px;
+                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                    transition: transform 0.3s;
+                }
+                .reset-button:hover {
+                    transform: translateY(-2px);
+                }
+                .link-container {
+                    background-color: #f8f9fa;
+                    border: 1px solid #e9ecef;
+                    border-radius: 5px;
+                    padding: 15px;
+                    margin: 20px 0;
+                    word-break: break-all;
+                }
+                .link-container p {
+                    margin: 5px 0;
+                    font-size: 14px;
+                }
+                .email-footer {
+                    background-color: #f8f9fa;
+                    padding: 30px;
+                    text-align: center;
+                    border-top: 1px solid #e9ecef;
+                }
+                .email-footer p {
+                    color: #999;
+                    font-size: 14px;
+                    margin: 5px 0;
+                }
+                .warning-box {
+                    background-color: #fff3cd;
+                    border: 1px solid #ffeaa7;
+                    color: #856404;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin: 20px 0;
+                }
+                .icon {
+                    font-size: 48px;
+                    margin-bottom: 20px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="email-wrapper">
+                <div class="email-container">
+                    <div class="email-header">
+                        <div class="icon">🔐</div>
+                        <h1>Recuperación de Contraseña</h1>
+                        <p>URL Shortener</p>
+                    </div>
+                    
+                    <div class="email-body">
+                        <h2>Hola ' . htmlspecialchars($username) . ',</h2>
+                        
+                        <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en URL Shortener.</p>
+                        
+                        <p>Si realizaste esta solicitud, haz clic en el botón de abajo para crear una nueva contraseña:</p>
+                        
+                        <div class="button-container">
+                            <a href="' . $resetLink . '" class="reset-button">Restablecer mi Contraseña</a>
+                        </div>
+                        
+                        <div class="link-container">
+                            <p><strong>¿No funciona el botón?</strong> Copia y pega este enlace en tu navegador:</p>
+                            <p style="color: #667eea; font-size: 12px;">' . $resetLink . '</p>
+                        </div>
+                        
+                        <div class="warning-box">
+                            <p style="margin: 0;"><strong>⏰ Importante:</strong> Este enlace expirará en 1 hora por razones de seguridad.</p>
+                        </div>
+                        
+                        <p>Si no solicitaste restablecer tu contraseña, puedes ignorar este correo de forma segura. Tu contraseña actual permanecerá sin cambios.</p>
+                    </div>
+                    
+                    <div class="email-footer">
+                        <p><strong>¿Necesitas ayuda?</strong></p>
+                        <p>Responde a este correo si tienes alguna pregunta.</p>
+                        <p style="margin-top: 20px; color: #999;">
+                            © ' . date('Y') . ' URL Shortener. Todos los derechos reservados.<br>
+                            Este es un correo automático, por favor no respondas directamente.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        ';
+        
+        $mail->Body = $message;
+        
+        // Versión de texto plano
+        $mail->AltBody = "
+Hola {$username},
+
+Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en URL Shortener.
+
+Para restablecer tu contraseña, visita el siguiente enlace:
+{$resetLink}
+
+Este enlace expirará en 1 hora por razones de seguridad.
+
+Si no solicitaste restablecer tu contraseña, puedes ignorar este correo.
+
+Saludos,
+URL Shortener
+        ";
+        
+        $mail->send();
+        return true;
+        
+    } catch (Exception $e) {
+        error_log("Error al enviar email: {$mail->ErrorInfo}");
+        // En desarrollo, mostrar el error
+        if (SMTP_DEBUG > 0) {
+            throw new Exception("Error al enviar email: {$mail->ErrorInfo}");
+        }
+        return false;
+    }
+}
+
+// Procesar solicitud de recuperación
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['forgot_password'])) {
+    $email = trim($_POST['email']);
+    
+    if (empty($email)) {
+        $error = 'Por favor, ingresa tu email';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'El email no es válido';
+    } else {
+        try {
+            // Buscar usuario por email
+            $stmt = $db->prepare("SELECT id, username FROM users WHERE email = ? AND status = 'active'");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+            
+            if ($user) {
+                // No permitir reset para el superadmin configurado en conf.php
+                if ($user['username'] === ADMIN_USERNAME) {
+                    $success = '✅ Si el email existe en nuestro sistema, recibirás instrucciones para recuperar tu contraseña en breve.';
+                } else {
+                    // Generar token único
+                    $token = bin2hex(random_bytes(32));
+                    $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
+                    
+                    // Guardar token en BD
+                    $stmt = $db->prepare("
+                        INSERT INTO password_resets (user_id, token, expires_at) 
+                        VALUES (?, ?, ?)
+                    ");
+                    $stmt->execute([$user['id'], $token, $expires]);
+                    
+                    // Generar link de reset
+                    $resetLink = rtrim(BASE_URL, '/') . '/admin/login.php?reset=1&token=' . $token;
+                    
+                    // Enviar email
+                    try {
+                        if (sendResetEmail($email, $user['username'], $resetLink)) {
+                            $success = '✅ Te hemos enviado un email con instrucciones para recuperar tu contraseña. Revisa tu bandeja de entrada.';
+                        } else {
+                            $error = '❌ Error al enviar el email. Por favor, contacta al administrador.';
+                        }
+                    } catch (Exception $e) {
+                        $error = '❌ Error al enviar el email: ' . $e->getMessage();
+                    }
+                }
+            } else {
+                // No revelar si el email existe o no (seguridad)
+                $success = '✅ Si el email existe en nuestro sistema, recibirás instrucciones para recuperar tu contraseña en breve.';
+            }
+        } catch (PDOException $e) {
+            $error = 'Error al procesar la solicitud: ' . $e->getMessage();
+        }
+    }
+}
+
+// Procesar cambio de contraseña
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_password'])) {
+    $token = $_POST['token'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $password_confirm = $_POST['password_confirm'] ?? '';
+    
+    if (empty($token) || empty($password) || empty($password_confirm)) {
+        $error = 'Por favor, completa todos los campos';
+    } elseif (strlen($password) < 6) {
+        $error = 'La contraseña debe tener al menos 6 caracteres';
+    } elseif ($password !== $password_confirm) {
+        $error = 'Las contraseñas no coinciden';
+    } else {
+        try {
+            // Verificar token válido
+            $stmt = $db->prepare("
+                SELECT pr.*, u.username 
+                FROM password_resets pr
+                JOIN users u ON pr.user_id = u.id
+                WHERE pr.token = ? 
+                AND pr.expires_at > NOW() 
+                AND pr.used = FALSE
+            ");
+            $stmt->execute([$token]);
+            $reset = $stmt->fetch();
+            
+            if ($reset) {
+                // Actualizar contraseña
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = $db->prepare("UPDATE users SET password = ? WHERE id = ?");
+                $stmt->execute([$hashed_password, $reset['user_id']]);
+                
+                // Marcar token como usado
+                $stmt = $db->prepare("UPDATE password_resets SET used = TRUE WHERE token = ?");
+                $stmt->execute([$token]);
+                
+                $success = '✅ ¡Contraseña actualizada exitosamente! Ya puedes iniciar sesión con tu nueva contraseña.';
+                $show_reset = false;
+            } else {
+                $error = '❌ El enlace de recuperación es inválido o ha expirado. Solicita uno nuevo.';
+            }
+        } catch (PDOException $e) {
+            $error = 'Error al actualizar la contraseña: ' . $e->getMessage();
+        }
+    }
+}
+
+// Verificar token en GET para mostrar formulario de reset
+if ($show_reset) {
+    $token = $_GET['token'];
+    try {
+        $stmt = $db->prepare("
+            SELECT pr.*, u.email 
+            FROM password_resets pr
+            JOIN users u ON pr.user_id = u.id
+            WHERE pr.token = ? 
+            AND pr.expires_at > NOW() 
+            AND pr.used = FALSE
+        ");
+        $stmt->execute([$token]);
+        $reset = $stmt->fetch();
+        
+        if (!$reset) {
+            $error = '❌ El enlace de recuperación es inválido o ha expirado.';
+            $show_reset = false;
+        }
+    } catch (PDOException $e) {
+        $error = 'Error al verificar el token';
+        $show_reset = false;
+    }
+}
+
+// Procesar login (sin cambios)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
-    // DOBLE VERIFICACIÓN: Asegurar que sigue siendo el dominio correcto
     if ($current_domain !== $allowed_domain) {
         $error = '❌ Acceso denegado. Use el dominio principal.';
     } else {
@@ -50,20 +440,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             $error = 'Por favor, completa todos los campos';
         } else {
             try {
-                // Buscar usuario en la tabla users
                 $stmt = $db->prepare("SELECT * FROM users WHERE username = ? AND status = 'active'");
                 $stmt->execute([$username]);
                 $user = $stmt->fetch();
                 
-                // Verificación especial para admin usando conf.php
                 if ($username === ADMIN_USERNAME && $password === ADMIN_PASSWORD) {
-                    // Login con credenciales de conf.php
                     $_SESSION['admin_logged_in'] = true;
                     $_SESSION['user_id'] = $user ? $user['id'] : 1;
                     $_SESSION['username'] = ADMIN_USERNAME;
                     $_SESSION['role'] = 'admin';
                     
-                    // Actualizar último login si existe en BD
                     if ($user) {
                         $db->exec("UPDATE users SET last_login = NOW() WHERE id = " . $user['id']);
                     }
@@ -71,18 +457,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                     header('Location: panel_simple.php');
                     exit();
                 } 
-                // Para otros usuarios, usar la verificación normal de la BD
                 elseif ($user && $user['username'] !== ADMIN_USERNAME && password_verify($password, $user['password'])) {
-                    // Login normal para otros usuarios
                     $_SESSION['admin_logged_in'] = true;
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['username'] = $user['username'];
                     $_SESSION['role'] = $user['role'];
                     
-                    // Actualizar último login
                     $db->exec("UPDATE users SET last_login = NOW() WHERE id = " . $user['id']);
                     
-                    // Redirigir según el rol
                     if ($user['role'] === 'admin') {
                         header('Location: panel_simple.php');
                     } else {
@@ -99,9 +481,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     }
 }
 
-// Procesar registro
+// Procesar registro (sin cambios)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
-    // VERIFICACIÓN: No permitir registro desde dominios personalizados
     if ($current_domain !== $allowed_domain) {
         $error = '❌ El registro solo está permitido desde el dominio principal.';
     } else {
@@ -111,12 +492,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
         $password = $_POST['password'];
         $password_confirm = $_POST['password_confirm'];
         
-        // Si no se proporciona full_name, usar el username
         if (empty($full_name)) {
             $full_name = $username;
         }
         
-        // Validaciones
         if (empty($username) || empty($email) || empty($password) || empty($password_confirm)) {
             $error = 'Por favor, completa todos los campos obligatorios';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -127,19 +506,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
             $error = 'Las contraseñas no coinciden';
         } else {
             try {
-                // Verificar si el usuario ya existe
                 $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE username = ? OR email = ?");
                 $stmt->execute([$username, $email]);
                 if ($stmt->fetchColumn() > 0) {
                     $error = 'El usuario o email ya existe';
                 } else {
-                    // Crear el usuario
                     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                     
-                    // Verificar qué columnas existen en la tabla
                     $columns = $db->query("SHOW COLUMNS FROM users")->fetchAll(PDO::FETCH_COLUMN);
                     
-                    // Construir la consulta dinámicamente
                     if (in_array('full_name', $columns)) {
                         $stmt = $db->prepare("
                             INSERT INTO users (username, email, password, full_name, role, status, created_at) 
@@ -154,13 +529,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                         $stmt->execute([$username, $email, $hashed_password]);
                     }
                     
-                    // Auto-login después del registro exitoso
                     $_SESSION['admin_logged_in'] = true;
                     $_SESSION['user_id'] = $db->lastInsertId();
                     $_SESSION['username'] = $username;
                     $_SESSION['role'] = 'user';
                     
-                    // Redirigir al index con mensaje de bienvenida
                     header('Location: ../index.php?welcome=1');
                     exit();
                 }
@@ -176,7 +549,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $show_register ? 'Registro' : 'Login Admin'; ?> - URL Shortener</title>
+    <title><?php 
+        if ($show_reset) echo 'Restablecer Contraseña';
+        elseif ($show_forgot) echo 'Recuperar Contraseña';
+        elseif ($show_register) echo 'Registro';
+        else echo 'Login Admin';
+    ?> - URL Shortener</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <style>
@@ -312,7 +690,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
         .alert {
             border-radius: 10px;
             border: none;
-            animation: shake 0.5s;
+            animation: slideIn 0.5s;
         }
         
         @keyframes shake {
@@ -355,6 +733,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
             border: 1px solid #c3e6cb;
         }
         
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
         .switch-form {
             text-align: center;
             margin-top: 20px;
@@ -392,6 +776,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
             font-weight: normal;
         }
         
+        .forgot-password {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+        
+        .forgot-password a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+        
         /* Responsive */
         @media (max-width: 576px) {
             .login-header h1 {
@@ -418,14 +818,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                             <i class="bi bi-link-45deg" style="font-size: 4rem; color: white;"></i>
                         </div>
                         <h1>URL Shortener</h1>
-                        <p><?php echo $show_register ? 'Crear Cuenta Gratis' : 'Panel de Administración'; ?></p>
+                        <p><?php 
+                            if ($show_reset) echo 'Restablecer Contraseña';
+                            elseif ($show_forgot) echo 'Recuperar Contraseña';
+                            elseif ($show_register) echo 'Crear Cuenta Gratis';
+                            else echo 'Panel de Administración';
+                        ?></p>
                     </div>
                     
                     <div class="login-body">
                         <!-- Información del dominio actual -->
+                        <?php if (!$show_reset): ?>
                         <div class="domain-info">
                             🌐 Dominio: <?php echo htmlspecialchars($current_domain); ?>
                         </div>
+                        <?php endif; ?>
                         
                         <?php if ($error): ?>
                             <div class="alert alert-danger d-flex align-items-center" role="alert">
@@ -441,7 +848,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                             </div>
                         <?php endif; ?>
                         
-                        <?php if (!$show_register): ?>
+                        <?php if ($show_reset): ?>
+                        <!-- Formulario de Reset de Contraseña -->
+                        <form method="POST">
+                            <input type="hidden" name="reset_password" value="1">
+                            <input type="hidden" name="token" value="<?php echo htmlspecialchars($_GET['token'] ?? ''); ?>">
+                            
+                            <div class="mb-3">
+                                <p class="text-muted">
+                                    <i class="bi bi-envelope me-2"></i>
+                                    Restableciendo contraseña para: <strong><?php echo htmlspecialchars($reset['email'] ?? ''); ?></strong>
+                                </p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="password" class="form-label text-muted mb-2">
+                                    <i class="bi bi-shield-lock"></i> Nueva Contraseña
+                                </label>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password" 
+                                       name="password" 
+                                       placeholder="Mínimo 6 caracteres"
+                                       minlength="6"
+                                       required 
+                                       autofocus>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="password_confirm" class="form-label text-muted mb-2">
+                                    <i class="bi bi-shield-check"></i> Confirmar Nueva Contraseña
+                                </label>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password_confirm" 
+                                       name="password_confirm" 
+                                       placeholder="Repite la contraseña"
+                                       required>
+                            </div>
+                            
+                            <div class="d-grid gap-2 mb-4">
+                                <button type="submit" class="btn btn-primary btn-login">
+                                    <i class="bi bi-key me-2"></i>
+                                    Cambiar Contraseña
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <?php elseif ($show_forgot): ?>
+                        <!-- Formulario de Recuperación -->
+                        <form method="POST">
+                            <input type="hidden" name="forgot_password" value="1">
+                            
+                            <div class="mb-4">
+                                <p class="text-muted">
+                                    Ingresa el email asociado a tu cuenta y te enviaremos un enlace para restablecer tu contraseña.
+                                </p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="email" class="form-label text-muted mb-2">
+                                    <i class="bi bi-envelope"></i> Email
+                                </label>
+                                <input type="email" 
+                                       class="form-control form-control-lg" 
+                                       id="email" 
+                                       name="email" 
+                                       placeholder="tu@email.com"
+                                       required 
+                                       autofocus>
+                            </div>
+                            
+                            <div class="d-grid gap-2 mb-4">
+                                <button type="submit" class="btn btn-primary btn-login">
+                                    <i class="bi bi-envelope-check me-2"></i>
+                                    Enviar Enlace de Recuperación
+                                </button>
+                            </div>
+                            
+                            <div class="text-center">
+                                <a href="login.php" class="back-link">
+                                    <i class="bi bi-arrow-left me-1"></i>
+                                    Volver al login
+                                </a>
+                            </div>
+                        </form>
+                        
+                        <?php elseif (!$show_register): ?>
                         <!-- Formulario de Login -->
                         <form method="POST">
                             <input type="hidden" name="login" value="1">
@@ -459,7 +952,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                                        autofocus>
                             </div>
                             
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label for="password" class="form-label text-muted mb-2">
                                     <i class="bi bi-shield-lock"></i> Contraseña
                                 </label>
@@ -469,6 +962,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                                        name="password" 
                                        placeholder="Ingresa tu contraseña"
                                        required>
+                            </div>
+                            
+                            <div class="forgot-password">
+                                <a href="?forgot=1">¿Olvidaste tu contraseña?</a>
                             </div>
                             
                             <div class="d-grid gap-2 mb-4">
@@ -567,6 +1064,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                         </div>
                         <?php endif; ?>
                         
+                        <?php if (!$show_forgot && !$show_reset): ?>
                         <hr class="my-4">
                         
                         <div class="text-center">
@@ -575,6 +1073,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                                 Volver al inicio
                             </a>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 
@@ -606,8 +1105,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
             }, 600);
         });
         
-        // Validación en tiempo real para registro
-        <?php if ($show_register): ?>
+        // Validación en tiempo real para registro y reset
+        <?php if ($show_register || $show_reset): ?>
         const password = document.querySelector('input[name="password"]');
         const passwordConfirm = document.querySelector('input[name="password_confirm"]');
         
