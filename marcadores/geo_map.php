@@ -1,5 +1,5 @@
 <?php
-// geo_map.php - Mapa visual de clicks con permisos de superadmin
+// geo_map.php - Mapa visual de clicks con soporte para vista global
 require_once 'config.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -10,6 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $url_id = isset($_GET['url_id']) ? (int)$_GET['url_id'] : 0;
 $embed = isset($_GET['embed']) ? true : false;
+$all = isset($_GET['all']) ? true : false;
 
 // Verificar si es superadmin
 $is_superadmin = false;
@@ -33,8 +34,64 @@ try {
     // Si no existe columna role, ignorar
 }
 
-// Verificar permisos
-if ($url_id) {
+// Si es modo "all", mostrar todos los clicks del sistema (solo para admin)
+if ($all && !$is_superadmin) {
+    die("<!DOCTYPE html>
+    <html>
+    <head>
+        <title>Acceso Denegado</title>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background: #f5f5f5;
+            }
+            .error-container {
+                text-align: center;
+                padding: 40px;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            .error-icon {
+                font-size: 48px;
+                color: #dc3545;
+                margin-bottom: 20px;
+            }
+            h1 {
+                color: #333;
+                margin-bottom: 10px;
+            }
+            p {
+                color: #666;
+                margin-bottom: 20px;
+            }
+            a {
+                color: #007bff;
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <div class='error-container'>
+            <div class='error-icon'>🔒</div>
+            <h1>Acceso Denegado</h1>
+            <p>Vista global solo para administradores.</p>
+            <a href='index.php'>← Volver al inicio</a>
+        </div>
+    </body>
+    </html>");
+}
+
+// Verificar permisos para URL específica
+if ($url_id && !$all) {
     if ($is_superadmin) {
         // Superadmin puede ver cualquier URL
         $stmt = $pdo->prepare("
@@ -108,55 +165,88 @@ if ($url_id) {
 }
 
 // Obtener datos geográficos
-$where = $url_id ? "ua.url_id = ?" : "ua.user_id = ?";
-$param = $url_id ?: $user_id;
-
-// Si es superadmin viendo una URL específica de otro usuario, usar el user_id del propietario
-if ($url_id && $is_superadmin && isset($url_info['user_id'])) {
-    $owner_id = $url_info['user_id'];
+if ($all && $is_superadmin) {
+    // Modo global: todos los clicks del sistema
+    $stmt = $pdo->prepare("
+        SELECT 
+            country,
+            country_code,
+            city,
+            region,
+            latitude,
+            longitude,
+            COUNT(*) as clicks,
+            COUNT(DISTINCT ip_address) as unique_visitors,
+            COUNT(DISTINCT session_id) as sessions
+        FROM url_analytics
+        WHERE latitude IS NOT NULL 
+        AND longitude IS NOT NULL
+        GROUP BY country, country_code, city, region, latitude, longitude
+        ORDER BY clicks DESC
+    ");
+    $stmt->execute();
+    $locations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Estadísticas generales globales
+    $stmt = $pdo->prepare("
+        SELECT 
+            COUNT(DISTINCT country) as total_countries,
+            COUNT(DISTINCT city) as total_cities,
+            COUNT(DISTINCT ip_address) as total_ips,
+            COUNT(*) as total_clicks
+        FROM url_analytics
+        WHERE country != 'Unknown'
+    ");
+    $stmt->execute();
+    $stats = $stmt->fetch();
+    
 } else {
-    $owner_id = $user_id;
+    // Modo normal: por URL o usuario
+    $where = $url_id ? "ua.url_id = ?" : "ua.user_id = ?";
+    $param = $url_id ?: $user_id;
+    
+    $stmt = $pdo->prepare("
+        SELECT 
+            country,
+            country_code,
+            city,
+            region,
+            latitude,
+            longitude,
+            COUNT(*) as clicks,
+            COUNT(DISTINCT ip_address) as unique_visitors,
+            COUNT(DISTINCT session_id) as sessions
+        FROM url_analytics ua
+        WHERE {$where}
+        AND latitude IS NOT NULL 
+        AND longitude IS NOT NULL
+        GROUP BY country, country_code, city, region, latitude, longitude
+        ORDER BY clicks DESC
+    ");
+    $stmt->execute([$param]);
+    $locations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Estadísticas generales
+    $stmt = $pdo->prepare("
+        SELECT 
+            COUNT(DISTINCT country) as total_countries,
+            COUNT(DISTINCT city) as total_cities,
+            COUNT(DISTINCT ip_address) as total_ips,
+            COUNT(*) as total_clicks
+        FROM url_analytics
+        WHERE {$where}
+        AND country != 'Unknown'
+    ");
+    $stmt->execute([$param]);
+    $stats = $stmt->fetch();
 }
 
-$stmt = $pdo->prepare("
-    SELECT 
-        country,
-        country_code,
-        city,
-        region,
-        latitude,
-        longitude,
-        COUNT(*) as clicks,
-        COUNT(DISTINCT ip_address) as unique_visitors,
-        COUNT(DISTINCT session_id) as sessions
-    FROM url_analytics ua
-    WHERE {$where}
-    AND latitude IS NOT NULL 
-    AND longitude IS NOT NULL
-    GROUP BY country, country_code, city, region, latitude, longitude
-    ORDER BY clicks DESC
-");
-$stmt->execute([$param]);
-$locations = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Estadísticas generales
-$stmt = $pdo->prepare("
-    SELECT 
-        COUNT(DISTINCT country) as total_countries,
-        COUNT(DISTINCT city) as total_cities,
-        COUNT(DISTINCT ip_address) as total_ips,
-        COUNT(*) as total_clicks
-    FROM url_analytics
-    WHERE {$where}
-    AND country != 'Unknown'
-");
-$stmt->execute([$param]);
-$stats = $stmt->fetch();
-
 // Título de la página
-if ($url_id) {
+if ($all && $is_superadmin) {
+    $pageTitle = "Mapa Global - Todos los clicks del sistema";
+} elseif ($url_id) {
     $pageTitle = "Mapa: " . ($url_info['title'] ?: $url_info['short_code']);
-    if ($is_superadmin && $url_info['user_id'] != $user_id) {
+    if ($is_superadmin && isset($url_info['user_id']) && $url_info['user_id'] != $user_id) {
         $pageTitle .= " (Usuario: " . ($url_info['owner_username'] ?? 'ID ' . $url_info['user_id']) . ")";
     }
 } else {
@@ -204,6 +294,14 @@ if ($url_id) {
         }
         .admin-badge {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .global-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             padding: 4px 12px;
             border-radius: 20px;
@@ -311,6 +409,20 @@ if ($url_id) {
             font-size: 11px;
             color: #666;
         }
+        
+        /* Control de búsqueda personalizado */
+        .leaflet-control-search {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+        }
+        
+        .leaflet-control-search input {
+            width: 200px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -318,31 +430,43 @@ if ($url_id) {
     <div class="header">
         <h1>
             🌍 <?php echo htmlspecialchars($pageTitle); ?>
-            <?php if ($is_superadmin && $url_id && isset($url_info['user_id']) && $url_info['user_id'] != $user_id): ?>
+            <?php if ($all && $is_superadmin): ?>
+            <span class="global-badge">Vista Global</span>
+            <?php elseif ($is_superadmin && $url_id && isset($url_info['user_id']) && $url_info['user_id'] != $user_id): ?>
             <span class="admin-badge">Vista Admin</span>
             <?php endif; ?>
         </h1>
         <div class="stats">
             <div class="stat">
-                <div class="stat-value"><?php echo number_format($stats['total_countries']); ?></div>
+                <div class="stat-value"><?php echo number_format($stats['total_countries'] ?? 0); ?></div>
                 <div class="stat-label">Países</div>
             </div>
             <div class="stat">
-                <div class="stat-value"><?php echo number_format($stats['total_cities']); ?></div>
+                <div class="stat-value"><?php echo number_format($stats['total_cities'] ?? 0); ?></div>
                 <div class="stat-label">Ciudades</div>
             </div>
             <div class="stat">
-                <div class="stat-value"><?php echo number_format($stats['total_ips']); ?></div>
+                <div class="stat-value"><?php echo number_format($stats['total_ips'] ?? 0); ?></div>
                 <div class="stat-label">IPs únicas</div>
             </div>
             <div class="stat">
-                <div class="stat-value"><?php echo number_format($stats['total_clicks']); ?></div>
+                <div class="stat-value"><?php echo number_format($stats['total_clicks'] ?? 0); ?></div>
                 <div class="stat-label">Clicks totales</div>
             </div>
         </div>
+        <?php if ($all): ?>
+        <a href="admin_dashboard.php" class="back-link">
+            ← Volver al panel
+        </a>
+        <?php elseif ($url_id): ?>
         <a href="analytics_url.php?url_id=<?php echo $url_id; ?>" class="back-link">
             ← Volver a estadísticas
         </a>
+        <?php else: ?>
+        <a href="index.php" class="back-link">
+            ← Volver al inicio
+        </a>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
     
@@ -544,7 +668,7 @@ if ($url_id) {
             position: 'topright'
         },
         onAdd: function(map) {
-            var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+            var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-search');
             container.style.background = 'white';
             container.style.padding = '5px';
             container.innerHTML = '<input type="text" placeholder="Buscar país o ciudad..." style="width: 200px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">';
