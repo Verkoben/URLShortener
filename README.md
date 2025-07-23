@@ -546,3 +546,439 @@ RewriteRule ^admin/panel_simple\.php$ /panel_simple.php [R=301,L,QSA]
 # Si estás en un subdirectorio, usa:
 # RewriteRule ^admin/login\.php$ /tu-subdirectorio/login.php [R=301,L]
 --------------------------------------------------------------------------------
+```markdown
+# 🔗 URLShortener - Acortador de URLs Profesional
+
+<div align="center">
+  <img src="https://img.shields.io/badge/PHP-7.4+-blue.svg" alt="PHP Version">
+  <img src="https://img.shields.io/badge/MySQL-5.7+-orange.svg" alt="MySQL Version">
+  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
+</div>
+
+## 📋 Tabla de Contenidos
+- [Descripción](#descripción)
+- [Características](#características)
+- [Demo](#demo)
+- [Requisitos](#requisitos)
+- [Instalación](#instalación)
+- [Configuración](#configuración)
+- [Uso](#uso)
+- [API](#api)
+- [Seguridad](#seguridad)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Contribuir](#contribuir)
+- [Licencia](#licencia)
+
+## 📖 Descripción
+
+URLShortener es un sistema completo y profesional de acortamiento de URLs con panel de administración avanzado. Diseñado para ofrecer una solución robusta tanto para uso personal como empresarial, permitiendo gestionar múltiples dominios, obtener estadísticas detalladas y mantener un control total sobre los enlaces acortados.
+
+### 🎯 Propósito
+
+Este proyecto nace de la necesidad de tener un control total sobre los enlaces acortados, con características empresariales como:
+- Privacidad de datos
+- Estadísticas detalladas sin depender de terceros
+- Personalización completa
+- Integración con sistemas propios
+- Gestión multi-dominio
+
+## ✨ Características
+
+### 🔗 Core Features
+- **Acortador de URLs** con códigos personalizados o aleatorios
+- **Redirección ultrarrápida** con caché optimizado
+- **URLs personalizadas** (vanity URLs)
+- **Validación automática** de URLs
+
+### 🌐 Multi-dominio
+- Soporte para múltiples dominios personalizados
+- Gestión centralizada de todos los dominios
+- Configuración independiente por dominio
+- SSL/HTTPS automático
+
+### 📊 Analytics y Estadísticas
+- **Estadísticas en tiempo real** de clics
+- **Geolocalización** de visitantes con mapas interactivos
+- **Análisis de dispositivos** (Desktop, Mobile, Tablet)
+- **Detección de navegadores** y sistemas operativos
+- **Gráficos y reportes** exportables
+- **Heatmaps** de actividad
+
+### 👥 Sistema de Usuarios
+- **Roles y permisos** (Admin, Usuario)
+- **Panel personalizado** por usuario
+- **API Keys** individuales
+- **Límites configurables** por usuario
+
+### 🎨 Interfaz y UX
+- **Diseño responsive** y moderno
+- **Tema oscuro/claro**
+- **Dashboard intuitivo**
+- **Búsqueda y filtros** avanzados
+
+### 🔧 Características Técnicas
+- **API RESTful** completa
+- **Generación de códigos QR** integrada
+- **Importación/Exportación** masiva
+- **Caché inteligente** para optimización
+- **Logs detallados** de actividad
+- **Backup automático**
+
+### 🔐 Seguridad
+- **Protección contra spam** y abuso
+- **Lista negra** de dominios
+- **Rate limiting** configurable
+- **Validación de entrada** exhaustiva
+- **Tokens CSRF**
+- **Preparación contra SQL injection**
+
+## 🖥️ Demo
+
+```
+URL: https://tu-dominio.com/demo
+Usuario: demo
+Contraseña: demo123
+```
+
+## 📋 Requisitos
+
+### Requisitos Mínimos
+- **PHP** 7.4 o superior
+- **MySQL** 5.7 o superior / MariaDB 10.2+
+- **Apache** 2.4+ con mod_rewrite / **Nginx** 1.18+
+- **RAM**: 512MB mínimo
+- **Espacio**: 100MB mínimo
+
+### Extensiones PHP Requeridas
+```bash
+- PDO
+- PDO_MySQL
+- GD (para códigos QR)
+- cURL
+- JSON
+- mbstring
+- openssl
+```
+
+### Recomendado para Producción
+- PHP 8.0+
+- MySQL 8.0+
+- Redis/Memcached para caché
+- SSL certificado
+
+## 🚀 Instalación
+
+### 1. Clonar el Repositorio
+```bash
+git clone https://github.com/Verkoben/URLShortener.git
+cd URLShortener
+```
+
+### 2. Configurar la Base de Datos
+```bash
+# Crear la base de datos
+mysql -u root -p -e "CREATE DATABASE url_shortener CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# Importar la estructura
+mysql -u root -p url_shortener < database.sql
+```
+
+### 3. Configurar el Proyecto
+```bash
+# Copiar archivo de configuración
+cp conf.php.example conf.php
+
+# Editar configuración
+nano conf.php
+```
+
+Configurar los siguientes parámetros:
+```php
+<?php
+// Configuración de Base de Datos
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'url_shortener');
+define('DB_USER', 'tu_usuario');
+define('DB_PASS', 'tu_contraseña');
+
+// Configuración del Sitio
+define('SITE_URL', 'https://tu-dominio.com');
+define('SITE_NAME', 'Mi Acortador');
+define('ADMIN_EMAIL', 'admin@tu-dominio.com');
+
+// Seguridad
+define('SECURITY_SALT', 'genera-un-salt-aleatorio-aqui');
+define('API_RATE_LIMIT', 100); // requests por hora
+?>
+```
+
+### 4. Establecer Permisos
+```bash
+# Dar permisos de ejecución al script
+chmod +x set_permissions.sh
+
+# Ejecutar script de permisos
+sudo ./set_permissions.sh
+
+# O manualmente:
+sudo chown -R www-data:www-data /var/www/URLShortener
+sudo chmod -R 755 /var/www/URLShortener
+sudo chmod -R 775 /var/www/URLShortener/cache
+sudo chmod -R 775 /var/www/URLShortener/logs
+```
+
+### 5. Configurar el Servidor Web
+
+#### Apache
+```apache
+<VirtualHost *:80>
+    ServerName tu-dominio.com
+    DocumentRoot /var/www/URLShortener
+    
+    <Directory /var/www/URLShortener>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+    
+    # Logs
+    ErrorLog ${APACHE_LOG_DIR}/urlshortener-error.log
+    CustomLog ${APACHE_LOG_DIR}/urlshortener-access.log combined
+    
+    # Redirección a HTTPS (recomendado)
+    RewriteEngine On
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]
+</VirtualHost>
+```
+
+#### Nginx
+```nginx
+server {
+    listen 80;
+    server_name tu-dominio.com;
+    root /var/www/URLShortener;
+    index index.php;
+    
+    # Logs
+    error_log /var/log/nginx/urlshortener-error.log;
+    access_log /var/log/nginx/urlshortener-access.log;
+    
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+    
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+    
+    location ~ /\. {
+        deny all;
+    }
+}
+```
+
+### 6. Activar el Sitio
+```bash
+# Apache
+sudo a2ensite urlshortener.conf
+sudo a2enmod rewrite
+sudo systemctl reload apache2
+
+# Nginx
+sudo ln -s /etc/nginx/sites-available/urlshortener /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+## ⚙️ Configuración
+
+### 🔐 Primer Acceso
+1. Navegar a `https://tu-dominio.com/admin`
+2. Usuario por defecto: `admin`
+3. Contraseña: `admin123`
+4. **⚠️ IMPORTANTE**: Cambiar la contraseña inmediatamente
+
+### 🌐 Añadir Dominios Personalizados
+1. Acceder al panel de administración
+2. Ir a "Dominios" → "Añadir Dominio"
+3. Configurar el DNS del dominio para apuntar a tu servidor
+4. Añadir el VirtualHost correspondiente
+
+### 📧 Configurar Email (Opcional)
+```php
+// En conf.php
+define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_USER', 'tu-email@gmail.com');
+define('SMTP_PASS', 'tu-contraseña');
+define('SMTP_PORT', 587);
+define('SMTP_SECURE', 'tls');
+```
+
+## 📚 Uso
+
+### Panel de Administración
+- **URL**: `https://tu-dominio.com/admin`
+- **Dashboard**: Estadísticas generales y actividad reciente
+- **URLs**: Gestión completa de enlaces
+- **Usuarios**: Administración de usuarios y permisos
+- **Dominios**: Configuración de dominios personalizados
+- **Estadísticas**: Analytics detallado
+
+### Crear URL Corta (Web)
+1. Acceder al panel
+2. Click en "Nueva URL"
+3. Pegar la URL larga
+4. (Opcional) Personalizar el código corto
+5. Click en "Acortar"
+
+### Compartir Enlaces
+- URL corta: `https://tu-dominio.com/abc123`
+- Código QR: `https://tu-dominio.com/qr/abc123`
+- Estadísticas públicas: `https://tu-dominio.com/stats/abc123`
+
+## 🔌 API
+
+### Autenticación
+```bash
+# Header requerido
+Authorization: Bearer TU_API_KEY
+```
+
+### Endpoints Principales
+
+#### Crear URL Corta
+```bash
+POST /api/shorten
+Content-Type: application/json
+
+{
+    "url": "https://ejemplo-muy-largo.com/pagina",
+    "custom_code": "mi-codigo", // opcional
+    "domain_id": 1 // opcional
+}
+```
+
+#### Obtener Estadísticas
+```bash
+GET /api/stats/{codigo}
+```
+
+#### Listar URLs del Usuario
+```bash
+GET /api/urls?page=1&limit=20
+```
+
+### Ejemplo en PHP
+```php
+<?php
+$api_key = 'TU_API_KEY';
+$url = 'https://tu-dominio.com/api/shorten';
+
+$data = [
+    'url' => 'https://ejemplo.com/pagina-muy-larga',
+    'custom_code' => 'ejemplo'
+];
+
+$options = [
+    'http' => [
+        'header' => [
+            "Content-Type: application/json",
+            "Authorization: Bearer $api_key"
+        ],
+        'method' => 'POST',
+        'content' => json_encode($data)
+    ]
+];
+
+$context = stream_context_create($options);
+$result = file_get_contents($url, false, $context);
+$response = json_decode($result, true);
+
+echo "URL Corta: " . $response['short_url'];
+?>
+```
+
+## 🔒 Seguridad
+
+### Mejores Prácticas
+1. **Usar HTTPS** siempre en producción
+2. **Cambiar credenciales** por defecto inmediatamente
+3. **Actualizar regularmente** PHP y MySQL
+4. **Configurar backups** automáticos
+5. **Monitorear logs** de acceso
+6. **Limitar rate** de API según necesidades
+
+### Headers de Seguridad Recomendados
+```apache
+# En .htaccess
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "SAMEORIGIN"
+Header set X-XSS-Protection "1; mode=block"
+Header set Referrer-Policy "strict-origin-when-cross-origin"
+```
+
+## 📁 Estructura del Proyecto
+
+```
+URLShortener/
+├── admin/              # Panel de administración
+│   ├── assets/        # CSS, JS, imágenes
+│   ├── includes/      # Componentes PHP
+│   └── views/         # Vistas del panel
+├── api/               # Endpoints de la API
+├── cache/             # Caché temporal
+├── includes/          # Librerías y helpers
+├── logs/              # Logs del sistema
+├── public/            # Assets públicos
+├── .htaccess          # Configuración Apache
+├── conf.php.example   # Configuración ejemplo
+├── database.sql       # Estructura BD
+├── index.php          # Controlador principal
+├── stats.php          # Página de estadísticas
+└── README.md          # Este archivo
+```
+
+## 🤝 Contribuir
+
+¡Las contribuciones son bienvenidas! Por favor:
+
+1. Fork el proyecto
+2. Crea tu rama de feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+### Guías de Contribución
+- Seguir PSR-12 para estilo de código PHP
+- Añadir tests para nuevas funcionalidades
+- Actualizar documentación según sea necesario
+- Mantener retrocompatibilidad cuando sea posible
+
+## 📄 Licencia
+
+Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+
+## 👨‍💻 Autor
+
+**Tu Nombre**
+- GitHub: [@Verkoben](https://github.com/Verkoben)
+- Twitter: [@tu-twitter](https://twitter.com/tu-twitter)
+
+## 🌟 Agradecimientos
+
+- A todos los contribuidores
+- Librerías de código abierto utilizadas
+- Comunidad de desarrolladores
+
+---
+
+<div align="center">
+  
+⭐ **Si este proyecto te resulta útil, considera darle una estrella** ⭐
+
+</div>
+```
