@@ -544,10 +544,10 @@ $pageTitle = "Estadísticas: " . ($url['title'] ?: $url['short_code']);
                 <i class="bi bi-link-45deg text-primary"></i> URL Shortener
             </a>
             
-            <!-- SOLUCIÓN: Botón de volver atrás con JavaScript -->
-            <button onclick="history.back()" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Volver
-            </button>
+            <!-- CAMBIO: Panel Admin en lugar de Volver -->
+            <a href="/admin/panel_simple.php?section=urls" class="btn btn-sm btn-primary">
+                <i class="bi bi-speedometer2"></i> Panel Admin
+            </a>
         </div>
     </nav>
     
