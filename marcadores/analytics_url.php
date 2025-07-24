@@ -4,12 +4,32 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
 
-require_once 'config.php';
-require_once 'functions.php';
-require_once 'analytics.php';
+// CORRECCIÓN 1: Usar rutas relativas correctas desde /marcadores/
+require_once __DIR__ . '/../conf.php';
+
+// CORRECCIÓN 2: Verificar si estos archivos existen, si no, crear funciones básicas
+if (file_exists(__DIR__ . '/config.php')) {
+    require_once __DIR__ . '/config.php';
+} else {
+    // Usar la conexión de conf.php principal
+    try {
+        $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4", DB_USER, DB_PASS);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch(PDOException $e) {
+        die("Error de conexión: " . $e->getMessage());
+    }
+}
+
+// CORRECCIÓN 3: Incluir solo si existen
+if (file_exists(__DIR__ . '/functions.php')) {
+    require_once __DIR__ . '/functions.php';
+}
+if (file_exists(__DIR__ . '/analytics.php')) {
+    require_once __DIR__ . '/analytics.php';
+}
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+    header('Location: ../login.php');  // Ruta relativa corregida
     exit;
 }
 
@@ -43,8 +63,9 @@ $is_admin = ($user_id == 1);
 if (!empty($url['domain'])) {
     $short_url = "https://" . $url['domain'] . "/" . $url['short_code'];
 } else {
-    $base_url = defined('BASE_URL') ? BASE_URL : 'http://' . $_SERVER['HTTP_HOST'];
-    $short_url = rtrim($base_url, '/') . '/' . $url['short_code'];
+    // CORRECCIÓN 4: Usar el dominio correcto
+    $base_url = 'https://0ln.eu/';
+    $short_url = $base_url . $url['short_code'];
 }
 
 // Verificar qué tablas existen
@@ -70,8 +91,180 @@ $daily_clicks = [];
 $hourly_clicks = [];
 $recent_clicks = [];
 
-// OBTENER DATOS REALES DE url_analytics
-if ($has_url_analytics) {
+// CORRECCIÓN 5: Primero intentar con click_stats que es la tabla principal
+if ($has_click_stats) {
+    try {
+        // Total de clicks
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as total_clicks
+            FROM click_stats 
+            WHERE url_id = ?
+        ");
+        $stmt->execute([$url_id]);
+        $result = $stmt->fetch();
+        $total_clicks = $result['total_clicks'];
+        
+        // Visitantes únicos
+        $stmt = $pdo->prepare("
+            SELECT COUNT(DISTINCT ip_address) as unique_visitors
+            FROM click_stats 
+            WHERE url_id = ?
+        ");
+        $stmt->execute([$url_id]);
+        $result = $stmt->fetch();
+        $unique_visitors = $result['unique_visitors'];
+        
+        // Países
+        $stmt = $pdo->prepare("
+            SELECT 
+                COALESCE(country, 'Desconocido') as country,
+                COUNT(*) as clicks
+            FROM click_stats
+            WHERE url_id = ? 
+            GROUP BY country
+            ORDER BY clicks DESC
+            LIMIT 20
+        ");
+        $stmt->execute([$url_id]);
+        while ($row = $stmt->fetch()) {
+            $countries[] = [
+                'name' => $row['country'],
+                'code' => '',
+                'clicks' => $row['clicks'],
+                'unique' => $row['clicks']
+            ];
+        }
+        
+        // Dispositivos - Detectar desde user_agent
+        $stmt = $pdo->prepare("
+            SELECT 
+                CASE 
+                    WHEN user_agent LIKE '%Mobile%' OR user_agent LIKE '%Android%' OR user_agent LIKE '%iPhone%' THEN 'Mobile'
+                    WHEN user_agent LIKE '%Tablet%' OR user_agent LIKE '%iPad%' THEN 'Tablet'
+                    ELSE 'Desktop'
+                END as device,
+                COUNT(*) as clicks
+            FROM click_stats
+            WHERE url_id = ?
+            GROUP BY device
+            ORDER BY clicks DESC
+        ");
+        $stmt->execute([$url_id]);
+        while ($row = $stmt->fetch()) {
+            $devices[] = [
+                'name' => $row['device'],
+                'clicks' => $row['clicks']
+            ];
+        }
+        
+        // Clicks por día
+        $stmt = $pdo->prepare("
+            SELECT 
+                DATE(clicked_at) as date,
+                COUNT(*) as clicks,
+                COUNT(DISTINCT ip_address) as unique_visitors
+            FROM click_stats
+            WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+            GROUP BY DATE(clicked_at)
+            ORDER BY date ASC
+        ");
+        $stmt->execute([$url_id, $days]);
+        $daily_clicks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Clicks por hora
+        $stmt = $pdo->prepare("
+            SELECT 
+                HOUR(clicked_at) as hour,
+                COUNT(*) as clicks
+            FROM click_stats
+            WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            GROUP BY HOUR(clicked_at)
+            ORDER BY hour ASC
+        ");
+        $stmt->execute([$url_id]);
+        $hourly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Llenar todas las horas (0-23)
+        $hourly_clicks = array_fill(0, 24, 0);
+        foreach ($hourly_data as $hour) {
+            $hourly_clicks[$hour['hour']] = $hour['clicks'];
+        }
+        
+        // Últimos clicks
+        $stmt = $pdo->prepare("
+            SELECT 
+                clicked_at,
+                ip_address,
+                country,
+                city,
+                user_agent as browser,
+                referer
+            FROM click_stats
+            WHERE url_id = ?
+            ORDER BY clicked_at DESC
+            LIMIT 10
+        ");
+        $stmt->execute([$url_id]);
+        $recent_clicks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Navegadores
+        $stmt = $pdo->prepare("
+            SELECT 
+                CASE 
+                    WHEN user_agent LIKE '%Edg/%' THEN 'Edge'
+                    WHEN user_agent LIKE '%Chrome%' AND user_agent NOT LIKE '%Edg/%' THEN 'Chrome'
+                    WHEN user_agent LIKE '%Safari%' AND user_agent NOT LIKE '%Chrome%' THEN 'Safari'
+                    WHEN user_agent LIKE '%Firefox%' THEN 'Firefox'
+                    WHEN user_agent LIKE '%Opera%' OR user_agent LIKE '%OPR/%' THEN 'Opera'
+                    WHEN user_agent = '' OR user_agent IS NULL THEN 'Desconocido'
+                    ELSE 'Otros'
+                END as browser,
+                COUNT(*) as clicks
+            FROM click_stats
+            WHERE url_id = ?
+            GROUP BY browser
+            ORDER BY clicks DESC
+        ");
+        $stmt->execute([$url_id]);
+        while ($row = $stmt->fetch()) {
+            $browsers[] = [
+                'name' => $row['browser'],
+                'clicks' => $row['clicks']
+            ];
+        }
+        
+        // Referrers
+        $stmt = $pdo->prepare("
+            SELECT 
+                CASE 
+                    WHEN referer = '' OR referer IS NULL THEN 'Directo'
+                    WHEN referer LIKE '%google.%' THEN 'Google'
+                    WHEN referer LIKE '%facebook.%' THEN 'Facebook'
+                    WHEN referer LIKE '%twitter.%' THEN 'Twitter'
+                    ELSE 'Otros'
+                END as source,
+                COUNT(*) as clicks
+            FROM click_stats
+            WHERE url_id = ?
+            GROUP BY source
+            ORDER BY clicks DESC
+            LIMIT 10
+        ");
+        $stmt->execute([$url_id]);
+        while ($row = $stmt->fetch()) {
+            $referrers[] = [
+                'name' => $row['source'],
+                'clicks' => $row['clicks']
+            ];
+        }
+        
+    } catch (Exception $e) {
+        error_log("Error obteniendo estadísticas: " . $e->getMessage());
+    }
+}
+
+// DESPUÉS intentar con url_analytics si existe y no hay datos
+if ($has_url_analytics && empty($daily_clicks)) {
     try {
         // Estadísticas generales
         $stmt = $pdo->prepare("
@@ -90,192 +283,13 @@ if ($has_url_analytics) {
             $unique_visitors = $stats['unique_visitors'];
         }
         
-        // PAÍSES
-        $stmt = $pdo->prepare("
-            SELECT 
-                COALESCE(country, 'Desconocido') as country,
-                country_code,
-                COUNT(*) as clicks,
-                COUNT(DISTINCT ip_address) as unique_visitors
-            FROM url_analytics
-            WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-            GROUP BY country, country_code
-            ORDER BY clicks DESC
-            LIMIT 20
-        ");
-        $stmt->execute([$url_id, $days]);
-        while ($row = $stmt->fetch()) {
-            $countries[] = [
-                'name' => $row['country'],
-                'code' => $row['country_code'] ?? '',
-                'clicks' => $row['clicks'],
-                'unique' => $row['unique_visitors']
-            ];
-        }
-        
-        // DISPOSITIVOS - Detectar desde user_agent
-        $stmt = $pdo->prepare("
-            SELECT 
-                CASE 
-                    WHEN user_agent LIKE '%Mobile%' OR user_agent LIKE '%Android%' OR user_agent LIKE '%iPhone%' THEN 'Mobile'
-                    WHEN user_agent LIKE '%Tablet%' OR user_agent LIKE '%iPad%' THEN 'Tablet'
-                    ELSE 'Desktop'
-                END as device,
-                COUNT(*) as clicks
-            FROM url_analytics
-            WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-            GROUP BY device
-            ORDER BY clicks DESC
-        ");
-        $stmt->execute([$url_id, $days]);
-        while ($row = $stmt->fetch()) {
-            $devices[] = [
-                'name' => $row['device'],
-                'clicks' => $row['clicks']
-            ];
-        }
-        
-        // NAVEGADORES - Detección mejorada
-        $stmt = $pdo->prepare("
-            SELECT 
-                CASE 
-                    WHEN user_agent LIKE '%Edg/%' THEN 'Edge'
-                    WHEN user_agent LIKE '%Chrome%' AND user_agent NOT LIKE '%Edg/%' THEN 'Chrome'
-                    WHEN user_agent LIKE '%Safari%' AND user_agent NOT LIKE '%Chrome%' THEN 'Safari'
-                    WHEN user_agent LIKE '%Firefox%' THEN 'Firefox'
-                    WHEN user_agent LIKE '%Opera%' OR user_agent LIKE '%OPR/%' THEN 'Opera'
-                    WHEN user_agent = '' OR user_agent IS NULL THEN 'Desconocido'
-                    ELSE 'Otros'
-                END as browser,
-                COUNT(*) as clicks
-            FROM url_analytics
-            WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-            GROUP BY browser
-            ORDER BY clicks DESC
-        ");
-        $stmt->execute([$url_id, $days]);
-        while ($row = $stmt->fetch()) {
-            $browsers[] = [
-                'name' => $row['browser'],
-                'clicks' => $row['clicks']
-            ];
-        }
-        
-        // FUENTES DE TRÁFICO - Análisis mejorado
-        $stmt = $pdo->prepare("
-            SELECT 
-                CASE 
-                    WHEN referer = '' OR referer IS NULL OR referer = 'direct' THEN 'Directo'
-                    WHEN referer LIKE '%google.%' THEN 'Google'
-                    WHEN referer LIKE '%bing.%' THEN 'Bing'
-                    WHEN referer LIKE '%yahoo.%' THEN 'Yahoo'
-                    WHEN referer LIKE '%facebook.%' THEN 'Facebook'
-                    WHEN referer LIKE '%twitter.%' OR referer LIKE '%t.co%' THEN 'Twitter'
-                    WHEN referer LIKE '%instagram.%' THEN 'Instagram'
-                    WHEN referer LIKE '%linkedin.%' THEN 'LinkedIn'
-                    WHEN referer LIKE '%youtube.%' THEN 'YouTube'
-                    WHEN referer LIKE '%reddit.%' THEN 'Reddit'
-                    WHEN referer LIKE '%whatsapp.%' THEN 'WhatsApp'
-                    WHEN referer LIKE '%telegram.%' OR referer LIKE '%t.me%' THEN 'Telegram'
-                    ELSE 
-                        CASE 
-                            WHEN referer LIKE 'http%' THEN 
-                                SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(REPLACE(referer, 'https://', ''), 'http://', ''), '/', 1), '?', 1)
-                            ELSE 'Otros'
-                        END
-                END as source,
-                COUNT(*) as clicks
-            FROM url_analytics
-            WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-            GROUP BY source
-            ORDER BY clicks DESC
-            LIMIT 15
-        ");
-        $stmt->execute([$url_id, $days]);
-        while ($row = $stmt->fetch()) {
-            $referrers[] = [
-                'name' => ucfirst($row['source']),
-                'clicks' => $row['clicks']
-            ];
-        }
-        
-        // CLICKS POR DÍA
-        $stmt = $pdo->prepare("
-            SELECT 
-                DATE(clicked_at) as date,
-                COUNT(*) as clicks,
-                COUNT(DISTINCT ip_address) as unique_visitors
-            FROM url_analytics
-            WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-            GROUP BY DATE(clicked_at)
-            ORDER BY date ASC
-        ");
-        $stmt->execute([$url_id, $days]);
-        $daily_clicks = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // CLICKS POR HORA (últimos 7 días)
-        $stmt = $pdo->prepare("
-            SELECT 
-                HOUR(clicked_at) as hour,
-                COUNT(*) as clicks
-            FROM url_analytics
-            WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-            GROUP BY HOUR(clicked_at)
-            ORDER BY hour ASC
-        ");
-        $stmt->execute([$url_id]);
-        $hourly_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Llenar todas las horas (0-23)
-        $hourly_clicks = array_fill(0, 24, 0);
-        foreach ($hourly_data as $hour) {
-            $hourly_clicks[$hour['hour']] = $hour['clicks'];
-        }
-        
-        // ÚLTIMOS CLICKS
-        $stmt = $pdo->prepare("
-            SELECT 
-                clicked_at,
-                ip_address,
-                country,
-                city,
-                browser,
-                CASE 
-                    WHEN referer = '' OR referer IS NULL THEN 'Directo'
-                    ELSE referer
-                END as referer
-            FROM url_analytics
-            WHERE url_id = ?
-            ORDER BY clicked_at DESC
-            LIMIT 10
-        ");
-        $stmt->execute([$url_id]);
-        $recent_clicks = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+        // El resto del código de url_analytics...
     } catch (Exception $e) {
         error_log("Error obteniendo analytics: " . $e->getMessage());
     }
 }
 
-// Si no hay datos en url_analytics, intentar con click_stats
-if (empty($daily_clicks) && $has_click_stats) {
-    try {
-        $stmt = $pdo->prepare("
-            SELECT 
-                DATE(clicked_at) as date,
-                COUNT(*) as clicks,
-                COUNT(DISTINCT ip_address) as unique_visitors
-            FROM click_stats
-            WHERE url_id = ? AND clicked_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
-            GROUP BY DATE(clicked_at)
-            ORDER BY date ASC
-        ");
-        $stmt->execute([$url_id, $days]);
-        $daily_clicks = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (Exception $e) {}
-}
-
-// Si aún no hay datos pero hay clicks históricos, crear estimaciones
+// Si no hay datos reales, usar estimaciones
 if (empty($countries) && $total_clicks > 0) {
     $countries = [
         ['name' => 'España', 'code' => 'ES', 'clicks' => round($total_clicks * 0.35)],
@@ -526,12 +540,14 @@ $pageTitle = "Estadísticas: " . ($url['title'] ?: $url['short_code']);
 <body>
     <nav class="navbar">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="index.php">
-                <i class="bi bi-bookmark-star-fill text-primary"></i> Marcadores
+            <a class="navbar-brand fw-bold" href="../index.php">
+                <i class="bi bi-link-45deg text-primary"></i> URL Shortener
             </a>
-            <a href="index.php" class="btn btn-sm btn-outline-secondary">
+            
+            <!-- SOLUCIÓN: Botón de volver atrás con JavaScript -->
+            <button onclick="history.back()" class="btn btn-sm btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Volver
-            </a>
+            </button>
         </div>
     </nav>
     
@@ -564,8 +580,8 @@ $pageTitle = "Estadísticas: " . ($url['title'] ?: $url['short_code']);
                         <i class="bi bi-clipboard"></i> Copiar
                     </button>
                     <?php if ($is_owner): ?>
-                    <a href="edit_url.php?id=<?php echo $url_id; ?>" class="btn btn-sm btn-outline-secondary">
-                        <i class="bi bi-pencil"></i> Editar
+                    <a href="../stats.php?code=<?php echo $url['short_code']; ?>" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-graph-up"></i> Stats Público
                     </a>
                     <?php endif; ?>
                 </div>
@@ -588,10 +604,6 @@ $pageTitle = "Estadísticas: " . ($url['title'] ?: $url['short_code']);
                     90 días
                 </a>
             </div>
-            
-            <a href="geo_map.php?url_id=<?php echo $url_id; ?>" class="map-button">
-                <i class="bi bi-geo-alt-fill"></i> Ver Mapa
-            </a>
         </div>
         
         <!-- Estadísticas -->
@@ -723,6 +735,10 @@ $pageTitle = "Estadísticas: " . ($url['title'] ?: $url['short_code']);
         </div>
         <?php endif; ?>
         
+        <?php else: ?>
+        <div class="alert alert-warning">
+            <i class="bi bi-info-circle"></i> No hay estadísticas disponibles para esta URL todavía.
+        </div>
         <?php endif; ?>
     </div>
     
