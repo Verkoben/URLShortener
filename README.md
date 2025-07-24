@@ -523,6 +523,12 @@ ALTER TABLE urls ADD COLUMN description TEXT AFTER title;
 -- Si falta 'og_image':
 ALTER TABLE urls ADD COLUMN og_image VARCHAR(500) AFTER description;
 
+----------------------------------
+Setea tiempo de login
+-----------------------------------
+ update_session.sh
+-----------------------------------
+
 
 # 🔗 URLShortener - Acortador de URLs Profesional
 
