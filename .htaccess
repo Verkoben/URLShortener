@@ -20,3 +20,10 @@ Options -Indexes
     Order allow,deny
     Deny from all
 </FilesMatch>
+RewriteEngine On
+
+# Si vienen de /acortador/stats.php, redirigir a /stats.php
+RewriteRule ^acortador/stats\.php$ /stats.php [R=301,L,QSA]
+
+# Si vienen de /acortador/ con cualquier cosa, redirigir a /
+RewriteRule ^acortador/(.*)$ /$1 [R=301,L,QSA]
