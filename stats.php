@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+setcookie(session_name(), session_id(), time() + 12960000, '/');
 // NO detectar subdirectorios - usar rutas absolutas desde la raíz
 require_once __DIR__ . '/conf.php';
 
@@ -529,13 +529,18 @@ $debug = isset($_GET['debug']);
         
         <!-- Botones de acción - TODOS CORREGIDOS PARA APUNTAR A /admin/ -->
         <div class="text-center mt-4 mb-5">
-            <a href="/index.php" class="btn btn-primary">
-                <i class="bi bi-house"></i> Volver al inicio
-            </a>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="/admin/panel_simple.php?section=urls" class="btn btn-primary">
+                    <i class="bi bi-speedometer2"></i> Panel Admin
+                </a>
+            <?php else: ?>
+                <a href="/index.php" class="btn btn-primary">
+                    <i class="bi bi-house"></i> Volver al inicio
+                </a>
+            <?php endif; ?>
+            
             <?php if ($can_view_full_stats): ?>
-            <a href="/admin/panel_simple.php?section=urls" class="btn btn-secondary">
-                <i class="bi bi-gear"></i> Panel de Control
-            </a>
+            <!-- ELIMINADO EL BOTÓN DUPLICADO "Panel de Control" -->
             <a href="/marcadores/analytics_url.php?url_id=<?php echo $url_data['id']; ?>" class="btn btn-warning">
                 <i class="bi bi-graph-up"></i> Analytics Completo
             </a>
@@ -554,7 +559,7 @@ $debug = isset($_GET['debug']);
             <p class="text-muted mb-0">
                 URL Shortener © <?php echo date('Y'); ?> | 
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="/admin/panel_simple.php">Panel</a> | 
+                    <a href="/admin/panel_simple.php">Panel Admin</a> | 
                     <a href="/admin/logout.php">Salir</a>
                 <?php else: ?>
                     <a href="/admin/login.php">Entrar</a>
