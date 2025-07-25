@@ -1,10 +1,7 @@
 <?php
-session_start();
+require_once 'session_check.php';
 require_once '../conf.php';
 
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: login.php');
-    exit();
 }
 
 $user_id = $_SESSION['user_id'];

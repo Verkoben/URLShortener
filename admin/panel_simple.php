@@ -2,7 +2,7 @@
 // Mostrar errores para debugging (quitar en producción)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-session_start();
+require_once 'session_check.php';
 
 // Verificar si está logueado
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {

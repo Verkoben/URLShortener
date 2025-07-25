@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once 'session_check.php';
 require_once '../conf.php';
 
 if (!isset($_SESSION['admin_logged_in'])) die('No autorizado');
