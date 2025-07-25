@@ -528,6 +528,236 @@ Setea tiempo de login
 -----------------------------------
  update_session.sh
 -----------------------------------
+sql-- Ver todas las tablas del sistema
+SHOW TABLES;
+
+-- Ver estructura de la tabla users
+DESCRIBE users;
+
+-- Ver estructura de sesiones
+DESCRIBE user_sessions;
+DESCRIBE remember_tokens;
+DESCRIBE login_attempts;
+2. Gestión de Usuarios
+sql-- Ver todos los usuarios del sistema
+SELECT id, username, email, role, status, created_at, last_login 
+FROM users 
+ORDER BY created_at DESC;
+
+-- Ver solo usuarios activos
+SELECT username, email, role, last_login, login_count 
+FROM users 
+WHERE status = 'active';
+
+-- Buscar un usuario específico
+SELECT * FROM users WHERE username = 'admin';
+
+-- Crear nuevo usuario admin
+INSERT INTO users (
+    username, email, password, full_name, 
+    role, status, is_active, created_at
+) VALUES (
+    'admin',
+    'admin@0ln.eu',
+    '$2y$10$YourHashedPasswordHere',
+    'Administrator',
+    'admin',
+    'active',
+    1,
+    NOW()
+);
+
+-- Actualizar contraseña de usuario
+UPDATE users 
+SET password = '$2y$10$NewHashedPasswordHere' 
+WHERE username = 'admin';
+
+-- Cambiar rol de usuario
+UPDATE users 
+SET role = 'admin' 
+WHERE username = 'usuario';
+
+-- Desactivar usuario
+UPDATE users 
+SET status = 'banned', banned_at = NOW() 
+WHERE username = 'usuario';
+3. Monitoreo de Sesiones Activas
+sql-- Ver todas las sesiones activas
+SELECT 
+    u.username,
+    u.email,
+    us.session_id,
+    us.ip_address,
+    us.created_at,
+    us.last_activity,
+    TIMESTAMPDIFF(MINUTE, us.created_at, NOW()) as minutos_activo
+FROM user_sessions us
+JOIN users u ON us.user_id = u.id
+ORDER BY us.last_activity DESC;
+
+-- Sesiones activas en las últimas 24 horas
+SELECT COUNT(*) as sesiones_activas_24h 
+FROM user_sessions 
+WHERE last_activity > DATE_SUB(NOW(), INTERVAL 24 HOUR);
+
+-- Ver tokens remember me activos
+SELECT 
+    u.username,
+    rt.created_at,
+    rt.expires_at,
+    DATEDIFF(rt.expires_at, NOW()) as dias_restantes
+FROM remember_tokens rt
+JOIN users u ON rt.user_id = u.id
+WHERE rt.expires_at > NOW()
+ORDER BY rt.expires_at DESC;
+4. Análisis de Seguridad
+sql-- Ver intentos de login fallidos recientes
+SELECT 
+    ip_address,
+    username_attempted,
+    COUNT(*) as intentos,
+    MAX(attempted_at) as ultimo_intento
+FROM login_attempts
+WHERE attempted_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)
+GROUP BY ip_address, username_attempted
+ORDER BY intentos DESC;
+
+-- IPs con más intentos fallidos
+SELECT 
+    ip_address,
+    COUNT(*) as total_intentos,
+    COUNT(DISTINCT username_attempted) as usuarios_intentados
+FROM login_attempts
+WHERE attempted_at > DATE_SUB(NOW(), INTERVAL 7 DAY)
+GROUP BY ip_address
+HAVING total_intentos > 10
+ORDER BY total_intentos DESC;
+
+-- Usuarios con cuentas bloqueadas
+SELECT username, failed_login_attempts, locked_until 
+FROM users 
+WHERE locked_until > NOW();
+5. Estadísticas de URLs
+sql-- URLs más populares
+SELECT 
+    short_code,
+    original_url,
+    clicks,
+    created_at,
+    DATEDIFF(NOW(), created_at) as dias_activo
+FROM urls
+ORDER BY clicks DESC
+LIMIT 10;
+
+-- URLs creadas por usuario
+SELECT 
+    u.username,
+    COUNT(urls.id) as total_urls,
+    SUM(urls.clicks) as total_clicks
+FROM users u
+LEFT JOIN urls ON u.id = urls.user_id
+GROUP BY u.id
+ORDER BY total_urls DESC;
+
+-- Estadísticas de clicks por día
+SELECT 
+    DATE(clicked_at) as fecha,
+    COUNT(*) as clicks,
+    COUNT(DISTINCT url_id) as urls_unicas,
+    COUNT(DISTINCT ip_address) as ips_unicas
+FROM click_stats
+WHERE clicked_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
+GROUP BY DATE(clicked_at)
+ORDER BY fecha DESC;
+6. Mantenimiento y Limpieza
+sql-- Limpiar sesiones expiradas (más de 15 días)
+DELETE FROM user_sessions 
+WHERE last_activity < DATE_SUB(NOW(), INTERVAL 15 DAY);
+
+-- Limpiar tokens remember me expirados
+DELETE FROM remember_tokens 
+WHERE expires_at < NOW();
+
+-- Limpiar intentos de login antiguos
+DELETE FROM login_attempts 
+WHERE attempted_at < DATE_SUB(NOW(), INTERVAL 30 DAY);
+
+-- Ver tamaño de las tablas
+SELECT 
+    table_name AS 'Tabla',
+    ROUND(((data_length + index_length) / 1024 / 1024), 2) AS 'Tamaño (MB)',
+    table_rows AS 'Filas'
+FROM information_schema.TABLES
+WHERE table_schema = 'url_shortener'
+ORDER BY (data_length + index_length) DESC;
+7. Reportes y Auditoría
+sql-- Actividad de usuarios en los últimos 7 días
+SELECT 
+    u.username,
+    u.last_login,
+    u.login_count,
+    COUNT(DISTINCT us.session_id) as sesiones_semana,
+    COUNT(DISTINCT DATE(us.created_at)) as dias_activo
+FROM users u
+LEFT JOIN user_sessions us ON u.id = us.user_id 
+    AND us.created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)
+WHERE u.status = 'active'
+GROUP BY u.id
+ORDER BY dias_activo DESC;
+
+-- URLs creadas por día
+SELECT 
+    DATE(created_at) as fecha,
+    COUNT(*) as urls_creadas,
+    COUNT(DISTINCT user_id) as usuarios_unicos
+FROM urls
+WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
+GROUP BY DATE(created_at)
+ORDER BY fecha DESC;
+
+-- Resumen del sistema
+SELECT 
+    (SELECT COUNT(*) FROM users WHERE status = 'active') as usuarios_activos,
+    (SELECT COUNT(*) FROM urls WHERE active = 1) as urls_activas,
+    (SELECT SUM(clicks) FROM urls) as clicks_totales,
+    (SELECT COUNT(*) FROM user_sessions WHERE last_activity > DATE_SUB(NOW(), INTERVAL 1 HOUR)) as sesiones_ultima_hora,
+    (SELECT COUNT(*) FROM remember_tokens WHERE expires_at > NOW()) as tokens_activos;
+8. Consultas para Debugging
+sql-- Ver configuración actual del usuario admin
+SELECT 
+    username,
+    email,
+    role,
+    status,
+    last_login,
+    login_count,
+    failed_login_attempts,
+    locked_until
+FROM users 
+WHERE username = 'admin';
+
+-- Verificar si hay sesiones huérfanas
+SELECT us.* 
+FROM user_sessions us
+LEFT JOIN users u ON us.user_id = u.id
+WHERE u.id IS NULL;
+
+-- Ver últimas actividades del sistema
+SELECT 
+    'login' as tipo,
+    created_at as fecha,
+    CONCAT('Usuario ', user_id) as detalle
+FROM user_sessions
+WHERE created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+UNION ALL
+SELECT 
+    'url_creada' as tipo,
+    created_at as fecha,
+    CONCAT('URL: ', short_code) as detalle
+FROM urls
+WHERE created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+ORDER BY fecha DESC
+LIMIT 50;
 
 
 # 🔗 URLShortener - Acortador de URLs Profesional
