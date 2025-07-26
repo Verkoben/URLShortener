@@ -11,11 +11,11 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 }
 
 // VERIFICACIÓN CRÍTICA: Asegurar que tenemos user_id
-if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    session_destroy();
-    header('Location: login.php?error=invalid_session');
-    exit;
-}
+//if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+//    session_destroy();
+//    header('Location: login.php?error=invalid_session');
+//    exit;
+//}
 
 // Incluir configuración
 $config_file = '../conf.php';
