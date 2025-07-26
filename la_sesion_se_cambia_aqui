@@ -1,0 +1,13 @@
+1. En login.php (cuando creas el token):
+php// Si marcó "Recordarme", crear cookie persistente
+if ($remember) {
+    // Generar token único
+    $token = bin2hex(random_bytes(32));
+    $expires = time() + (15 * 24 * 60 * 60); // 👈 AQUÍ - 15 días
+    //                    ^^
+
+2. En check_session.php (cuando renuevas el token):
+php// Renovar el token por otros 15 días
+$newToken = bin2hex(random_bytes(32));
+$expires = time() + (15 * 24 * 60 * 60); // 👈 AQUÍ - 15 días
+//                    ^^
