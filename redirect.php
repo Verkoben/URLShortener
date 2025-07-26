@@ -483,7 +483,7 @@ if ($url) {
                 ];
             }
             
-            // TIKTOK - DETECCIÓN Y EXTRACCIÓN MEJORADA CON OEMBED
+            // TIKTOK - DETECCIÓN Y EXTRACCIÓN MEJORADA CON MÚLTIPLES MÉTODOS
             if (preg_match('/(?:tiktok\.com\/@([\w\.-]+)\/video\/|tiktok\.com\/v\/|vm\.tiktok\.com\/)(\d+)/', $url_to_fetch, $matches)) {
                 $username = isset($matches[1]) ? $matches[1] : '';
                 $video_id = isset($matches[2]) ? $matches[2] : $matches[1];
@@ -493,118 +493,137 @@ if ($url) {
                     FILE_APPEND
                 );
                 
-                // PRIMERO: Intentar con OEmbed API de TikTok
-                $oembed_url = "https://www.tiktok.com/oembed?url=" . urlencode($url_to_fetch);
-                $oembed_response = @file_get_contents($oembed_url, false, $context);
+                // Variables para guardar resultados
+                $working_thumbnail = '';
+                $title = "@{$username} en TikTok";
+                $description = 'Mira este video en TikTok';
+                $author = "@{$username}";
                 
-                if ($oembed_response) {
-                    $oembed_data = json_decode($oembed_response, true);
-                    if ($oembed_data && isset($oembed_data['title'])) {
-                        $result = [
-                            'title' => $oembed_data['title'] ?? "@{$username} en TikTok",
-                            'description' => $oembed_data['author_name'] ? 'Video de @' . $oembed_data['author_name'] . ' en TikTok' : 'Mira este video en TikTok',
-                            'image' => $oembed_data['thumbnail_url'] ?? '',
-                            'type' => 'video',
-                            'site_name' => 'TikTok',
-                            'author' => $oembed_data['author_name'] ?? "@{$username}"
-                        ];
-                        
-                        // Asegurar HTTPS en la imagen
-                        if (!empty($result['image'])) {
-                            $result['image'] = str_replace('http://', 'https://', $result['image']);
-                        }
-                        
-                        file_put_contents('tiktok_oembed_debug.txt', 
-                            date('Y-m-d H:i:s') . " | TikTok OEmbed exitoso: " . json_encode($result) . "\n", 
+                // MÉTODO 1: Intentar obtener miniatura directa de TikTok CDN
+                $thumbnail_urls = [
+                    "https://p16-sign.tiktokcdn-us.com/obj/tos-maliva-p-0068/{$video_id}~tplv-dmt-logom:tos-useast5-p-0068/image.jpeg",
+                    "https://p16-sign-sg.tiktokcdn.com/obj/tos-alisg-p-0037/{$video_id}~tplv-dmt-logom:tos-alisg-p-0037/image.jpeg",
+                    "https://p77-sign-va.tiktokcdn.com/obj/{$video_id}~tplv-noop.image",
+                    "https://p16-sign-va.tiktokcdn.com/tos-maliva-p-0068/{$video_id}~tplv-dmt-logom:tos-maliva-p-0000/image.jpeg",
+                    "https://p16-sign-va.tiktokcdn.com/tos-maliva-p-0068/{$video_id}~c5_300x400.jpeg",
+                    "https://p16-sign-sg.tiktokcdn.com/tos-alisg-p-0037/{$video_id}~c5_720x720.jpeg"
+                ];
+                
+                foreach ($thumbnail_urls as $thumb_url) {
+                    $headers = @get_headers($thumb_url);
+                    if ($headers && strpos($headers[0], '200') !== false) {
+                        $working_thumbnail = $thumb_url;
+                        file_put_contents('tiktok_debug.txt', 
+                            date('Y-m-d H:i:s') . " | Thumbnail encontrado en CDN: $thumb_url\n", 
                             FILE_APPEND
                         );
-                        
-                        return $result;
+                        break;
                     }
                 }
                 
-                // SEGUNDO: Si OEmbed falla, intentar obtener el HTML
-                $html = @file_get_contents($url_to_fetch, false, $context, 0, 200000);
-                
-                if ($html) {
-                    $result = $default;
+                // MÉTODO 2: Si falla, intentar con OEmbed API de TikTok
+                if (empty($working_thumbnail)) {
+                    $oembed_url = "https://www.tiktok.com/oembed?url=" . urlencode($url_to_fetch);
+                    $oembed_response = @file_get_contents($oembed_url, false, $context);
                     
-                    // TikTok usa JSON-LD para meta información
-                    if (preg_match('/<script[^>]*id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>(.*?)<\/script>/is', $html, $json_matches)) {
-                        $json_data = json_decode($json_matches[1], true);
-                        if ($json_data) {
-                            // Navegar por la estructura JSON de TikTok
-                            $video_detail = $json_data['__DEFAULT_SCOPE__']['webapp.video-detail'] ?? null;
-                            if ($video_detail && isset($video_detail['itemInfo']['itemStruct'])) {
-                                $item = $video_detail['itemInfo']['itemStruct'];
-                                
-                                // Título (descripción del video o username)
-                                if (!empty($item['desc'])) {
-                                    $result['title'] = mb_substr($item['desc'], 0, 70);
-                                } else {
-                                    $result['title'] = '@' . ($item['author']['uniqueId'] ?? $username) . ' en TikTok';
+                    if ($oembed_response) {
+                        $oembed_data = json_decode($oembed_response, true);
+                        if ($oembed_data) {
+                            // Actualizar datos si están disponibles
+                            if (isset($oembed_data['title'])) {
+                                $title = $oembed_data['title'];
+                            }
+                            if (isset($oembed_data['author_name'])) {
+                                $author = $oembed_data['author_name'];
+                                $description = 'Video de @' . $oembed_data['author_name'] . ' en TikTok';
+                            }
+                            if (isset($oembed_data['thumbnail_url'])) {
+                                $working_thumbnail = $oembed_data['thumbnail_url'];
+                            }
+                            
+                            // Si no hay thumbnail pero hay HTML, intentar extraerla
+                            if (empty($working_thumbnail) && isset($oembed_data['html'])) {
+                                if (preg_match('/poster="([^"]+)"/', $oembed_data['html'], $poster_matches)) {
+                                    $working_thumbnail = $poster_matches[1];
                                 }
-                                
-                                // Descripción
-                                $result['description'] = $item['desc'] ?? 'Mira este video en TikTok';
-                                
-                                // Imagen (cover del video)
-                                if (isset($item['video']['cover'])) {
-                                    $result['image'] = $item['video']['cover'];
-                                } elseif (isset($item['video']['dynamicCover'])) {
-                                    $result['image'] = $item['video']['dynamicCover'];
-                                }
-                                
-                                // Autor
-                                $result['author'] = '@' . ($item['author']['uniqueId'] ?? $username);
                             }
                         }
                     }
-                    
-                    // Fallback a meta tags Open Graph
-                    if (empty($result['title']) || $result['title'] === 'Ver contenido') {
-                        if (preg_match('/<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                            $result['title'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                        }
-                    }
-                    
-                    if (empty($result['description']) || $result['description'] === 'Haz clic para ver el contenido completo') {
-                        if (preg_match('/<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                            $result['description'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                        }
-                    }
-                    
-                    if (empty($result['image'])) {
-                        if (preg_match('/<meta\s+property=["\']og:image["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                            $result['image'] = $matches[1];
-                        }
-                    }
-                    
-                    // Asegurar HTTPS
-                    if (!empty($result['image'])) {
-                        $result['image'] = str_replace('http://', 'https://', $result['image']);
-                    }
-                    
-                    $result['site_name'] = 'TikTok';
-                    $result['type'] = 'video';
-                    
-                    file_put_contents('tiktok_debug.txt', 
-                        date('Y-m-d H:i:s') . " | TikTok meta tags: " . json_encode($result) . "\n", 
-                        FILE_APPEND
-                    );
-                    
-                    return $result;
                 }
                 
-                // Si falla, usar datos por defecto
-                return [
-                    'title' => $username ? "@{$username} en TikTok" : 'Video de TikTok',
-                    'description' => 'Mira este video en TikTok',
-                    'image' => '', // TikTok no proporciona imagen estática fácilmente
+                // MÉTODO 3: Scraping del HTML como último recurso
+                if (empty($working_thumbnail)) {
+                    $html = @file_get_contents($url_to_fetch, false, $context, 0, 500000);
+                    
+                    if ($html) {
+                        // Buscar en el HTML diferentes patrones de imagen
+                        $image_patterns = [
+                            '/"thumbnailUrl":\["([^"]+)"/',
+                            '/property="og:image"\s+content="([^"]+)"/',
+                            '/"cover":"([^"]+)"/',
+                            '/"dynamicCover":"([^"]+)"/',
+                            '/"originCover":"([^"]+)"/',
+                            '/poster="([^"]+)"/',
+                            '/"imageUrl":"([^"]+)"/',
+                            '/"coverLarge":"([^"]+)"/',
+                            '/"coverMedium":"([^"]+)"/'
+                        ];
+                        
+                        foreach ($image_patterns as $pattern) {
+                            if (preg_match($pattern, $html, $img_matches)) {
+                                $potential_image = $img_matches[1];
+                                // Decodificar URLs escapadas
+                                $potential_image = str_replace('\\u002F', '/', $potential_image);
+                                $potential_image = str_replace('\/', '/', $potential_image);
+                                $potential_image = str_replace('\\u0026', '&', $potential_image);
+                                
+                                if (filter_var($potential_image, FILTER_VALIDATE_URL)) {
+                                    $working_thumbnail = $potential_image;
+                                    file_put_contents('tiktok_debug.txt', 
+                                        date('Y-m-d H:i:s') . " | Thumbnail encontrado por scraping: $potential_image\n", 
+                                        FILE_APPEND
+                                    );
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // Intentar obtener título y descripción del HTML si aún no los tenemos
+                        if ($title === "@{$username} en TikTok") {
+                            if (preg_match('/<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+                                $title = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                            }
+                        }
+                        
+                        if ($description === 'Mira este video en TikTok') {
+                            if (preg_match('/<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+                                $description = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                            }
+                        }
+                    }
+                }
+                
+                // Preparar resultado
+                $result = [
+                    'title' => $title,
+                    'description' => $description,
+                    'image' => $working_thumbnail ?: 'https://www.tiktok.com/favicon.ico',
                     'type' => 'video',
                     'site_name' => 'TikTok',
-                    'author' => $username ? "@{$username}" : ''
+                    'author' => $author
                 ];
+                
+                // Asegurar HTTPS
+                if (!empty($result['image'])) {
+                    $result['image'] = str_replace('http://', 'https://', $result['image']);
+                }
+                
+                file_put_contents('tiktok_debug.txt', 
+                    date('Y-m-d H:i:s') . " | TikTok resultado final: " . json_encode($result) . "\n", 
+                    FILE_APPEND
+                );
+                
+                return $result;
             }
             
             // INSTAGRAM - DETECCIÓN Y EXTRACCIÓN
@@ -1187,19 +1206,19 @@ if ($url) {
         <meta name="twitter:player:height" content="360" />
     <?php elseif ($video_platform === 'tiktok' && $video_id): ?>
         <!-- TikTok Player Card - URL del player directo -->
-        <meta name="twitter:card" content="player" />
-        <meta name="twitter:player" content="https://www.tiktok.com/player/v1/<?php echo htmlspecialchars($video_id); ?>?music_info=1&description=1&autoplay=1" />
-        <meta name="twitter:player:width" content="325" />
-        <meta name="twitter:player:height" content="575" />
-    <?php elseif ($video_platform === 'instagram' && $video_id): ?>
-        <!-- Instagram - Intentar con embed -->
-        <meta name="twitter:card" content="player" />
-        <meta name="twitter:player" content="https://www.instagram.com/p/<?php echo htmlspecialchars($video_id); ?>/embed/" />
-        <meta name="twitter:player:width" content="400" />
-        <meta name="twitter:player:height" content="500" />
-    <?php elseif ($video_platform === 'vimeo' && $video_id): ?>
-        <!-- Vimeo Player Card -->
 <meta name="twitter:card" content="player" />
+       <meta name="twitter:player" content="https://www.tiktok.com/player/v1/<?php echo htmlspecialchars($video_id); ?>?music_info=1&description=1&autoplay=1" />
+       <meta name="twitter:player:width" content="325" />
+       <meta name="twitter:player:height" content="575" />
+   <?php elseif ($video_platform === 'instagram' && $video_id): ?>
+       <!-- Instagram - Intentar con embed -->
+       <meta name="twitter:card" content="player" />
+       <meta name="twitter:player" content="https://www.instagram.com/p/<?php echo htmlspecialchars($video_id); ?>/embed/" />
+       <meta name="twitter:player:width" content="400" />
+       <meta name="twitter:player:height" content="500" />
+   <?php elseif ($video_platform === 'vimeo' && $video_id): ?>
+       <!-- Vimeo Player Card -->
+       <meta name="twitter:card" content="player" />
        <meta name="twitter:player" content="https://player.vimeo.com/video/<?php echo htmlspecialchars($video_id); ?>?autoplay=1" />
        <meta name="twitter:player:width" content="640" />
        <meta name="twitter:player:height" content="360" />
@@ -1522,6 +1541,11 @@ if ($url) {
                <div class="platform-notice">
                    🎵 Spotify: X/Twitter mostrará imagen grande con descripciones enriquecidas.
                </div>
+               <?php elseif ($video_id && $video_platform === 'tiktok'): ?>
+               <p><strong>TikTok ID:</strong> <?php echo htmlspecialchars($video_id); ?></p>
+               <div class="platform-notice">
+                   🎥 TikTok: Usando múltiples métodos para obtener miniatura. Player card activo.
+               </div>
                <?php endif; ?>
                
                <h3>Información de la petición:</h3>
@@ -1537,6 +1561,8 @@ if ($url) {
                <h3>✅ <?php echo in_array($video_platform, ['discord']) ? 'Contenido' : 'Video/Media'; ?> detectado - Twitter Card activo</h3>
                <?php if ($video_platform === 'spotify'): ?>
                <p><strong>Spotify:</strong> Mostrará imagen grande con título y descripción mejorados.</p>
+               <?php elseif ($video_platform === 'tiktok'): ?>
+               <p><strong>TikTok:</strong> Intentando embed con player. Múltiples fuentes de miniatura configuradas.</p>
                <?php endif; ?>
                <?php if (!in_array($video_platform, ['discord'])): ?>
                <p>Redirección en 2 segundos para permitir carga del contenido.</p>
