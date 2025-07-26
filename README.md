@@ -758,7 +758,24 @@ FROM urls
 WHERE created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)
 ORDER BY fecha DESC
 LIMIT 50;
-
+------------------------------------
+Tablas para la duración de la sesión
+------------------------------------
+Tabla users - Columnas agregadas:
+sqlALTER TABLE users 
+ADD COLUMN remember_token VARCHAR(64) DEFAULT NULL,
+ADD COLUMN token_expires DATETIME DEFAULT NULL,
+ADD INDEX idx_remember_token (remember_token);
+Tabla login_logs - Nueva (opcional):
+sqlCREATE TABLE IF NOT EXISTS login_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    login_time DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    INDEX idx_user_login (user_id, login_time)
+);
 
 # 🔗 URLShortener - Acortador de URLs Profesional
 
