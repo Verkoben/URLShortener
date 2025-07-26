@@ -1,14 +1,6 @@
 <?php
 // conf.php - Configuración del sistema URL Shortener
 
-// Configuración de sesiones de 15 días (solo si no hay sesión activa)
-//if (session_status() == PHP_SESSION_NONE) {
-//    ini_set('session.gc_maxlifetime', 1296000); // 15 días
-//    ini_set('session.cookie_lifetime', 1296000); // 15 días
-//    ini_set('session.cookie_httponly', 1);
-//    ini_set('session.use_only_cookies', 1);
-//}
-
 // Define la duración de la sesión
 if (!defined('SESSION_LIFETIME')) {
     define('SESSION_LIFETIME', 1296000); // 15 días en segundos
@@ -24,8 +16,8 @@ define('DB_PASS', '');       // Tu contraseña MySQL
 define('BASE_URL', 'https://0ln.eu/');
 
 // Credenciales de admin
-define('ADMIN_USERNAME', '');
-define('ADMIN_PASSWORD', '');
+define('ADMIN_USERNAME', 'admin');
+define('ADMIN_PASSWORD', 'trapos234');
 
 // Configuración adicional
 define('SHORT_URL_LENGTH', 6);
@@ -281,5 +273,8 @@ try {
 } catch (Exception $e) {
     define('DB_CONNECTION_OK', false);
     logError("Error inicializando base de datos", ['error' => $e->getMessage()]);
+}
+if (!defined('SESSION_DURATION')) {
+    define('SESSION_DURATION', 1296000); // 15 días
 }
 ?>
