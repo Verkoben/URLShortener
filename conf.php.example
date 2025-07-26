@@ -1,23 +1,35 @@
 <?php
-// conf_simple.php - Configuración simplificada que funciona
-// MODIFICA ESTOS VALORES SEGÚN TU SERVIDOR:
+// conf.php - Configuración del sistema URL Shortener
 
-define('DB_HOST', '');        // Tu servidor MySQL
+// Configuración de sesiones de 15 días (solo si no hay sesión activa)
+//if (session_status() == PHP_SESSION_NONE) {
+//    ini_set('session.gc_maxlifetime', 1296000); // 15 días
+//    ini_set('session.cookie_lifetime', 1296000); // 15 días
+//    ini_set('session.cookie_httponly', 1);
+//    ini_set('session.use_only_cookies', 1);
+//}
+
+// Define la duración de la sesión
+if (!defined('SESSION_LIFETIME')) {
+    define('SESSION_LIFETIME', 1296000); // 15 días en segundos
+}
+
+// CONFIGURACIÓN DE BASE DE DATOS
+define('DB_HOST', 'localhost');        // Tu servidor MySQL
 define('DB_NAME', 'url_shortener');    // Nombre de tu base de datos
 define('DB_USER', '');             // Tu usuario MySQL
-define('DB_PASS', '');                 // Tu contraseña MySQL (vacía por defecto)
+define('DB_PASS', '');       // Tu contraseña MySQL
 
-// URL base de tu acortador (IMPORTANTE: cambiar por tu URL real)
-define('BASE_URL', 'http://0ln.eu/');
+// URL base de tu acortador
+define('BASE_URL', 'https://0ln.eu/');
 
 // Credenciales de admin
 define('ADMIN_USERNAME', '');
 define('ADMIN_PASSWORD', '');
 
-
 // Configuración adicional
 define('SHORT_URL_LENGTH', 6);
-define('SESSION_LIFETIME', 3600); // 1 hora
+define('SITE_NAME', 'URL Shortener');
 
 /**
  * Clase Database simplificada
@@ -46,7 +58,7 @@ class Database {
         } catch (PDOException $e) {
             // Log del error para debugging
             error_log("Error de conexión BD: " . $e->getMessage());
-            die("Error de conexión a la base de datos. Verifica tu configuración en conf_simple.php");
+            die("Error de conexión a la base de datos. Verifica tu configuración en conf.php");
         }
     }
     
@@ -77,8 +89,12 @@ class Database {
             ip_address VARCHAR(45) NULL,
             user_agent TEXT NULL,
             active TINYINT(1) DEFAULT 1,
+            user_id INT DEFAULT NULL,
+            domain_id INT DEFAULT NULL,
             INDEX idx_short_code (short_code),
-            INDEX idx_created_at (created_at)
+            INDEX idx_created_at (created_at),
+            INDEX idx_user_id (user_id),
+            INDEX idx_domain_id (domain_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ";
         
@@ -91,6 +107,8 @@ class Database {
             ip_address VARCHAR(45) NULL,
             user_agent TEXT NULL,
             referer TEXT NULL,
+            country VARCHAR(100) NULL,
+            city VARCHAR(100) NULL,
             INDEX idx_url_id (url_id),
             INDEX idx_clicked_at (clicked_at),
             FOREIGN KEY (url_id) REFERENCES urls(id) ON DELETE CASCADE
@@ -105,8 +123,45 @@ class Database {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             expires_at TIMESTAMP NOT NULL,
             ip_address VARCHAR(45) NULL,
+            last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             INDEX idx_session_id (session_id),
             INDEX idx_expires_at (expires_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ";
+        
+        // Tabla usuarios
+        $sql_users = "
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(50) UNIQUE NOT NULL,
+            email VARCHAR(100) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            full_name VARCHAR(100) DEFAULT NULL,
+            is_admin BOOLEAN DEFAULT 0,
+            role ENUM('admin', 'user') DEFAULT 'user',
+            status ENUM('active', 'inactive', 'banned') DEFAULT 'active',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            last_login TIMESTAMP NULL,
+            last_ip VARCHAR(45) NULL,
+            login_count INT DEFAULT 0,
+            api_token VARCHAR(64) NULL,
+            INDEX idx_username (username),
+            INDEX idx_email (email),
+            INDEX idx_api_token (api_token)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ";
+        
+        // Tabla dominios personalizados
+        $sql_domains = "
+        CREATE TABLE IF NOT EXISTS custom_domains (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            domain VARCHAR(255) UNIQUE NOT NULL,
+            user_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_active BOOLEAN DEFAULT 1,
+            INDEX idx_domain (domain),
+            INDEX idx_user_id (user_id),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ";
         
@@ -114,6 +169,8 @@ class Database {
             $this->pdo->exec($sql_urls);
             $this->pdo->exec($sql_stats);
             $this->pdo->exec($sql_sessions);
+            $this->pdo->exec($sql_users);
+            $this->pdo->exec($sql_domains);
             
             // Insertar URL de prueba si la tabla está vacía
             $count = $this->pdo->query("SELECT COUNT(*) FROM urls")->fetchColumn();
