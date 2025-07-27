@@ -240,9 +240,20 @@ if ($is_logged_in && $user_id > 1) {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Acortador de URLs - Acorta y Comparte</title>
-    <meta name="description" content="Acorta tus URLs largas de forma rápida y gratuita. Estadísticas en tiempo real, códigos personalizados y más.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>0ln.eu - Acortador de URLs Gratis | Enlaces Cortos con Estadísticas</title>
+    <!-- AGREGAR ESTAS LÍNEAS PARA EL FAVICON -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2">
+    <link rel="shortcut icon" href="/favicon.ico?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    
+    <meta name="description" content="Acorta URLs gratis con 0ln.eu...">
+    <meta name="description" content="Acorta URLs gratis con 0ln.eu. Crea enlaces cortos personalizados, rastrea clics en tiempo real, genera códigos QR. Compatible con Twitter, Facebook y WhatsApp. ¡Sin registro!">
+    <meta name="keywords" content="acortador url, url corta, acortar enlaces, short url, link shortener, 0ln.eu, enlaces cortos gratis, estadísticas url, qr code generator">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://0ln.eu/">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -1321,6 +1332,69 @@ if ($is_logged_in && $user_id > 1) {
         </div>
         
         <!-- Recent URLs -->
+<!-- SEO Content Section -->
+        <section class="container" style="max-width: 1200px; margin: 60px auto; padding: 0 20px;">
+            <div class="main-card">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <h2 style="text-align: center; color: #2c3e50; margin-bottom: 30px; font-size: 2em;">
+                        ¿Por qué elegir 0ln.eu para acortar URLs?
+                    </h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-bottom: 40px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 3em; margin-bottom: 15px;">🌍</div>
+                            <h3 style="color: #495057; margin-bottom: 10px;">Alcance Global</h3>
+                            <p style="color: #6c757d; line-height: 1.6;">Accesible desde cualquier parte del mundo con servidores rápidos y confiables.</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 3em; margin-bottom: 15px;">🛡️</div>
+                            <h3 style="color: #495057; margin-bottom: 10px;">100% Seguro</h3>
+                            <p style="color: #6c757d; line-height: 1.6;">Todas las URLs usan HTTPS y protección contra malware automática.</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 3em; margin-bottom: 15px;">🎨</div>
+                            <h3 style="color: #495057; margin-bottom: 10px;">Vista Previa Rica</h3>
+                            <p style="color: #6c757d; line-height: 1.6;">Optimizado para Twitter, Facebook y WhatsApp con miniaturas automáticas.</p>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin-bottom: 30px;">
+                        <h3 style="color: #495057; margin-bottom: 20px;">🚀 Cómo acortar URLs con 0ln.eu</h3>
+                        <ol style="color: #6c757d; line-height: 1.8; padding-left: 20px;">
+                            <li style="margin-bottom: 10px;"><strong>Pega tu URL larga</strong> - Copia cualquier enlace largo que quieras acortar</li>
+                            <li style="margin-bottom: 10px;"><strong>Personaliza (opcional)</strong> - Crea un código corto memorable como 0ln.eu/mi-link</li>
+                            <li style="margin-bottom: 10px;"><strong>¡Comparte!</strong> - Tu nueva URL corta está lista para usar en cualquier lugar</li>
+                        </ol>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="color: #495057; margin-bottom: 20px;">📊 Acortador de URLs profesional para empresas</h3>
+                        <p style="color: #6c757d; line-height: 1.8; margin-bottom: 15px;">
+                            0ln.eu es el acortador de URLs preferido por profesionales del marketing digital, community managers y empresas que necesitan 
+                            compartir enlaces de forma elegante y rastreable. Nuestro servicio de acortamiento de URLs es perfecto para:
+                        </p>
+                        <ul style="color: #6c757d; line-height: 1.8; padding-left: 20px;">
+                            <li>Campañas de marketing en redes sociales (Twitter, LinkedIn, Instagram)</li>
+                            <li>Enlaces en newsletters y email marketing</li>
+                            <li>Códigos QR para eventos, restaurantes y tarjetas de presentación</li>
+                            <li>Tracking de conversiones y análisis de tráfico</li>
+                            <li>Enlaces cortos para SMS y WhatsApp Business</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="background: #e3f2fd; padding: 25px; border-radius: 10px; border-left: 4px solid #2196f3;">
+                        <h4 style="color: #1565c0; margin-bottom: 10px;">💡 ¿Sabías que...?</h4>
+                        <p style="color: #1976d2; line-height: 1.6; margin: 0;">
+                            Los enlaces acortados reciben hasta <strong>39% más clics</strong> que las URLs largas. 
+                            Además, con 0ln.eu puedes ver exactamente quién, cuándo y desde dónde hacen clic en tus enlaces, 
+                            información invaluable para optimizar tus campañas de marketing digital.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Recent URLs -->
         <?php if (!empty($recent_urls)): ?>
         <div class="recent-section">
             <h2>🔗 URLs Recientes <?php echo (!$is_logged_in ? '(Públicas)' : ''); ?></h2>
@@ -1383,9 +1457,12 @@ if ($is_logged_in && $user_id > 1) {
         <p>
             © <?php echo date('Y'); ?> URL Shortener | 
             <a href="/privacy">Privacidad</a> | 
-            <a href="https://chromewebstore.google.com/detail/gestor-de-urls-cortas/hagbihnnkefflikhbdpnafpeamlocnmi">Extensión</a> | 
+            <a href="https://chromewebstore.google.com/search/gestor%20URLs%20cortas">Extensión</a> |
+            <a href="https://www.youtube.com/watch?v=uaVkiKwUV38">Demo</a> | 
+            <a href="/Aclaraciones">Aclaraciones</a> |
             <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin">Admin</a>
         </p>
+    
     </footer>
     
     <script>
