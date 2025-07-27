@@ -4,9 +4,18 @@ require_once 'conf.php';
 
 // Función para inicializar sesión segura
 function initSecureSession() {
-    if (session_status() == PHP_SESSION_NONE) {
-        ini_set('session.gc_maxlifetime', 1296000); // 15 días
-        ini_set('session.cookie_lifetime', 1296000); // 15 días
+        if (session_status() == PHP_SESSION_NONE) {
+	            // Configurar ANTES de session_start()
+		            ini_set('session.gc_maxlifetime', 1296000);
+	            ini_set('session.cookie_lifetime', 1296000);
+	            ini_set('session.cookie_httponly', 1);
+	            ini_set('session.use_only_cookies', 1);
+	            
+	            // AGREGAR ESTAS LÍNEAS:
+		            ini_set('session.cookie_secure', 1);
+	            ini_set('session.cookie_samesite', 'Lax');
+	      
+	
         session_start();
     }
 }
