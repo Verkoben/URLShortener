@@ -250,6 +250,23 @@ if ($is_logged_in && $user_id > 1) {
     <link rel="apple-touch-icon" href="/favicon.png">
     
     <meta name="description" content="Acorta URLs gratis con 0ln.eu...">
+<link rel="apple-touch-icon" href="/favicon.png">
+    
+    <!-- Twitter Card para 0ln.eu -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@tu_usuario_twitter">
+    <meta name="twitter:title" content="0ln.eu - El Mejor Acortador de URLs 🚀">
+    <meta name="twitter:description" content="Acorta URLs gratis ⚡ Estadísticas en tiempo real 📊 Compatible con todas las redes sociales 🔗 ¡Ya somos <?php echo number_format($total_urls); ?> URLs creadas!">
+    <meta name="twitter:image" content="https://0ln.eu/assets/twitter-card3.png?v=<?php echo time(); ?>">
+    
+    <!-- Open Graph (también para Twitter) -->
+    <meta property="og:url" content="https://0ln.eu">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="0ln.eu - Acortador de URLs Profesional">
+    <meta property="og:description" content="Crea enlaces cortos personalizados con estadísticas detalladas. Perfecto para marketing digital.">
+    <meta property="og:image" content="https://0ln.eu/assets/og-image.png">
+    
+    <meta name="description" content="Acorta URLs gratis con 0ln.eu...">
     <meta name="description" content="Acorta URLs gratis con 0ln.eu. Crea enlaces cortos personalizados, rastrea clics en tiempo real, genera códigos QR. Compatible con Twitter, Facebook y WhatsApp. ¡Sin registro!">
     <meta name="keywords" content="acortador url, url corta, acortar enlaces, short url, link shortener, 0ln.eu, enlaces cortos gratis, estadísticas url, qr code generator">
     <meta name="robots" content="index, follow">
