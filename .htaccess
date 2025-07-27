@@ -4,15 +4,17 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_URI} !^/admin/
+RewriteCond %{REQUEST_URI} !^/marcadores/
 RewriteCond %{REQUEST_URI} !^/assets/
 RewriteCond %{REQUEST_URI} !^/api/
 RewriteCond %{REQUEST_URI} !^/redirect\.php
 RewriteCond %{REQUEST_URI} !^/index\.php
 RewriteCond %{REQUEST_URI} !^/stats\.php
 RewriteCond %{REQUEST_URI} !^/qr\.php
-
-# Capturar el código y pasarlo a redirect.php
 RewriteRule ^([a-zA-Z0-9_-]+)/?$ redirect.php?code=$1 [L,QSA]
+
+# Sitemap
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
 # Configuración de seguridad
 Options -Indexes
@@ -20,4 +22,39 @@ Options -Indexes
     Order allow,deny
     Deny from all
 </FilesMatch>
-RewriteEngine On
+
+# Google verification
+<Files "google*.html">
+    Order allow,deny
+    Allow from all
+</Files>
+
+# Headers de seguridad
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+# Headers de seguridad
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # AGREGAR ESTA LÍNEA:
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+# Headers de seguridad
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    # AGREGAR ESTA LÍNEA (TODO EN UNA LÍNEA):
+    Header always set Content-Security-Policy "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' https: data:; font-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https:; frame-ancestors 'self'"
+</IfModule>
