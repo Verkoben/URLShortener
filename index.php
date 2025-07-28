@@ -240,234 +240,265 @@ if ($is_logged_in && $user_id > 1) {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>0ln.eu - Acortador de URLs Gratis | Enlaces Cortos con Estadísticas</title>
-    <!-- AGREGAR ESTAS LÍNEAS PARA EL FAVICON -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0ln.eu - Acortador de URLs Gratis | Enlaces Cortos con Estadísticas</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Font Awesome (para mantener compatibilidad) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- FAVICON -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2">
     <link rel="shortcut icon" href="/favicon.ico?v=2">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/favicon.png">
     
-    <meta name="description" content="Acorta URLs gratis con 0ln.eu...">
-<link rel="apple-touch-icon" href="/favicon.png">
+    <!-- Meta tags SEO -->
+    <meta name="description" content="Acorta URLs gratis con 0ln.eu. Crea enlaces cortos personalizados, rastrea clics en tiempo real, genera códigos QR. Compatible con Twitter, Facebook y WhatsApp. ¡Sin registro!">
+    <meta name="keywords" content="acortador url, url corta, acortar enlaces, short url, link shortener, 0ln.eu, enlaces cortos gratis, estadísticas url, qr code generator">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://0ln.eu/">
     
-    <!-- Twitter Card para 0ln.eu -->
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@tu_usuario_twitter">
     <meta name="twitter:title" content="0ln.eu - El Mejor Acortador de URLs 🚀">
     <meta name="twitter:description" content="Acorta URLs gratis ⚡ Estadísticas en tiempo real 📊 Compatible con todas las redes sociales 🔗 ¡Ya somos <?php echo number_format($total_urls); ?> URLs creadas!">
     <meta name="twitter:image" content="https://0ln.eu/assets/twitter-card3.png?v=<?php echo time(); ?>">
     
-    <!-- Open Graph (también para Twitter) -->
+    <!-- Open Graph -->
     <meta property="og:url" content="https://0ln.eu">
     <meta property="og:type" content="website">
     <meta property="og:title" content="0ln.eu - Acortador de URLs Profesional">
     <meta property="og:description" content="Crea enlaces cortos personalizados con estadísticas detalladas. Perfecto para marketing digital.">
     <meta property="og:image" content="https://0ln.eu/assets/og-image.png">
     
-    <meta name="description" content="Acorta URLs gratis con 0ln.eu...">
-    <meta name="description" content="Acorta URLs gratis con 0ln.eu. Crea enlaces cortos personalizados, rastrea clics en tiempo real, genera códigos QR. Compatible con Twitter, Facebook y WhatsApp. ¡Sin registro!">
-    <meta name="keywords" content="acortador url, url corta, acortar enlaces, short url, link shortener, 0ln.eu, enlaces cortos gratis, estadísticas url, qr code generator">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://0ln.eu/">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* Variables CSS */
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         }
         
+        /* Body and general styles */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient);
             min-height: 100vh;
-            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
         
-        /* Header */
-        .header {
-            background: rgba(255, 255, 255, 0.1);
+        /* Navbar customization */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.1) !important;
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
+            transition: all 0.3s;
         }
         
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: white !important;
             font-weight: 500;
-            transition: opacity 0.3s;
         }
         
-        .nav-links a:hover {
+        .navbar-custom .nav-link:hover {
             opacity: 0.8;
         }
         
-        .btn-login {
-            background: white;
-            color: #667eea;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: all 0.3s;
+        .navbar-custom .dropdown-menu {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        
-        .user-info {
+        /* Hero section */
+        .hero-section {
             color: white;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            text-align: center;
+            padding: 3rem 0;
+            animation: fadeInDown 0.8s ease-out;
         }
         
-        .user-info span {
-            opacity: 0.9;
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
         }
         
-        .btn-logout {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            transition: all 0.3s;
-        }
-        
-        .btn-logout:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        /* Container principal */
-        .container {
-            max-width: 1200px;
+        .hero-section .lead {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 700px;
             margin: 0 auto;
-            padding: 120px 20px 40px;
         }
         
-        /* ANALYTICS SUMMARY WIDGET */
+        /* Cards and panels */
+        .main-card {
+            background: white;
+            border-radius: 1.25rem;
+            padding: 2.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        /* Analytics widget */
         .analytics-summary {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
+            border-radius: 1rem;
+            padding: 1.5rem;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             border: 1px solid rgba(255,255,255,0.2);
             animation: fadeInDown 0.6s ease-out;
         }
-
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
+        
         .analytics-card {
-            text-align: center;
-            padding: 15px;
             background: rgba(102, 126, 234, 0.1);
-            border-radius: 10px;
             border: 1px solid rgba(102, 126, 234, 0.2);
-            transition: all 0.3s ease;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s;
+            height: 100%;
         }
-
+        
         .analytics-card:hover {
             transform: translateY(-2px);
             background: rgba(102, 126, 234, 0.15);
         }
-
+        
         .analytics-number {
-            font-size: 24px;
+            font-size: 1.75rem;
             font-weight: 700;
-            color: #667eea;
-            margin-bottom: 5px;
+            color: var(--primary-color);
         }
-
-        .analytics-label {
-            font-size: 12px;
-            color: #718096;
-            font-weight: 500;
+        
+        /* Stat cards */
+        .stat-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            height: 100%;
         }
-
-        .analytics-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
         }
-
-        .btn-analytics {
-            padding: 8px 16px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+        
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Feature cards */
+        .feature-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Form enhancements */
+        .url-input-group {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        
+        .url-input-group .form-control {
+            border: 2px solid #e9ecef;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .url-input-group .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        /* Buttons */
+        .btn-gradient {
+            background: var(--gradient);
             border: none;
-            cursor: pointer;
+            color: white;
+            font-weight: 600;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            transition: all 0.3s;
         }
-
-        .btn-analytics:hover {
-            background: #5a6fd8;
-            transform: translateY(-1px);
+        
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            color: white;
         }
-
-        .btn-analytics.secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-
-        .btn-analytics.secondary:hover {
-            background: #cbd5e0;
-        }
-
-        .btn-analytics:disabled {
+        
+        .btn-gradient:disabled {
             opacity: 0.6;
-            cursor: not-allowed;
             transform: none;
         }
-
+        
+        /* Result box */
+        .result-box {
+            background: #f8f9fa;
+            border: 2px solid var(--primary-color);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .shortened-url-display {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+        
+        /* User stats alert */
+        .user-stats-alert {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 0.75rem;
+        }
+        
+        /* Animations */
         @keyframes fadeInDown {
             from {
                 opacity: 0;
@@ -477,39 +508,6 @@ if ($is_logged_in && $user_id > 1) {
                 opacity: 1;
                 transform: translateY(0);
             }
-        }
-        
-        /* Hero Section */
-        .hero {
-            text-align: center;
-            color: white;
-            margin-bottom: 50px;
-        }
-        
-        .hero h1 {
-            font-size: 3.5em;
-            margin-bottom: 20px;
-            font-weight: 800;
-            line-height: 1.2;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .hero p {
-            font-size: 1.3em;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto 40px;
-            line-height: 1.6;
-        }
-        
-        /* Main Card */
-        .main-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            margin-bottom: 40px;
-            animation: fadeInUp 0.6s ease-out;
         }
         
         @keyframes fadeInUp {
@@ -523,993 +521,579 @@ if ($is_logged_in && $user_id > 1) {
             }
         }
         
-        /* Login Required Message */
-        .login-required {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            color: #856404;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .login-required h3 {
-            margin-bottom: 10px;
-        }
-        
-        .login-required a {
-            color: #667eea;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        
-        .login-required a:hover {
-            text-decoration: underline;
-        }
-        
-        /* User Stats */
-        .user-stats {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 2px solid #e9ecef;
-        }
-        
-        .user-stats h3 {
-            color: #495057;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-        
-        .user-stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .user-stat-item {
-            text-align: center;
-        }
-        
-        .user-stat-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #667eea;
-        }
-        
-        .user-stat-label {
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-        
-        /* Formulario */
-        .url-form {
-            margin-bottom: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #495057;
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 15px;
-            align-items: stretch;
-            flex-wrap: wrap;
-        }
-        
-        .form-control {
-            flex: 1;
-            padding: 15px 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s;
-            min-width: 250px;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .form-control:disabled {
-            background: #f8f9fa;
-            cursor: not-allowed;
-        }
-        
-        .form-select {
-            padding: 15px 20px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 16px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .form-select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .btn-shorten {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 40px;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-        
-        .btn-shorten:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        }
-        
-        .btn-shorten:active:not(:disabled) {
-            transform: translateY(0);
-        }
-        
-        .btn-shorten:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        /* Advanced Options */
-        .advanced-options {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e9ecef;
-        }
-        
-        .advanced-toggle {
-            color: #667eea;
-            cursor: pointer;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            margin-bottom: 15px;
-        }
-        
-        .advanced-content {
-            display: none;
-            animation: slideDown 0.3s ease-out;
-        }
-        
-        .advanced-content.show {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Domain select info */
-        .domain-info {
-            background: #e3f2fd;
-            color: #1565c0;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 0.85em;
-            margin-top: 5px;
-            display: inline-block;
-        }
-        
-        /* Result Box */
-        .result-box {
-            background: #f8f9fa;
-            border: 2px solid #667eea;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            animation: fadeIn 0.5s ease-out;
-        }
-        
-        .result-box h3 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-        }
-        
-        .shortened-url {
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .shortened-url input {
-            flex: 1;
-            border: none;
-            background: none;
-            font-size: 18px;
-            color: #495057;
-            font-family: monospace;
-        }
-        
-        .btn-copy {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .btn-copy:hover {
-            background: #5a67d8;
-        }
-        
-        .btn-copy.copied {
-            background: #28a745;
-        }
-        
-        .result-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .btn-action {
-            padding: 10px 25px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-stats {
-            background: #17a2b8;
-            color: white;
-        }
-        
-        .btn-stats:hover {
-            background: #138496;
-        }
-        
-        .btn-qr {
-            background: #28a745;
-            color: white;
-        }
-        
-        .btn-qr:hover {
-            background: #218838;
-        }
-        
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            transition: all 0.3s;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-        }
-        
-        .stat-icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-        }
-        
-        .stat-value {
-            font-size: 2.5em;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-        
-        /* Recent URLs */
-        .recent-section {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-        }
-        
-        .recent-section h2 {
-            margin-bottom: 30px;
-            color: #2c3e50;
-            font-size: 2em;
-        }
-        
-        .recent-urls {
-            overflow-x: auto;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th {
-            text-align: left;
-            padding: 15px;
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #495057;
-            border-bottom: 2px solid #e9ecef;
-            white-space: nowrap;
-        }
-        
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #f1f3f5;
-        }
-        
-        tbody tr {
-            transition: background 0.2s;
-        }
-        
-        tbody tr:hover {
-            background: #f8f9fa;
-        }
-        
-        .url-original {
-            max-width: 300px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: #6c757d;
-        }
-        
-        .url-short {
-            font-family: monospace;
-            background: #e9ecef;
-            padding: 5px 10px;
-            border-radius: 5px;
-            color: #495057;
-        }
-        
-        .badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 500;
-        }
-        
-        .badge-primary {
-            background: #e3f2fd;
-            color: #2196f3;
-        }
-        
-        /* Alerts */
-        .alert {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideDown 0.3s ease-out;
-        }
-        
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .alert-danger {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-        
-        /* Features */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin: 60px 0;
-        }
-        
-        .feature {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            transition: all 0.3s;
-        }
-        
-        .feature:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-        }
-        
-        .feature-icon {
-            font-size: 3em;
-            margin-bottom: 20px;
-        }
-        
-        .feature h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-        }
-        
-        .feature p {
-            color: #6c757d;
-            line-height: 1.6;
-        }
-        
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 40px 20px;
-            color: white;
-            opacity: 0.9;
-        }
-        
-        .footer a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Mobile */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .hero h1 {
-                font-size: 2.5em;
-            }
-            
-            .hero p {
-                font-size: 1.1em;
-            }
-            
-            .input-group {
-                flex-direction: column;
-            }
-            
-            .form-control {
-                min-width: 100%;
-            }
-            
-            .btn-shorten {
-                width: 100%;
-            }
-            
-            .advanced-content.show {
-                grid-template-columns: 1fr;
-            }
-            
-            .features {
-                grid-template-columns: 1fr;
-            }
-            
-            .recent-section {
-                padding: 20px;
-            }
-            
-            .user-info {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
-            }
-            
-            .analytics-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .analytics-actions {
-                flex-direction: column;
-            }
-        }
-        
-        /* Loading animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-section .lead {
+                font-size: 1.1rem;
+            }
+            
+            .main-card {
+                padding: 1.5rem;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .analytics-number {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Loading spinner */
+        .spinner-border-custom {
+            color: var(--primary-color);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <a href="/" class="logo">
-                <span>🚀</span>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-custom">
+        <div class="container-fluid px-3 px-lg-5">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="/">
+                <span class="fs-3">🚀</span>
                 <span>URL Shortener</span>
             </a>
-            <nav class="nav-links">
-                <a href="#features">Características</a>
-                <a href="#stats">Estadísticas</a>
-                <?php if ($is_logged_in): ?>
-                <div class="user-info">
-                    <span>👤 <?php echo htmlspecialchars($username); ?></span>
-                    <a href="marcadores/" class="btn-login">📊 Gestor URLs</a>
-                    <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/panel_simple.php" class="btn-login">Panel Admin</a>
-                    <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/logout.php" class="btn-logout">Cerrar Sesión</a>
-                </div>
-                <?php else: ?>
-                <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/login.php" class="btn-login">Iniciar Sesión</a>
-                <?php endif; ?>
-            </nav>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Características</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#stats">Estadísticas</a>
+                    </li>
+                    
+                    <?php if ($is_logged_in): ?>
+                    <li class="nav-item dropdown ms-3">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i>
+                            <?php echo htmlspecialchars($username); ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li>
+                                <a class="dropdown-item" href="marcadores/">
+                                    <i class="bi bi-graph-up me-2"></i>Gestor URLs
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/panel_simple.php">
+                                    <i class="bi bi-speedometer2 me-2"></i>Panel Admin
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/logout.php">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <?php else: ?>
+                    <li class="nav-item ms-3">
+                        <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/login.php" class="btn btn-light rounded-pill px-4">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>
+                            Iniciar Sesión
+                        </a>
+                    </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
         </div>
-    </header>
+    </nav>
     
     <!-- Main Container -->
-    <div class="container">
+    <div class="container-fluid px-3 px-lg-5" style="padding-top: 100px;">
         <!-- Hero Section -->
-        <div class="hero">
-            <h1>Acorta tus URLs en segundos</h1>
-            <p>Convierte enlaces largos en URLs cortas y fáciles de compartir. 
-            <?php if (REQUIRE_LOGIN_TO_SHORTEN): ?>
-                Servicio exclusivo para usuarios registrados.
-            <?php else: ?>
-                Gratis, rápido y con estadísticas en tiempo real.
-            <?php endif; ?>
-            </p>
+        <div class="hero-section">
+            <div class="container">
+                <h1 class="mb-4">Acorta tus URLs en segundos</h1>
+                <p class="lead">
+                    Convierte enlaces largos en URLs cortas y fáciles de compartir. 
+                    <?php if (REQUIRE_LOGIN_TO_SHORTEN): ?>
+                        Servicio exclusivo para usuarios registrados.
+                    <?php else: ?>
+                        Gratis, rápido y con estadísticas en tiempo real.
+                    <?php endif; ?>
+                </p>
+            </div>
         </div>
         
         <!-- Analytics Summary Widget -->
         <?php if ($is_logged_in): ?>
-        <div class="analytics-summary" id="analyticsSummary" style="display: none;">
-            <div class="analytics-grid">
-                <div class="analytics-card">
-                    <div class="analytics-number" id="totalClicks">0</div>
-                    <div class="analytics-label">Total Clicks</div>
+        <div class="container mb-4">
+            <div class="analytics-summary" id="analyticsSummary" style="display: none;">
+                <div class="row g-3 mb-3">
+                    <div class="col-6 col-lg-3">
+                        <div class="analytics-card">
+                            <div class="analytics-number" id="totalClicks">0</div>
+                            <div class="text-muted small">Total Clicks</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="analytics-card">
+                            <div class="analytics-number" id="uniqueVisitors">0</div>
+                            <div class="text-muted small">Visitantes Únicos</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="analytics-card">
+                            <div class="analytics-number" id="urlsClicked">0</div>
+                            <div class="text-muted small">URLs Clickeadas</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="analytics-card">
+                            <div class="analytics-number" id="topUrlClicks">0</div>
+                            <div class="text-muted small text-truncate" id="topUrlLabel">Top URL</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="analytics-card">
-                    <div class="analytics-number" id="uniqueVisitors">0</div>
-                    <div class="analytics-label">Visitantes Únicos</div>
+                
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    <a href="marcadores/analytics_dashboard.php" class="btn btn-primary btn-sm">
+                        <i class="fas fa-chart-line me-1"></i>Dashboard Completo
+                    </a>
+                    <a href="marcadores/export_bookmarks.php?format=html&download=1" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-bookmark me-1"></i>Exportar Marcadores
+                    </a>
+                    <button onclick="refreshAnalytics()" class="btn btn-secondary btn-sm" id="refreshBtn">
+                        <i class="fas fa-sync-alt me-1"></i>Actualizar
+                    </button>
                 </div>
-                <div class="analytics-card">
-                    <div class="analytics-number" id="urlsClicked">0</div>
-                    <div class="analytics-label">URLs Clickeadas</div>
-                </div>
-                <div class="analytics-card">
-                    <div class="analytics-number" id="topUrlClicks">0</div>
-                    <div class="analytics-label" id="topUrlLabel">Top URL</div>
-                </div>
-            </div>
-            
-            <div class="analytics-actions">
-                <a href="marcadores/analytics_dashboard.php" class="btn-analytics">
-                    <i class="fas fa-chart-line"></i> Dashboard Completo
-                </a>
-                <a href="marcadores/export_bookmarks.php?format=html&download=1" class="btn-analytics secondary">
-                    <i class="fas fa-bookmark"></i> Exportar Marcadores
-                </a>
-                <button onclick="refreshAnalytics()" class="btn-analytics secondary" id="refreshBtn">
-                    <i class="fas fa-sync-alt"></i> Actualizar
-                </button>
             </div>
         </div>
         <?php endif; ?>
         
         <!-- Stats Grid -->
-        <div class="stats-grid" id="stats">
-            <div class="stat-card">
-                <div class="stat-icon">🔗</div>
-                <div class="stat-value"><?php echo number_format($total_urls); ?></div>
-                <div class="stat-label">URLs Creadas</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">👆</div>
-                <div class="stat-value"><?php echo number_format($total_clicks); ?></div>
-                <div class="stat-label">Clicks Totales</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">⚡</div>
-                <div class="stat-value">100%</div>
-                <div class="stat-label">Uptime</div>
+        <div class="container mb-5">
+            <div class="row g-4" id="stats">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">🔗</div>
+                        <div class="stat-value"><?php echo number_format($total_urls); ?></div>
+                        <div class="text-muted">URLs Creadas</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">👆</div>
+                        <div class="stat-value"><?php echo number_format($total_clicks); ?></div>
+                        <div class="text-muted">Clicks Totales</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value">100%</div>
+                        <div class="text-muted">Uptime</div>
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- Main Card -->
-        <div class="main-card">
-            <?php if ($message): ?>
-            <div class="alert alert-<?php echo $messageType; ?>">
-                <?php echo $message; ?>
-            </div>
-            <?php endif; ?>
-            
-            <?php if ($is_logged_in && $user_stats): ?>
-            <div class="user-stats">
-                <h3>👤 Tus Estadísticas</h3>
-                <div class="user-stats-grid">
-                    <div class="user-stat-item">
-                        <div class="user-stat-value"><?php echo number_format($user_stats['total_urls'] ?? 0); ?></div>
-                        <div class="user-stat-label">URLs creadas</div>
-                    </div>
-                    <div class="user-stat-item">
-                        <div class="user-stat-value"><?php echo number_format($user_stats['total_clicks'] ?? 0); ?></div>
-                        <div class="user-stat-label">Clicks totales</div>
-                    </div>
+        <div class="container mb-5">
+            <div class="main-card">
+                <?php if ($message): ?>
+                <div class="alert alert-<?php echo $messageType; ?> alert-dismissible fade show" role="alert">
+                    <?php echo $message; ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
-            </div>
-            <?php endif; ?>
-            
-<?php if (REQUIRE_LOGIN_TO_SHORTEN && !$is_logged_in): ?>
-<div class="login-required">
-    <h3>🔒 Inicio de sesión requerido</h3>
-    <p>Para crear URLs cortas necesitas una cuenta.</p>
-    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
-        <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/login.php" 
-           style="background: #667eea; color: white; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: 600;">
-            🔑 Iniciar Sesión
-        </a>
-        <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/login.php?register=1" 
-           style="background: #28a745; color: white; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: 600;">
-            ✨ Crear Cuenta Gratis
-        </a>
-    </div>
-    <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
-        ¡Registro gratuito en 30 segundos! Sin tarjeta de crédito.
-    </p>
-</div>
-<?php endif; ?>
-            
-            <?php if (empty($shortened_url)): ?>
-            <!-- URL Form -->
-            <form method="POST" class="url-form">
-                <div class="form-group">
-                    <label class="form-label">🔗 Pega tu URL larga aquí</label>
-                    <div class="input-group">
-                        <input type="url" 
-                               name="url" 
-                               class="form-control" 
-                               placeholder="https://ejemplo.com/pagina-muy-larga-que-quieres-acortar" 
-                               required 
-                               autofocus
-                               <?php echo (REQUIRE_LOGIN_TO_SHORTEN && !$is_logged_in) ? 'disabled' : ''; ?>>
-                        <button type="submit" 
-                                class="btn-shorten"
-                                <?php echo (REQUIRE_LOGIN_TO_SHORTEN && !$is_logged_in) ? 'disabled' : ''; ?>>
-                            Acortar URL
-                        </button>
-                    </div>
-                </div>
+                <?php endif; ?>
                 
-                <?php if (!REQUIRE_LOGIN_TO_SHORTEN || $is_logged_in): ?>
-                <!-- Advanced Options -->
-                <div class="advanced-options">
-                    <div class="advanced-toggle" onclick="toggleAdvanced()">
-                        <span>⚙️ Opciones avanzadas</span>
-                        <span id="toggle-icon">▼</span>
-                    </div>
-                    <div class="advanced-content" id="advanced-content">
-                        <div class="form-group">
-                            <label class="form-label">🎯 Código personalizado (opcional)</label>
-                            <input type="text" 
-                                   name="custom_code" 
-                                   class="form-control" 
-                                   placeholder="mi-codigo-personal" 
-                                   pattern="[a-zA-Z0-9-_]+"
-                                   maxlength="100"
-                                   title="Solo letras, números, guiones y guiones bajos (máximo 100 caracteres)">
-                            <small style="color: #6c757d; display: block; margin-top: 5px;">
-                                Solo letras, números, guiones y guiones bajos (máximo 100 caracteres)
-                            </small>
+                <?php if ($is_logged_in && $user_stats): ?>
+                <div class="alert user-stats-alert mb-4">
+                    <h5 class="alert-heading mb-3">
+                        <i class="bi bi-person-circle me-2"></i>Tus Estadísticas
+                    </h5>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="h3 mb-0 text-primary"><?php echo number_format($user_stats['total_urls'] ?? 0); ?></div>
+                            <small class="text-muted">URLs creadas</small>
                         </div>
-                        <?php if (!empty($available_domains)): ?>
-                        <div class="form-group">
-                            <label class="form-label">🌐 Dominio personalizado</label>
-                            <select name="domain_id" class="form-select">
-                                <option value="">Dominio principal (<?php echo parse_url(BASE_URL, PHP_URL_HOST); ?>)</option>
-                                <?php foreach ($available_domains as $domain): ?>
-                                <option value="<?php echo $domain['id']; ?>">
-                                    <?php echo htmlspecialchars($domain['domain']); ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <?php if (!$is_superadmin && $is_logged_in): ?>
-                            <div class="domain-info">
-                                ℹ️ Solo ves dominios disponibles para ti
-                            </div>
-                            <?php endif; ?>
+                        <div class="col-6">
+                            <div class="h3 mb-0 text-primary"><?php echo number_format($user_stats['total_clicks'] ?? 0); ?></div>
+                            <small class="text-muted">Clicks totales</small>
                         </div>
-                        <?php endif; ?>
                     </div>
                 </div>
                 <?php endif; ?>
-            </form>
-            <?php else: ?>
-            <!-- Result Box -->
-            <div class="result-box">
-                <h3>✅ ¡Tu URL ha sido acortada!</h3>
-                <div class="shortened-url">
-                    <input type="text" 
-                           value="<?php echo htmlspecialchars($shortened_url); ?>" 
-                           id="shortened-url" 
-                           readonly>
-                    <button class="btn-copy" onclick="copyUrl()">
-                        📋 Copiar
-                    </button>
+                
+                <?php if (REQUIRE_LOGIN_TO_SHORTEN && !$is_logged_in): ?>
+                <div class="alert alert-warning text-center py-4">
+                    <h4 class="alert-heading mb-3">
+                        <i class="bi bi-lock-fill me-2"></i>Inicio de sesión requerido
+                    </h4>
+                    <p>Para crear URLs cortas necesitas una cuenta.</p>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap mt-4">
+                        <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/login.php" class="btn btn-primary rounded-pill px-4">
+                            <i class="bi bi-key-fill me-2"></i>Iniciar Sesión
+                        </a>
+                        <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/login.php?register=1" class="btn btn-success rounded-pill px-4">
+                            <i class="bi bi-stars me-2"></i>Crear Cuenta Gratis
+                        </a>
+                    </div>
+                    <p class="mt-3 mb-0 text-muted small">
+                        ¡Registro gratuito en 30 segundos! Sin tarjeta de crédito.
+                    </p>
                 </div>
-                <div class="result-actions">
-                    <a href="stats.php?code=<?php echo urlencode($custom_code); ?>" class="btn-action btn-stats">
-                        📊 Ver Estadísticas
-                    </a>
-                    <a href="qr.php?code=<?php echo urlencode($custom_code); ?>&view=1" class="btn-action btn-qr">
-                        📱 Generar QR
-                    </a>
-                    <a href="/" class="btn-action btn-stats">
-                        ➕ Acortar otra URL
-                    </a>
+                <?php endif; ?>
+                
+                <?php if (empty($shortened_url)): ?>
+                <!-- URL Form -->
+                <form method="POST">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold fs-5 mb-3">
+                            <i class="bi bi-link-45deg me-2"></i>Pega tu URL larga aquí
+                        </label>
+                        <div class="input-group input-group-lg url-input-group">
+                            <input type="url" 
+                                   name="url" 
+                                   class="form-control" 
+                                   placeholder="https://ejemplo.com/pagina-muy-larga-que-quieres-acortar" 
+                                   required 
+                                   autofocus
+                                   <?php echo (REQUIRE_LOGIN_TO_SHORTEN && !$is_logged_in) ? 'disabled' : ''; ?>>
+                            <button type="submit" 
+                                    class="btn btn-gradient px-4"
+                                    <?php echo (REQUIRE_LOGIN_TO_SHORTEN && !$is_logged_in) ? 'disabled' : ''; ?>>
+                                Acortar URL
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <?php if (!REQUIRE_LOGIN_TO_SHORTEN || $is_logged_in): ?>
+                    <!-- Advanced Options -->
+                    <div class="mt-4">
+                        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#advancedOptions" role="button">
+                            <i class="bi bi-gear-fill me-2"></i>Opciones avanzadas
+                            <i class="bi bi-chevron-down ms-1"></i>
+                        </a>
+                        
+                        <div class="collapse mt-3" id="advancedOptions">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <i class="bi bi-bullseye me-1"></i>Código personalizado (opcional)
+                                    </label>
+                                    <input type="text" 
+                                           name="custom_code" 
+                                           class="form-control" 
+                                           placeholder="mi-codigo-personal" 
+                                           pattern="[a-zA-Z0-9-_]+"
+                                           maxlength="100">
+                                    <small class="text-muted">
+                                        Solo letras, números, guiones y guiones bajos (máx. 100)
+                                    </small>
+                                </div>
+                                
+                                <?php if (!empty($available_domains)): ?>
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <i class="bi bi-globe me-1"></i>Dominio personalizado
+                                    </label>
+                                    <select name="domain_id" class="form-select">
+                                        <option value="">Dominio principal (<?php echo parse_url(BASE_URL, PHP_URL_HOST); ?>)</option>
+                                        <?php foreach ($available_domains as $domain): ?>
+                                        <option value="<?php echo $domain['id']; ?>">
+                                            <?php echo htmlspecialchars($domain['domain']); ?>
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <?php if (!$is_superadmin && $is_logged_in): ?>
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle me-1"></i>Solo ves dominios disponibles para ti
+                                    </small>
+                                    <?php endif; ?>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </form>
+                <?php else: ?>
+                <!-- Result Box -->
+                <div class="result-box">
+                    <h3 class="text-primary mb-4">
+                        <i class="bi bi-check-circle-fill me-2"></i>¡Tu URL ha sido acortada!
+                    </h3>
+                    <div class="input-group input-group-lg mb-4">
+                        <input type="text" 
+                               value="<?php echo htmlspecialchars($shortened_url); ?>" 
+                               id="shortened-url" 
+                               class="form-control" 
+                               readonly>
+                        <button class="btn btn-primary" onclick="copyUrl()">
+                            <i class="bi bi-clipboard me-2"></i>Copiar
+                        </button>
+                    </div>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a href="stats.php?code=<?php echo urlencode($custom_code); ?>" class="btn btn-info">
+                            <i class="bi bi-graph-up me-2"></i>Ver Estadísticas
+                        </a>
+                        <a href="qr.php?code=<?php echo urlencode($custom_code); ?>&view=1" class="btn btn-success">
+                            <i class="bi bi-qr-code me-2"></i>Generar QR
+                        </a>
+                        <a href="/" class="btn btn-secondary">
+                            <i class="bi bi-plus-circle me-2"></i>Acortar otra URL
+                        </a>
+                    </div>
                 </div>
+                <?php endif; ?>
             </div>
-            <?php endif; ?>
         </div>
         
         <!-- Features -->
-        <div class="features" id="features">
-            <div class="feature">
-                <div class="feature-icon">⚡</div>
-                <h3>Rápido y Sencillo</h3>
-                <p><?php echo REQUIRE_LOGIN_TO_SHORTEN ? 'Acorta URLs de forma segura con tu cuenta.' : 'Acorta tus URLs en segundos. Sin complicaciones.'; ?></p>
+        <div class="container mb-5">
+            <div class="row g-4" id="features">
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3 class="h5">Rápido y Sencillo</h3>
+                        <p class="text-muted"><?php echo REQUIRE_LOGIN_TO_SHORTEN ? 'Acorta URLs de forma segura con tu cuenta.' : 'Acorta tus URLs en segundos. Sin complicaciones.'; ?></p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3 class="h5">Estadísticas Detalladas</h3>
+                        <p class="text-muted">Rastrea clicks, ubicaciones, dispositivos y más en tiempo real.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3 class="h5">URLs Personalizadas</h3>
+                        <p class="text-muted">Crea códigos cortos memorables o deja que generemos uno por ti.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3 class="h5">Códigos QR</h3>
+                        <p class="text-muted">Genera códigos QR para tus URLs cortas instantáneamente.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3 class="h5">Seguro y Confiable</h3>
+                        <p class="text-muted"><?php echo REQUIRE_LOGIN_TO_SHORTEN ? 'Acceso exclusivo para usuarios registrados.' : 'Enlaces permanentes con redirección HTTPS segura.'; ?></p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">🌐</div>
+                        <h3 class="h5">Dominios Personalizados</h3>
+                        <p class="text-muted">Usa tu propio dominio para URLs más profesionales.</p>
+                    </div>
+                </div>
             </div>
-            <div class="feature">
-                <div class="feature-icon">📊</div>
-                <h3>Estadísticas Detalladas</h3>
-                <p>Rastrea clicks, ubicaciones, dispositivos y más en tiempo real.</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">🎯</div>
-                <h3>URLs Personalizadas</h3>
-                <p>Crea códigos cortos memorables o deja que generemos uno por ti.</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">📱</div>
-                <h3>Códigos QR</h3>
-                <p>Genera códigos QR para tus URLs cortas instantáneamente.</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">🔒</div>
-                <h3>Seguro y Confiable</h3>
-                <p><?php echo REQUIRE_LOGIN_TO_SHORTEN ? 'Acceso exclusivo para usuarios registrados.' : 'Enlaces permanentes con redirección HTTPS segura.'; ?></p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">🌐</div>
-                <h3>Dominios Personalizados</h3>
-                <p>Usa tu propio dominio para URLs más profesionales.</p>
+        </div>
+        
+        <!-- SEO Content Section -->
+        <div class="container mb-5">
+            <div class="main-card">
+                <div class="row">
+                    <div class="col-lg-10 mx-auto">
+                        <h2 class="text-center mb-4">¿Por qué elegir 0ln.eu para acortar URLs?</h2>
+                        
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-4 text-center">
+                                <div class="display-3 mb-3">🌍</div>
+                                <h4>Alcance Global</h4>
+                                <p class="text-muted">Accesible desde cualquier parte del mundo con servidores rápidos y confiables.</p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="display-3 mb-3">🛡️</div>
+                                <h4>100% Seguro</h4>
+                                <p class="text-muted">Todas las URLs usan HTTPS y protección contra malware automática.</p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="display-3 mb-3">🎨</div>
+                                <h4>Vista Previa Rica</h4>
+                                <p class="text-muted">Optimizado para Twitter, Facebook y WhatsApp con miniaturas automáticas.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-light p-4 rounded-3 mb-4">
+                            <h4 class="mb-3">
+                                <i class="bi bi-rocket-takeoff me-2"></i>Cómo acortar URLs con 0ln.eu
+                            </h4>
+                            <ol class="mb-0">
+                                <li class="mb-2"><strong>Pega tu URL larga</strong> - Copia cualquier enlace largo que quieras acortar</li>
+                                <li class="mb-2"><strong>Personaliza (opcional)</strong> - Crea un código corto memorable como 0ln.eu/mi-link</li>
+                                <li><strong>¡Comparte!</strong> - Tu nueva URL corta está lista para usar en cualquier lugar</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h4 class="mb-3">
+                                <i class="bi bi-briefcase-fill me-2"></i>Acortador de URLs profesional para empresas
+                            </h4>
+                            <p class="text-muted mb-3">
+                                0ln.eu es el acortador de URLs preferido por profesionales del marketing digital, community managers y empresas que necesitan 
+                                compartir enlaces de forma elegante y rastreable. Nuestro servicio de acortamiento de URLs es perfecto para:
+                            </p>
+                            <ul class="text-muted">
+                                <li>Campañas de marketing en redes sociales (Twitter, LinkedIn, Instagram)</li>
+                                <li>Enlaces en newsletters y email marketing</li>
+                                <li>Códigos QR para eventos, restaurantes y tarjetas de presentación</li>
+                                <li>Tracking de conversiones y análisis de tráfico</li>
+                                <li>Enlaces cortos para SMS y WhatsApp Business</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="alert alert-info mb-0">
+                            <h5 class="alert-heading">
+                                <i class="bi bi-lightbulb-fill me-2"></i>¿Sabías que...?
+                            </h5>
+                            <p class="mb-0">
+                                Los enlaces acortados reciben hasta <strong>39% más clics</strong> que las URLs largas. 
+                                Además, con 0ln.eu puedes ver exactamente quién, cuándo y desde dónde hacen clic en tus enlaces, 
+                                información invaluable para optimizar tus campañas de marketing digital.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- Recent URLs -->
-<!-- SEO Content Section -->
-        <section class="container" style="max-width: 1200px; margin: 60px auto; padding: 0 20px;">
-            <div class="main-card">
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <h2 style="text-align: center; color: #2c3e50; margin-bottom: 30px; font-size: 2em;">
-                        ¿Por qué elegir 0ln.eu para acortar URLs?
-                    </h2>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-bottom: 40px;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 3em; margin-bottom: 15px;">🌍</div>
-                            <h3 style="color: #495057; margin-bottom: 10px;">Alcance Global</h3>
-                            <p style="color: #6c757d; line-height: 1.6;">Accesible desde cualquier parte del mundo con servidores rápidos y confiables.</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 3em; margin-bottom: 15px;">🛡️</div>
-                            <h3 style="color: #495057; margin-bottom: 10px;">100% Seguro</h3>
-                            <p style="color: #6c757d; line-height: 1.6;">Todas las URLs usan HTTPS y protección contra malware automática.</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 3em; margin-bottom: 15px;">🎨</div>
-                            <h3 style="color: #495057; margin-bottom: 10px;">Vista Previa Rica</h3>
-                            <p style="color: #6c757d; line-height: 1.6;">Optimizado para Twitter, Facebook y WhatsApp con miniaturas automáticas.</p>
-                        </div>
-                    </div>
-                    
-                    <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin-bottom: 30px;">
-                        <h3 style="color: #495057; margin-bottom: 20px;">🚀 Cómo acortar URLs con 0ln.eu</h3>
-                        <ol style="color: #6c757d; line-height: 1.8; padding-left: 20px;">
-                            <li style="margin-bottom: 10px;"><strong>Pega tu URL larga</strong> - Copia cualquier enlace largo que quieras acortar</li>
-                            <li style="margin-bottom: 10px;"><strong>Personaliza (opcional)</strong> - Crea un código corto memorable como 0ln.eu/mi-link</li>
-                            <li style="margin-bottom: 10px;"><strong>¡Comparte!</strong> - Tu nueva URL corta está lista para usar en cualquier lugar</li>
-                        </ol>
-                    </div>
-                    
-                    <div style="margin-bottom: 30px;">
-                        <h3 style="color: #495057; margin-bottom: 20px;">📊 Acortador de URLs profesional para empresas</h3>
-                        <p style="color: #6c757d; line-height: 1.8; margin-bottom: 15px;">
-                            0ln.eu es el acortador de URLs preferido por profesionales del marketing digital, community managers y empresas que necesitan 
-                            compartir enlaces de forma elegante y rastreable. Nuestro servicio de acortamiento de URLs es perfecto para:
-                        </p>
-                        <ul style="color: #6c757d; line-height: 1.8; padding-left: 20px;">
-                            <li>Campañas de marketing en redes sociales (Twitter, LinkedIn, Instagram)</li>
-                            <li>Enlaces en newsletters y email marketing</li>
-                            <li>Códigos QR para eventos, restaurantes y tarjetas de presentación</li>
-                            <li>Tracking de conversiones y análisis de tráfico</li>
-                            <li>Enlaces cortos para SMS y WhatsApp Business</li>
-                        </ul>
-                    </div>
-                    
-                    <div style="background: #e3f2fd; padding: 25px; border-radius: 10px; border-left: 4px solid #2196f3;">
-                        <h4 style="color: #1565c0; margin-bottom: 10px;">💡 ¿Sabías que...?</h4>
-                        <p style="color: #1976d2; line-height: 1.6; margin: 0;">
-                            Los enlaces acortados reciben hasta <strong>39% más clics</strong> que las URLs largas. 
-                            Además, con 0ln.eu puedes ver exactamente quién, cuándo y desde dónde hacen clic en tus enlaces, 
-                            información invaluable para optimizar tus campañas de marketing digital.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Recent URLs -->
         <?php if (!empty($recent_urls)): ?>
-        <div class="recent-section">
-            <h2>🔗 URLs Recientes <?php echo (!$is_logged_in ? '(Públicas)' : ''); ?></h2>
-            <div class="recent-urls">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>URL Original</th>
-                            <th>URL Corta</th>
-                            <th>Clicks</th>
-                            <th>Creada</th>
-                            <?php if ($is_logged_in): ?>
-                            <th>Analytics</th>
-                            <?php endif; ?>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($recent_urls as $url): ?>
-                        <?php
-                        if (!empty($url['custom_domain'])) {
-                            $short_url = "https://" . $url['custom_domain'] . "/" . $url['short_code'];
-                        } else {
-                            $short_url = rtrim(BASE_URL, '/') . '/' . $url['short_code'];
-                        }
-                        ?>
-                        <tr>
-                            <td class="url-original" title="<?php echo htmlspecialchars($url['original_url']); ?>">
-                                <?php echo htmlspecialchars($url['original_url']); ?>
-                            </td>
-                            <td>
-                                <span class="url-short"><?php echo htmlspecialchars($short_url); ?></span>
-                            </td>
-                            <td>
-                                <span class="badge badge-primary">
-                                    <?php echo number_format($url['clicks'] ?? 0); ?> clicks
-                                </span>
-                            </td>
-                            <td><?php echo date('d/m H:i', strtotime($url['created_at'])); ?></td>
-                            <?php if ($is_logged_in): ?>
-                            <td>
-                                <a href="marcadores/analytics_url.php?url_id=<?php echo $url['id']; ?>" 
-                                   class="btn-analytics" 
-                                   style="font-size: 12px; padding: 4px 8px;" 
-                                   title="Ver Analytics">
-                                    <i class="fas fa-chart-bar"></i>
-                                </a>
-                            </td>
-                            <?php endif; ?>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+        <div class="container mb-5">
+            <div class="main-card">
+                <h2 class="mb-4">
+                    <i class="bi bi-clock-history me-2"></i>URLs Recientes <?php echo (!$is_logged_in ? '(Públicas)' : ''); ?>
+                </h2>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>URL Original</th>
+                                <th>URL Corta</th>
+                                <th>Clicks</th>
+                                <th>Creada</th>
+                                <?php if ($is_logged_in): ?>
+                                <th>Analytics</th>
+                                <?php endif; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($recent_urls as $url): ?>
+                            <?php
+                            if (!empty($url['custom_domain'])) {
+                                $short_url = "https://" . $url['custom_domain'] . "/" . $url['short_code'];
+                            } else {
+                                $short_url = rtrim(BASE_URL, '/') . '/' . $url['short_code'];
+                            }
+                            ?>
+                            <tr>
+                                <td>
+                                    <div class="text-truncate" style="max-width: 300px;" title="<?php echo htmlspecialchars($url['original_url']); ?>">
+                                        <small class="text-muted"><?php echo htmlspecialchars($url['original_url']); ?></small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <code class="bg-light p-2 rounded"><?php echo htmlspecialchars($short_url); ?></code>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary rounded-pill">
+                                        <?php echo number_format($url['clicks'] ?? 0); ?> clicks
+                                    </span>
+                                </td>
+                                <td class="text-muted">
+                                    <small><?php echo date('d/m H:i', strtotime($url['created_at'])); ?></small>
+                                </td>
+                                <?php if ($is_logged_in): ?>
+                                <td>
+                                    <a href="marcadores/analytics_url.php?url_id=<?php echo $url['id']; ?>" 
+                                       class="btn btn-sm btn-outline-primary" 
+                                       title="Ver Analytics">
+                                        <i class="fas fa-chart-bar"></i>
+                                    </a>
+                                </td>
+                                <?php endif; ?>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <?php endif; ?>
     </div>
     
     <!-- Footer -->
-    <footer class="footer">
-        <p>
-            © <?php echo date('Y'); ?> URL Shortener | 
-            <a href="/privacy">Privacidad</a> | 
-            <a href="https://chromewebstore.google.com/search/gestor%20URLs%20cortas">Extensión</a> |
-            <a href="https://www.youtube.com/watch?v=uaVkiKwUV38">Demo</a> | 
-            <a href="/Aclaraciones">Aclaraciones</a> |
-            <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin">Admin</a>
-        </p>
-    
+    <footer class="text-center text-white py-5 mt-5">
+        <div class="container">
+            <p class="mb-0">
+                © <?php echo date('Y'); ?> URL Shortener | 
+                <a href="/privacy" class="text-white text-decoration-none">Privacidad</a> | 
+                <a href="https://chromewebstore.google.com/search/gestor%20URLs%20cortas" class="text-white text-decoration-none">Extensión</a> |
+                <a href="https://www.youtube.com/watch?v=uaVkiKwUV38" class="text-white text-decoration-none">Demo</a> | 
+                <a href="/Aclaraciones" class="text-white text-decoration-none">Aclaraciones</a> |
+                <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin" class="text-white text-decoration-none">Admin</a>
+            </p>
+        </div>
     </footer>
     
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
     <script>
-        // =====================================================
-        // ANALYTICS INTEGRATION
-        // =====================================================
-
-        // Cargar resumen de analytics al cargar página
+        // Analytics Integration
         document.addEventListener('DOMContentLoaded', function() {
             <?php if ($is_logged_in): ?>
             loadAnalyticsSummary();
             <?php endif; ?>
         });
 
-        // Función para cargar resumen de analytics
         async function loadAnalyticsSummary() {
             try {
                 const response = await fetch('marcadores/api.php?action=analytics_summary');
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Mostrar el widget
                     document.getElementById('analyticsSummary').style.display = 'block';
-                    
-                    // Actualizar números
                     document.getElementById('totalClicks').textContent = formatNumber(data.summary.total_clicks);
                     document.getElementById('uniqueVisitors').textContent = formatNumber(data.summary.unique_visitors);
                     document.getElementById('urlsClicked').textContent = formatNumber(data.summary.urls_clicked);
                     
-                    // Top URL
                     if (data.top_url) {
                         document.getElementById('topUrlClicks').textContent = formatNumber(data.top_url.clicks);
                         document.getElementById('topUrlLabel').textContent = `${data.top_url.short_code} (${data.top_url.clicks} clicks)`;
@@ -1521,16 +1105,14 @@ if ($is_logged_in && $user_id > 1) {
                 }
             } catch (error) {
                 console.error('Error loading analytics:', error);
-                // No mostrar error al usuario, simplemente no mostrar analytics
             }
         }
 
-        // Función para refrescar analytics
         async function refreshAnalytics() {
             const btn = document.getElementById('refreshBtn');
             const originalHTML = btn.innerHTML;
             
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando...';
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Cargando...';
             btn.disabled = true;
             
             await loadAnalyticsSummary();
@@ -1541,7 +1123,6 @@ if ($is_logged_in && $user_id > 1) {
             }, 1000);
         }
 
-        // Función para formatear números
         function formatNumber(num) {
             if (num >= 1000000) {
                 return (num / 1000000).toFixed(1) + 'M';
@@ -1551,37 +1132,40 @@ if ($is_logged_in && $user_id > 1) {
             return num.toString();
         }
         
-        // Toggle advanced options
-        function toggleAdvanced() {
-            const content = document.getElementById('advanced-content');
-            const icon = document.getElementById('toggle-icon');
-            
-            if (content.classList.contains('show')) {
-                content.classList.remove('show');
-                icon.textContent = '▼';
-            } else {
-                content.classList.add('show');
-                icon.textContent = '▲';
-            }
-        }
-        
-        // Copy URL to clipboard
         function copyUrl() {
             const input = document.getElementById('shortened-url');
             input.select();
             document.execCommand('copy');
             
-            const btn = event.target;
-            btn.textContent = '✅ Copiado!';
-            btn.classList.add('copied');
+            const btn = event.target.closest('button');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check-lg me-2"></i>¡Copiado!';
+            btn.classList.add('btn-success');
+            btn.classList.remove('btn-primary');
             
             setTimeout(() => {
-                btn.textContent = '📋 Copiar';
-                btn.classList.remove('copied');
+                btn.innerHTML = originalHTML;
+                btn.classList.add('btn-primary');
+                btn.classList.remove('btn-success');
             }, 2000);
         }
         
-        // Smooth scroll
+        // Auto-focus result URL
+        <?php if (!empty($shortened_url)): ?>
+        window.addEventListener('load', function() {
+            document.getElementById('shortened-url').select();
+        });
+        <?php endif; ?>
+        
+        // Clean URL
+        <?php if (isset($_GET['success'])): ?>
+        if (window.history.replaceState) {
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+        <?php endif; ?>
+        
+        // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -1595,20 +1179,15 @@ if ($is_logged_in && $user_id > 1) {
             });
         });
         
-        // Auto-focus result URL
-        <?php if (!empty($shortened_url)): ?>
-        window.addEventListener('load', function() {
-            document.getElementById('shortened-url').select();
+        // Add navbar background on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar-custom');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(102, 126, 234, 0.95)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.1)';
+            }
         });
-        <?php endif; ?>
-        
-        // Limpiar el parámetro 'success' de la URL para evitar confusión
-        <?php if (isset($_GET['success'])): ?>
-        if (window.history.replaceState) {
-            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            window.history.replaceState({}, document.title, cleanUrl);
-        }
-        <?php endif; ?>
     </script>
 </body>
 </html>
