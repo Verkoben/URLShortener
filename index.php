@@ -797,11 +797,10 @@ if ($is_logged_in && $user_id > 1) {
                     <?php if (!REQUIRE_LOGIN_TO_SHORTEN || $is_logged_in): ?>
                     <!-- Advanced Options -->
                     <div class="mt-4">
-                        <a class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" href="#advancedOptions" role="button">
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedOptions">
                             <i class="bi bi-gear-fill me-2"></i>Opciones avanzadas
                             <i class="bi bi-chevron-down ms-1"></i>
-                        </a>
-                        
+                        </button>                        
                         <div class="collapse mt-3" id="advancedOptions">
                             <div class="row g-3">
                                 <div class="col-md-6">
