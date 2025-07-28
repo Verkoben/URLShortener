@@ -4,26 +4,32 @@ $debug_file = __DIR__ . '/twitter_debug.log';
 $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'No User Agent';
 $request_uri = $_SERVER['REQUEST_URI'] ?? '';
 $timestamp = date('Y-m-d H:i:s');
+
 // Guardar TODOS los accesos
 file_put_contents($debug_file, 
     "$timestamp | URI: $request_uri | UA: $user_agent\n", 
     FILE_APPEND
 );
+
 require_once 'conf.php';
+
 // Obtener el código corto de la URL
 $request_uri = $_SERVER['REQUEST_URI'];
 $short_code = trim($request_uri, '/');
 $short_code = preg_replace('/[^a-zA-Z0-9_-]/', '', $short_code); // Limpiar caracteres no válidos
+
 // DEBUG: Código limpio
 file_put_contents('bot_detection.log', 
     "$timestamp | URI Original: $request_uri | Code Limpio: $short_code\n", 
     FILE_APPEND
 );
+
 // Si no hay código, redirigir al index
 if (empty($short_code)) {
     header('Location: index.php');
     exit();
 }
+
 // Conectar a la base de datos
 try {
     $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
@@ -31,9 +37,11 @@ try {
 } catch(PDOException $e) {
     die("Error de conexión");
 }
+
 // Obtener el dominio desde el que se está accediendo
 $current_domain = $_SERVER['HTTP_HOST'];
 $main_domain = parse_url(BASE_URL, PHP_URL_HOST);
+
 // Buscar la URL con información del dominio asignado
 $stmt = $pdo->prepare("
     SELECT u.*, cd.domain as assigned_domain, cd.user_id as domain_owner
@@ -43,11 +51,13 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$short_code]);
 $url = $stmt->fetch();
+
 // DEBUG: URL encontrada
 file_put_contents('bot_detection.log', 
     "$timestamp | URL encontrada: " . ($url ? "SÍ - " . $url['original_url'] : "NO") . "\n", 
     FILE_APPEND
 );
+
 if ($url) {
     // VERIFICACIÓN DE DOMINIO
     $can_redirect = false;
@@ -171,25 +181,28 @@ if ($url) {
         );
     }
     
-    // Lista ampliada de bots
-    $bot_patterns = [
-        'bot',
-        'crawl', 
-        'spider',
-        'Twitter',
-        'facebook',
-        'WhatsApp',
-        'Telegram',
-        'Slack',
-        'Discord',
-        'LinkedIn',
-        'Pinterest',
-        'Skype',
-        'redditbot',
-        'facebookexternalhit',
-        'Facebot',
-        'curl', // Para testing
-        'wget'  // Para testing
+    // Lista ampliada de bots - AGREGAR WHATSAPP
+// Lista ampliada de bots - MEJORADA
+$bot_patterns = [
+		     'bot',
+		     'crawl', 
+		     'spider',
+		     'Twitter',
+		     'facebook',
+		     'WhatsApp',           // WhatsApp genérico
+		     'WhatsAppBot',        // WhatsApp bot
+		     'facebookexternalhit', // Facebook (dueño de WhatsApp)
+		     'Telegram',
+		     'Slack',
+		     'Discord',
+		     'LinkedIn',
+		     'Pinterest',
+		     'Skype',
+		     'redditbot',
+		     'Facebot',
+		     'curl', // Para testing
+		     'wget'  // Para testing
+		 
     ];
     
     foreach ($bot_patterns as $pattern) {
@@ -200,7 +213,7 @@ if ($url) {
     }
     
     // Forzar modo bot para testing
-    if (isset($_GET['debug_meta']) || isset($_GET['twitter']) || isset($_GET['test'])) {
+    if (isset($_GET['debug_meta']) || isset($_GET['twitter']) || isset($_GET['test']) || isset($_GET['whatsapp'])) {
         $is_bot = true;
     }
     
@@ -319,6 +332,11 @@ if ($url) {
                         $result['description'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
                     }
                     
+                    // Extraer autor/canal
+                    if (preg_match('/<link\s+itemprop=["\']name["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+                        $result['author'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                    }
+                    
                     // Imagen de YouTube
                     $result['image'] = "https://i.ytimg.com/vi/{$video_id}/maxresdefault.jpg";
                     
@@ -329,13 +347,22 @@ if ($url) {
                     }
                     
                     $result['site_name'] = 'YouTube';
+                    
+                    // MEJORAR DESCRIPCIÓN PARA WHATSAPP
+                    $result['title'] = "▶️ " . $result['title'];
+                    if (!empty($result['author'])) {
+                        $result['description'] = "🎥 Video de " . $result['author'] . " • YouTube • Toca para ver";
+                    } else {
+                        $result['description'] = "🎥 Ver video en YouTube • Toca para reproducir";
+                    }
+                    
                     return $result;
                 }
                 
                 // Si falla, usar datos por defecto para YouTube
                 return [
-                    'title' => 'Video de YouTube',
-                    'description' => 'Mira este video en YouTube',
+                    'title' => '▶️ Video de YouTube',
+                    'description' => '🎥 Ver video en YouTube • Toca para reproducir',
                     'image' => "https://i.ytimg.com/vi/{$video_id}/hqdefault.jpg",
                     'type' => 'website',
                     'site_name' => 'YouTube',
@@ -358,132 +385,142 @@ if ($url) {
                     FILE_APPEND
                 );
                 
-                // PRIMERO: Intentar con la API de Dailymotion
-                $api_fields = 'title,description,thumbnail_720_url,thumbnail_480_url,thumbnail_360_url,owner.screenname';
-                $api_url = "https://api.dailymotion.com/video/{$video_id}?fields={$api_fields}";
+                // MÉTODO 1: Usar imagen directa de CDN (más confiable para WhatsApp)
+                $cdn_images = [
+                    "https://s2.dmcdn.net/v/{$video_id}/x720",
+                    "https://s1.dmcdn.net/v/{$video_id}/x720", 
+                    "https://s2.dmcdn.net/v/{$video_id}/x480",
+                    "https://s1.dmcdn.net/v/{$video_id}/x480",
+                    "https://www.dailymotion.com/thumbnail/video/{$video_id}"
+                ];
                 
-                $api_response = @file_get_contents($api_url, false, $context);
-                
-                if ($api_response) {
-                    $api_data = json_decode($api_response, true);
-                    
-                    // Debug: guardar respuesta de API
-                    file_put_contents('dailymotion_debug.txt', 
-                        "API Response: " . json_encode($api_data) . "\n", 
-                        FILE_APPEND
-                    );
-                    
-                    if ($api_data && !isset($api_data['error'])) {
-                        // Obtener la mejor imagen disponible
-                        $image = '';
-                        if (!empty($api_data['thumbnail_720_url'])) {
-                            $image = $api_data['thumbnail_720_url'];
-                        } elseif (!empty($api_data['thumbnail_480_url'])) {
-                            $image = $api_data['thumbnail_480_url'];
-                        } elseif (!empty($api_data['thumbnail_360_url'])) {
-                            $image = $api_data['thumbnail_360_url'];
-                        }
-                        
-                        // Asegurar HTTPS
-                        $image = str_replace('http://', 'https://', $image);
-                        
-                        $result = [
-                            'title' => $api_data['title'] ?? 'Video de Dailymotion',
-                            'description' => $api_data['description'] ?? 'Ver este video en Dailymotion',
-                            'image' => $image,
-                            'type' => 'website',
-                            'site_name' => 'Dailymotion',
-                            'author' => $api_data['owner.screenname'] ?? ''
-                        ];
-                        
-                        // DEBUG: Guardar resultado específico para Dailymotion
-                        file_put_contents('dailymotion_meta_result.json', 
-                            json_encode($result, JSON_PRETTY_PRINT)
+                $working_image = '';
+                foreach ($cdn_images as $img_url) {
+                    $headers = @get_headers($img_url);
+                    if ($headers && strpos($headers[0], '200') !== false) {
+                        $working_image = $img_url;
+                        file_put_contents('dailymotion_debug.txt', 
+                            "CDN imagen encontrada: $img_url\n", 
+                            FILE_APPEND
                         );
+                        break;
+                    }
+                }
+                
+                // MÉTODO 2: Si CDN falla, intentar con la API
+                if (empty($working_image)) {
+                    $api_fields = 'title,description,thumbnail_720_url,thumbnail_480_url,thumbnail_360_url,thumbnail_240_url,thumbnail_180_url,owner.screenname';
+                    $api_url = "https://api.dailymotion.com/video/{$video_id}?fields={$api_fields}";
+                    
+                    $api_response = @file_get_contents($api_url, false, $context);
+                    
+                    if ($api_response) {
+                        $api_data = json_decode($api_response, true);
                         
                         file_put_contents('dailymotion_debug.txt', 
-                            "Resultado final: " . json_encode($result) . "\n\n", 
+                            "API Response: " . json_encode($api_data) . "\n", 
                             FILE_APPEND
                         );
                         
-                        file_put_contents('bot_detection.log', 
-                            date('Y-m-d H:i:s') . " | Dailymotion meta tags generados OK\n", 
-                            FILE_APPEND
-                        );
-                        
-                        return $result;
+                        if ($api_data && !isset($api_data['error'])) {
+                            // Obtener título y descripción
+                            $title = $api_data['title'] ?? 'Video de Dailymotion';
+                            $description = $api_data['description'] ?? 'Ver este video en Dailymotion';
+                            $author = $api_data['owner.screenname'] ?? '';
+                            
+                            // Buscar la mejor imagen disponible
+                            $image_fields = [
+                                'thumbnail_720_url',
+                                'thumbnail_480_url', 
+                                'thumbnail_360_url',
+                                'thumbnail_240_url',
+                                'thumbnail_180_url'
+                            ];
+                            
+                            foreach ($image_fields as $field) {
+                                if (!empty($api_data[$field])) {
+                                    $working_image = $api_data[$field];
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
                 
-                // SEGUNDO: Si la API falla, intentar con el HTML
-                file_put_contents('dailymotion_debug.txt', 
-                    "API falló, intentando con HTML...\n", 
-                    FILE_APPEND
-                );
-                
-                $html = @file_get_contents($url_to_fetch, false, $context, 0, 200000);
-                
-                if ($html) {
-                    $result = $default;
+                // MÉTODO 3: Si todo falla, scraping del HTML
+                if (empty($working_image)) {
+                    $html = @file_get_contents($url_to_fetch, false, $context, 0, 300000);
                     
-                    // Buscar JSON-LD primero (más confiable)
-                    if (preg_match('/<script[^>]*type=["\']application\/ld\+json["\'][^>]*>(.*?)<\/script>/is', $html, $json_matches)) {
-                        $json_data = json_decode($json_matches[1], true);
-                        if ($json_data) {
-                            if (isset($json_data['name'])) $result['title'] = $json_data['name'];
-                            if (isset($json_data['description'])) $result['description'] = $json_data['description'];
-                            if (isset($json_data['thumbnailUrl'])) $result['image'] = $json_data['thumbnailUrl'];
-                        }
-                    }
-                    
-                    // Fallback a meta tags
-                    if (empty($result['title'])) {
-                        if (preg_match('/<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                            $result['title'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                        }
-                    }
-                    
-                    if (empty($result['description'])) {
-                        if (preg_match('/<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                            $result['description'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                        }
-                    }
-                    
-                    if (empty($result['image'])) {
+                    if ($html) {
+                        // Buscar en el HTML
                         if (preg_match('/<meta\s+property=["\']og:image["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                            $result['image'] = $matches[1];
+                            $working_image = $matches[1];
                         }
-                    }
-                    
-                    // Asegurar HTTPS
-                    if (!empty($result['image'])) {
-                        $result['image'] = str_replace('http://', 'https://', $result['image']);
-                    }
-                    
-                    $result['site_name'] = 'Dailymotion';
-                    
-                    if (!empty($result['title']) && !empty($result['image'])) {
-                        return $result;
+                        
+                        // Buscar JSON-LD
+                        if (empty($working_image) && preg_match('/<script[^>]*type=["\']application\/ld\+json["\'][^>]*>(.*?)<\/script>/is', $html, $json_matches)) {
+                            $json_data = json_decode($json_matches[1], true);
+                            if ($json_data && isset($json_data['thumbnailUrl'])) {
+                                $working_image = $json_data['thumbnailUrl'];
+                            }
+                        }
+                        
+                        // Extraer título si no lo tenemos
+                        if (!isset($title)) {
+                            if (preg_match('/<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+                                $title = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                            }
+                        }
                     }
                 }
                 
-                // Si todo falla, usar datos por defecto
-                file_put_contents('dailymotion_debug.txt', 
-                    "Todo falló, usando datos por defecto\n\n", 
-                    FILE_APPEND
-                );
+                // MÉTODO 4: Imagen por defecto garantizada
+                if (empty($working_image)) {
+                    // Usar la imagen estática de Dailymotion que siempre funciona
+                    $working_image = "https://static1.dmcdn.net/images/dailymotion-logo-ogtag.png";
+                }
                 
-                return [
-                    'title' => 'Video de Dailymotion',
-                    'description' => 'Ver este video en Dailymotion',
-                    'image' => "https://www.dailymotion.com/thumbnail/video/{$video_id}",
+                // Asegurar HTTPS y limpiar URL
+                $working_image = str_replace('http://', 'https://', $working_image);
+                $working_image = str_replace('&amp;', '&', $working_image);
+                
+                // Construir resultado
+                $result = [
+                    'title' => isset($title) ? $title : 'Video de Dailymotion',
+                    'description' => isset($description) ? $description : 'Ver video en Dailymotion',
+                    'image' => $working_image,
                     'type' => 'website',
                     'site_name' => 'Dailymotion',
-                    'author' => ''
+                    'author' => isset($author) ? $author : ''
                 ];
+                
+                // MEJORAR DESCRIPCIÓN PARA WHATSAPP
+                $result['title'] = "▶️ " . $result['title'];
+                if (!empty($result['author'])) {
+                    $result['description'] = "🎬 Video de " . $result['author'] . " • Dailymotion • Toca para ver";
+                } else {
+                    $result['description'] = "🎬 Ver video en Dailymotion • Toca para reproducir";
+                }
+                
+                // DEBUG: Guardar resultado final
+                file_put_contents('dailymotion_meta_result.json', 
+                    json_encode($result, JSON_PRETTY_PRINT)
+                );
+                
+                file_put_contents('dailymotion_debug.txt', 
+                    "Resultado final: " . json_encode($result) . "\n\n", 
+                    FILE_APPEND
+                );
+                
+                file_put_contents('bot_detection.log', 
+                    date('Y-m-d H:i:s') . " | Dailymotion meta tags generados OK | Imagen: " . $result['image'] . "\n", 
+                    FILE_APPEND
+                );
+                
+                return $result;
             }
             
-            // TIKTOK - DETECCIÓN Y EXTRACCIÓN MEJORADA CON MÚLTIPLES MÉTODOS
+            // TIKTOK - DETECCIÓN Y EXTRACCIÓN MEJORADA PARA WHATSAPP
             if (preg_match('/(?:tiktok\.com\/@([\w\.-]+)\/video\/|tiktok\.com\/v\/|vm\.tiktok\.com\/)(\d+)/', $url_to_fetch, $matches)) {
                 $username = isset($matches[1]) ? $matches[1] : '';
                 $video_id = isset($matches[2]) ? $matches[2] : $matches[1];
@@ -499,127 +536,185 @@ if ($url) {
                 $description = 'Mira este video en TikTok';
                 $author = "@{$username}";
                 
-                // MÉTODO 1: Intentar obtener miniatura directa de TikTok CDN
-                $thumbnail_urls = [
-                    "https://p16-sign.tiktokcdn-us.com/obj/tos-maliva-p-0068/{$video_id}~tplv-dmt-logom:tos-useast5-p-0068/image.jpeg",
-                    "https://p16-sign-sg.tiktokcdn.com/obj/tos-alisg-p-0037/{$video_id}~tplv-dmt-logom:tos-alisg-p-0037/image.jpeg",
-                    "https://p77-sign-va.tiktokcdn.com/obj/{$video_id}~tplv-noop.image",
-                    "https://p16-sign-va.tiktokcdn.com/tos-maliva-p-0068/{$video_id}~tplv-dmt-logom:tos-maliva-p-0000/image.jpeg",
-                    "https://p16-sign-va.tiktokcdn.com/tos-maliva-p-0068/{$video_id}~c5_300x400.jpeg",
-                    "https://p16-sign-sg.tiktokcdn.com/tos-alisg-p-0037/{$video_id}~c5_720x720.jpeg"
-                ];
+                // MÉTODO 1: Usar oEmbed API de TikTok (MÁS CONFIABLE)
+                $oembed_url = "https://www.tiktok.com/oembed?url=" . urlencode($url_to_fetch);
                 
-                foreach ($thumbnail_urls as $thumb_url) {
-                    $headers = @get_headers($thumb_url);
-                    if ($headers && strpos($headers[0], '200') !== false) {
-                        $working_thumbnail = $thumb_url;
+                // Contexto especial para TikTok
+                $tiktok_context = stream_context_create([
+                    'http' => [
+                        'timeout' => 15,
+                        'user_agent' => 'Mozilla/5.0 (compatible; WhatsApp/2.0; +http://www.whatsapp.com/contact)',
+                        'follow_location' => true,
+                        'header' => [
+                            "Accept: application/json",
+                            "Accept-Language: es-ES,es;q=0.9,en;q=0.8",
+                            "Cache-Control: no-cache",
+                            "Referer: https://www.tiktok.com/"
+                        ]
+                    ],
+                    'ssl' => [
+                        'verify_peer' => false,
+                        'verify_peer_name' => false
+                    ]
+                ]);
+                
+                $oembed_response = @file_get_contents($oembed_url, false, $tiktok_context);
+                
+                if ($oembed_response) {
+                    $oembed_data = json_decode($oembed_response, true);
+                    
+                    file_put_contents('tiktok_debug.txt', 
+                        date('Y-m-d H:i:s') . " | oEmbed response: " . json_encode($oembed_data) . "\n", 
+                        FILE_APPEND
+                    );
+                    
+                    if ($oembed_data && isset($oembed_data['thumbnail_url'])) {
+                        $working_thumbnail = $oembed_data['thumbnail_url'];
+                        
+                        // Actualizar título y autor si están disponibles
+                        if (isset($oembed_data['title'])) {
+                            $title = $oembed_data['title'];
+                        }
+                        if (isset($oembed_data['author_name'])) {
+                            $author = $oembed_data['author_name'];
+                            if (strpos($author, '@') !== 0) {
+                                $author = '@' . $author;
+                            }
+                        }
+                        
                         file_put_contents('tiktok_debug.txt', 
-                            date('Y-m-d H:i:s') . " | Thumbnail encontrado en CDN: $thumb_url\n", 
+                            date('Y-m-d H:i:s') . " | oEmbed thumbnail encontrado: $working_thumbnail\n", 
                             FILE_APPEND
                         );
-                        break;
                     }
                 }
                 
-                // MÉTODO 2: Si falla, intentar con OEmbed API de TikTok
+                // MÉTODO 2: Si oEmbed falla, usar Web Scraping
                 if (empty($working_thumbnail)) {
-                    $oembed_url = "https://www.tiktok.com/oembed?url=" . urlencode($url_to_fetch);
-                    $oembed_response = @file_get_contents($oembed_url, false, $context);
+                    file_put_contents('tiktok_debug.txt', 
+                        date('Y-m-d H:i:s') . " | oEmbed falló, intentando scraping...\n", 
+                        FILE_APPEND
+                    );
                     
-                    if ($oembed_response) {
-                        $oembed_data = json_decode($oembed_response, true);
-                        if ($oembed_data) {
-                            // Actualizar datos si están disponibles
-                            if (isset($oembed_data['title'])) {
-                                $title = $oembed_data['title'];
-                            }
-                            if (isset($oembed_data['author_name'])) {
-                                $author = $oembed_data['author_name'];
-                                $description = 'Video de @' . $oembed_data['author_name'] . ' en TikTok';
-                            }
-                            if (isset($oembed_data['thumbnail_url'])) {
-                                $working_thumbnail = $oembed_data['thumbnail_url'];
-                            }
-                            
-                            // Si no hay thumbnail pero hay HTML, intentar extraerla
-                            if (empty($working_thumbnail) && isset($oembed_data['html'])) {
-                                if (preg_match('/poster="([^"]+)"/', $oembed_data['html'], $poster_matches)) {
-                                    $working_thumbnail = $poster_matches[1];
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // MÉTODO 3: Scraping del HTML como último recurso
-                if (empty($working_thumbnail)) {
-                    $html = @file_get_contents($url_to_fetch, false, $context, 0, 500000);
+                    // Contexto para scraping
+                    $scraping_context = stream_context_create([
+                        'http' => [
+                            'timeout' => 20,
+                            'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                            'follow_location' => true,
+                            'header' => [
+                                "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                                "Accept-Language: es-ES,es;q=0.9,en;q=0.8",
+                                "Accept-Encoding: gzip, deflate, br",
+                                "DNT: 1",
+                                "Connection: keep-alive",
+                                "Upgrade-Insecure-Requests: 1"
+                            ]
+                        ],
+                        'ssl' => [
+                            'verify_peer' => false,
+                            'verify_peer_name' => false
+                        ]
+                    ]);
+                    
+                    $html = @file_get_contents($url_to_fetch, false, $scraping_context);
                     
                     if ($html) {
-                        // Buscar en el HTML diferentes patrones de imagen
-                        $image_patterns = [
-                            '/"thumbnailUrl":\["([^"]+)"/',
-                            '/property="og:image"\s+content="([^"]+)"/',
-                            '/"cover":"([^"]+)"/',
-                            '/"dynamicCover":"([^"]+)"/',
-                            '/"originCover":"([^"]+)"/',
-                            '/poster="([^"]+)"/',
-                            '/"imageUrl":"([^"]+)"/',
-                            '/"coverLarge":"([^"]+)"/',
-                            '/"coverMedium":"([^"]+)"/'
-                        ];
-                        
-                        foreach ($image_patterns as $pattern) {
-                            if (preg_match($pattern, $html, $img_matches)) {
-                                $potential_image = $img_matches[1];
-                                // Decodificar URLs escapadas
-                                $potential_image = str_replace('\\u002F', '/', $potential_image);
-                                $potential_image = str_replace('\/', '/', $potential_image);
-                                $potential_image = str_replace('\\u0026', '&', $potential_image);
-                                
-                                if (filter_var($potential_image, FILTER_VALIDATE_URL)) {
-                                    $working_thumbnail = $potential_image;
-                                    file_put_contents('tiktok_debug.txt', 
-                                        date('Y-m-d H:i:s') . " | Thumbnail encontrado por scraping: $potential_image\n", 
-                                        FILE_APPEND
-                                    );
-                                    break;
-                                }
-                            }
+                        // Si está comprimido con gzip
+                        if (substr($html, 0, 2) === "\x1f\x8b") {
+                            $html = gzdecode($html);
                         }
                         
-                        // Intentar obtener título y descripción del HTML si aún no los tenemos
-                        if ($title === "@{$username} en TikTok") {
-                            if (preg_match('/<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                                $title = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                            }
+                        // Buscar Open Graph image
+                        if (preg_match('/<meta\s+property=["\']og:image["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+                            $working_thumbnail = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                            file_put_contents('tiktok_debug.txt', 
+                                date('Y-m-d H:i:s') . " | OG image encontrada: $working_thumbnail\n", 
+                                FILE_APPEND
+                            );
                         }
                         
-                        if ($description === 'Mira este video en TikTok') {
-                            if (preg_match('/<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                                $description = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        // Buscar título
+                        if (preg_match('/<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+                            $title = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        }
+                        
+                        // Buscar descripción
+                        if (preg_match('/<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+                            $og_desc = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                            // Extraer el username de la descripción si es posible
+                            if (preg_match('/@([\w\.-]+)/', $og_desc, $user_matches)) {
+                                $author = '@' . $user_matches[1];
                             }
                         }
                     }
+                }
+                
+                // MÉTODO 3: URLs de CDN directas (último recurso)
+                if (empty($working_thumbnail) && $video_id) {
+                    $cdn_patterns = [
+                        "https://p16-sign-sg.tiktokcdn.com/obj/tos-alisg-p-0037/{$video_id}~c5_300x400.jpeg",
+                        "https://p16-sign-va.tiktokcdn.com/obj/tos-maliva-p-0068/{$video_id}~c5_300x400.jpeg",
+                        "https://p16-sign.tiktokcdn-us.com/obj/tos-useast5-p-0068/{$video_id}~c5_300x400.jpeg",
+                        "https://p77-sign-va.tiktokcdn.com/obj/{$video_id}~tplv-photomode-image.jpeg",
+                        "https://p16-sign-va.tiktokcdn.com/tos-maliva-p-0068/{$video_id}~tplv-dmt-logom:tos-maliva-p-0000/image.jpeg"
+                    ];
+                    
+                    foreach ($cdn_patterns as $cdn_url) {
+                        $headers = @get_headers($cdn_url);
+                        if ($headers && strpos($headers[0], '200') !== false) {
+                            $working_thumbnail = $cdn_url;
+                            file_put_contents('tiktok_debug.txt', 
+                                date('Y-m-d H:i:s') . " | CDN thumbnail encontrado: $cdn_url\n", 
+                                FILE_APPEND
+                            );
+                            break;
+                        }
+                    }
+                }
+                
+                // MÉTODO 4: Si todo falla, usar imagen por defecto de TikTok
+                if (empty($working_thumbnail)) {
+                    // Logo de TikTok como fallback
+                    $working_thumbnail = "https://p16-tiktokcdn-com.akamaized.net/obj/tiktok-obj/1663270619667490.png";
+                    file_put_contents('tiktok_debug.txt', 
+                        date('Y-m-d H:i:s') . " | Usando imagen por defecto\n", 
+                        FILE_APPEND
+                    );
+                }
+                
+                // Asegurar HTTPS y limpiar URL
+                // Asegurar HTTPS y limpiar URL
+                $working_thumbnail = str_replace('http://', 'https://', $working_thumbnail);
+		$working_thumbnail = str_replace('&amp;', '&', $working_thumbnail);
+		$working_thumbnail = html_entity_decode($working_thumbnail); // <-- AÑADE ESTA LÍNEA
+                
+                // Si es una URL relativa, hacerla absoluta
+                if (strpos($working_thumbnail, '//') === 0) {
+                    $working_thumbnail = 'https:' . $working_thumbnail;
                 }
                 
                 // Preparar resultado
                 $result = [
                     'title' => $title,
                     'description' => $description,
-                    'image' => $working_thumbnail ?: 'https://www.tiktok.com/favicon.ico',
+                    'image' => $working_thumbnail,
                     'type' => 'video',
                     'site_name' => 'TikTok',
                     'author' => $author
                 ];
                 
-                // Asegurar HTTPS
-                if (!empty($result['image'])) {
-                    $result['image'] = str_replace('http://', 'https://', $result['image']);
-                }
+                // MEJORAR DESCRIPCIÓN PARA WHATSAPP
+                $result['title'] = "▶️ " . $result['title'];
+                $result['description'] = "🎵 Video de " . $author . " • TikTok • Toca para ver";
+                
+                // Debug final
+                file_put_contents('tiktok_meta_result.json', 
+                    json_encode($result, JSON_PRETTY_PRINT)
+                );
                 
                 file_put_contents('tiktok_debug.txt', 
-                    date('Y-m-d H:i:s') . " | TikTok resultado final: " . json_encode($result) . "\n", 
+                    date('Y-m-d H:i:s') . " | TikTok resultado final: " . json_encode($result) . "\n\n", 
                     FILE_APPEND
                 );
                 
@@ -651,6 +746,14 @@ if ($url) {
                             'author' => $oembed_data['author_name'] ?? ''
                         ];
                         
+                        // MEJORAR DESCRIPCIÓN PARA WHATSAPP
+                        if (strpos($url_to_fetch, '/reel/') !== false) {
+                            $result['title'] = "▶️ " . $result['title'];
+                            $result['description'] = "🎬 Reel de @" . $result['author'] . " • Instagram • Toca para ver";
+                        } else {
+                            $result['description'] = "📷 Post de @" . $result['author'] . " • Instagram • Toca para ver";
+                        }
+                        
                         file_put_contents('instagram_debug.txt', 
                             date('Y-m-d H:i:s') . " | Instagram OEmbed exitoso: " . json_encode($result) . "\n", 
                             FILE_APPEND
@@ -681,13 +784,21 @@ if ($url) {
                     
                     $result['site_name'] = 'Instagram';
                     
+                    // MEJORAR DESCRIPCIÓN
+                    if (strpos($url_to_fetch, '/reel/') !== false) {
+                        $result['title'] = "▶️ " . $result['title'];
+                        $result['description'] = "🎬 Ver Reel en Instagram • Toca para abrir";
+                    } else {
+                        $result['description'] = "📷 Ver en Instagram • Toca para abrir";
+                    }
+                    
                     return $result;
                 }
                 
                 // Si falla, datos por defecto
                 return [
-                    'title' => 'Post de Instagram',
-                    'description' => 'Ver este contenido en Instagram',
+                    'title' => strpos($url_to_fetch, '/reel/') !== false ? '▶️ Reel de Instagram' : 'Post de Instagram',
+                    'description' => strpos($url_to_fetch, '/reel/') !== false ? '🎬 Ver Reel en Instagram • Toca para abrir' : '📷 Ver en Instagram • Toca para abrir',
                     'image' => '',
                     'type' => 'video',
                     'site_name' => 'Instagram',
@@ -720,6 +831,14 @@ if ($url) {
                             'author' => $oembed_data['author_name'] ?? ''
                         ];
                         
+                        // MEJORAR DESCRIPCIÓN PARA WHATSAPP
+                        $result['title'] = "▶️ " . $result['title'];
+                        if (!empty($result['author'])) {
+                            $result['description'] = "🎞️ Video de " . $result['author'] . " • Vimeo • Toca para ver";
+                        } else {
+                            $result['description'] = "🎞️ Ver video en Vimeo • Toca para reproducir";
+                        }
+                        
                         file_put_contents('vimeo_debug.txt', 
                             date('Y-m-d H:i:s') . " | Vimeo OEmbed exitoso: " . json_encode($result) . "\n", 
                             FILE_APPEND
@@ -731,8 +850,8 @@ if ($url) {
                 
                 // Si falla, usar datos por defecto
                 return [
-                    'title' => 'Video de Vimeo',
-                    'description' => 'Ver este video en Vimeo',
+                    'title' => '▶️ Video de Vimeo',
+                    'description' => '🎞️ Ver video en Vimeo • Toca para reproducir',
                     'image' => "https://i.vimeocdn.com/video/{$video_id}_1280x720.jpg",
                     'type' => 'video',
                     'site_name' => 'Vimeo',
@@ -776,6 +895,9 @@ if ($url) {
                     $result['site_name'] = 'Pinterest';
                     $result['type'] = 'article'; // Pinterest usa article type
                     
+                    // MEJORAR DESCRIPCIÓN PARA WHATSAPP
+                    $result['description'] = "📌 " . mb_substr($result['description'], 0, 100) . "... • Pinterest • Toca para ver";
+                    
                     file_put_contents('pinterest_debug.txt', 
                         date('Y-m-d H:i:s') . " | Pinterest meta tags: " . json_encode($result) . "\n", 
                         FILE_APPEND
@@ -787,7 +909,7 @@ if ($url) {
                 // Si falla, usar datos por defecto
                 return [
                     'title' => 'Pin de Pinterest',
-                    'description' => 'Ver este pin en Pinterest',
+                    'description' => '📌 Ver este pin en Pinterest • Toca para abrir',
                     'image' => '',
                     'type' => 'article',
                     'site_name' => 'Pinterest',
@@ -854,6 +976,10 @@ if ($url) {
                             'author' => ''
                         ];
                         
+                        // MEJORAR DESCRIPCIÓN PARA WHATSAPP
+                        $result['title'] = "💬 " . $result['title'];
+                        $result['description'] = $result['description'] . " • Toca para unirte";
+                        
                         file_put_contents('discord_debug.txt', 
                             date('Y-m-d H:i:s') . " | Discord API exitosa: " . json_encode($result) . "\n", 
                             FILE_APPEND
@@ -884,13 +1010,17 @@ if ($url) {
                     
                     $result['site_name'] = 'Discord';
                     
+                    // MEJORAR DESCRIPCIÓN
+                    $result['title'] = "💬 " . $result['title'];
+                    $result['description'] = $result['description'] . " • Toca para unirte";
+                    
                     return $result;
                 }
                 
                 // Si todo falla, usar datos por defecto
                 return [
-                    'title' => 'Invitación a Discord',
-                    'description' => 'Únete a este servidor en Discord',
+                    'title' => '💬 Invitación a Discord',
+                    'description' => 'Únete a este servidor en Discord • Toca para unirte',
                     'image' => 'https://discord.com/assets/2c21aeda16de354ba5334551a883b481.png',
                     'type' => 'website',
                     'site_name' => 'Discord',
@@ -961,6 +1091,24 @@ if ($url) {
                             'author' => $author
                         ];
                         
+                        // MEJORAR DESCRIPCIÓN SEGÚN TIPO PARA WHATSAPP
+                        if ($spotify_type === 'track') {
+                            $result['description'] = "🎵 " . $result['description'] . " • Toca para escuchar";
+                            $result['title'] = "♫ " . $result['title'];
+                        } elseif ($spotify_type === 'album') {
+                            $result['description'] = "💿 " . $result['description'] . " • Toca para escuchar";
+                            $result['title'] = "💿 " . $result['title'];
+                        } elseif ($spotify_type === 'playlist') {
+                            $result['description'] = "📝 " . $result['description'] . " • Toca para abrir";
+                            $result['title'] = "🎶 " . $result['title'];
+                        } elseif ($spotify_type === 'episode') {
+                            $result['description'] = "🎙️ " . $result['description'] . " • Toca para escuchar";
+                            $result['title'] = "🎙️ " . $result['title'];
+                        } elseif ($spotify_type === 'artist') {
+                            $result['description'] = "👤 " . $result['description'] . " • Toca para ver";
+                            $result['title'] = "🎤 " . $result['title'];
+                        }
+                        
                         file_put_contents('spotify_debug.txt', 
                             date('Y-m-d H:i:s') . " | Spotify oEmbed exitoso: " . json_encode($result) . "\n", 
                             FILE_APPEND
@@ -999,15 +1147,20 @@ if ($url) {
                     
                     // Mejorar descripción basada en tipo
                     if ($spotify_type === 'track' && !empty($result['author'])) {
-                        $result['description'] = $result['author'] . ' • Canción • Spotify';
+                        $result['description'] = "🎵 " . $result['author'] . ' • Canción • Spotify • Toca para escuchar';
+                        $result['title'] = "♫ " . $result['title'];
                     } elseif ($spotify_type === 'album' && !empty($result['author'])) {
-                        $result['description'] = $result['author'] . ' • Álbum • Spotify';
+                        $result['description'] = "💿 " . $result['author'] . ' • Álbum • Spotify • Toca para escuchar';
+                        $result['title'] = "💿 " . $result['title'];
                     } elseif ($spotify_type === 'playlist') {
-                        $result['description'] = 'Playlist • Spotify';
+                        $result['description'] = '📝 Playlist • Spotify • Toca para abrir';
+                        $result['title'] = "🎶 " . $result['title'];
                     } elseif ($spotify_type === 'episode') {
-                        $result['description'] = 'Podcast • Spotify';
+                        $result['description'] = '🎙️ Podcast • Spotify • Toca para escuchar';
+                        $result['title'] = "🎙️ " . $result['title'];
                     } elseif ($spotify_type === 'artist') {
-                        $result['description'] = 'Artista • Spotify';
+                        $result['description'] = '👤 Artista • Spotify • Toca para ver';
+                        $result['title'] = "🎤 " . $result['title'];
                     }
                     
                     return $result;
@@ -1022,191 +1175,270 @@ if ($url) {
                     'artist' => 'Artista'
                 ];
                 
+                $type_emojis = [
+                    'track' => ['title' => '♫', 'desc' => '🎵'],
+                    'album' => ['title' => '💿', 'desc' => '💿'],
+                    'playlist' => ['title' => '🎶', 'desc' => '📝'],
+                    'episode' => ['title' => '🎙️', 'desc' => '🎙️'],
+                    'artist' => ['title' => '🎤', 'desc' => '👤']
+                ];
+                
+                $emoji = $type_emojis[$spotify_type] ?? ['title' => '🎵', 'desc' => '🎵'];
+                
                 return [
-                    'title' => ($type_names[$spotify_type] ?? 'Contenido') . ' de Spotify',
-                    'description' => ($type_names[$spotify_type] ?? 'Contenido') . ' • Spotify',
+                    'title' => $emoji['title'] . ' ' . ($type_names[$spotify_type] ?? 'Contenido') . ' de Spotify',
+                    'description' => $emoji['desc'] . ' ' . ($type_names[$spotify_type] ?? 'Contenido') . ' • Spotify • Toca para escuchar',
                     'image' => 'https://developer.spotify.com/images/guidelines/design/icon3@2x.png',
                     'type' => 'music',
-                    'site_name' => 'open.spotify.com',
-                    'author' => ''
-                ];
-            }
-            
-            // PARA CUALQUIER OTRA URL (periódicos, blogs, etc.)
-            file_put_contents('bot_detection.log', 
-                date('Y-m-d H:i:s') . " | URL genérica: $url_to_fetch\n", 
-                FILE_APPEND
-            );
-            
-            $html = @file_get_contents($url_to_fetch, false, $context, 0, 200000);
-            
-            if (!$html) {
-                file_put_contents('bot_detection.log', 
-                    date('Y-m-d H:i:s') . " | ERROR: No se pudo obtener HTML\n", 
-                    FILE_APPEND
-                );
-                return $default;
-            }
-            
-            $result = $default;
-            
-            // Extraer meta tags estándar
-            // Título
-            if (preg_match('/<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                $result['title'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            } elseif (preg_match('/<meta\s+name=["\']twitter:title["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                $result['title'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            } elseif (preg_match('/<title[^>]*>(.*?)<\/title>/is', $html, $matches)) {
-                $result['title'] = html_entity_decode(trim(strip_tags($matches[1])), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            }
-            
-            // Descripción
-            if (preg_match('/<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                $result['description'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            } elseif (preg_match('/<meta\s+name=["\']twitter:description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                $result['description'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            } elseif (preg_match('/<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                $result['description'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            }
-            
-            // Imagen
-            if (preg_match('/<meta\s+property=["\']og:image["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                $result['image'] = $matches[1];
-            } elseif (preg_match('/<meta\s+name=["\']twitter:image["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                $result['image'] = $matches[1];
-            }
-            
-            // Convertir imagen a URL absoluta si es necesario
-            if (!empty($result['image']) && !filter_var($result['image'], FILTER_VALIDATE_URL)) {
-                $parsed = parse_url($url_to_fetch);
-                $base = $parsed['scheme'] . '://' . $parsed['host'];
-                if (strpos($result['image'], '/') === 0) {
-                    $result['image'] = $base . $result['image'];
-                } else {
-                    $result['image'] = $base . '/' . $result['image'];
-                }
-            }
-            
-            // Forzar HTTPS para Twitter
-            if (!empty($result['image'])) {
-                $result['image'] = str_replace('http://', 'https://', $result['image']);
-            }
-            
-            // Nombre del sitio
-            if (preg_match('/<meta\s+property=["\']og:site_name["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
-                $result['site_name'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            }
-            
-            // Limitar longitudes para Twitter
-            if (strlen($result['title']) > 70) {
-                $result['title'] = mb_substr($result['title'], 0, 67) . '...';
-            }
-            if (strlen($result['description']) > 200) {
-                $result['description'] = mb_substr($result['description'], 0, 197) . '...';
-            }
-            
-            file_put_contents('bot_detection.log', 
-                date('Y-m-d H:i:s') . " | Meta tags extraídos: " . json_encode($result) . "\n", 
-                FILE_APPEND
-            );
-            
-            return $result;
-        }
-        
-        // Intentar obtener meta tags con manejo de errores
-        try {
-            file_put_contents('bot_detection.log', 
-                "$timestamp | Llamando a getMetaTags...\n", 
-                FILE_APPEND
-            );
-            
-            $meta_tags = getMetaTags($url['original_url']);
-            
-            file_put_contents('bot_detection.log', 
-                "$timestamp | getMetaTags completado exitosamente\n", 
-                FILE_APPEND
-            );
-            
-            // Debug - guardar qué meta tags estamos enviando
-            $debug_data = [
-                'timestamp' => date('Y-m-d H:i:s'),
-                'url_original' => $url['original_url'],
-                'short_code' => $short_code,
-                'meta_tags' => $meta_tags,
-                'user_agent' => $user_agent,
-                'is_bot' => $is_bot,
-                'is_twitter' => stripos($user_agent, 'Twitter') !== false,
-                'video_platform' => $video_platform,
-                'video_id' => $video_id,
-                'spotify_type' => $spotify_type
-            ];
-            
-            $json_result = file_put_contents('twitter_meta_debug.json', json_encode($debug_data, JSON_PRETTY_PRINT));
-            
-            file_put_contents('bot_detection.log', 
-                "$timestamp | twitter_meta_debug.json escrito: " . ($json_result !== false ? "OK ($json_result bytes)" : "FALLO") . "\n", 
-                FILE_APPEND
-            );
-            
-        } catch (Exception $e) {
-            file_put_contents('error_log.txt', 
-                "$timestamp | Error en getMetaTags: " . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n", 
-                FILE_APPEND
-            );
-            
-            file_put_contents('bot_detection.log', 
-                "$timestamp | EXCEPCIÓN en getMetaTags: " . $e->getMessage() . "\n", 
-                FILE_APPEND
-            );
-            
-            // Usar valores por defecto si hay error
-            $meta_tags = [
-                'title' => 'Ver contenido',
-                'description' => 'Haz clic para ver el contenido completo',
-                'image' => '',
-                'type' => 'website',
-                'site_name' => '',
-                'author' => ''
-            ];
-        }
-        
-        // Construir la URL corta completa
-        $short_url = 'https://' . $current_domain . '/' . $short_code;
-        
-        // Headers importantes
-        header('Content-Type: text/html; charset=utf-8');
-        header('Cache-Control: no-cache, no-store, must-revalidate');
-        header('Pragma: no-cache');
-        header('Expires: 0');
-        
-        file_put_contents('bot_detection.log', 
-            "$timestamp | Generando HTML con meta tags...\n", 
-            FILE_APPEND
-        );
-        
-        // IMPORTANTE: No debe haber NADA antes de <!DOCTYPE html>
+'site_name' => 'open.spotify.com',
+                   'author' => ''
+               ];
+           }
+           
+           // PARA CUALQUIER OTRA URL (periódicos, blogs, etc.)
+           file_put_contents('bot_detection.log', 
+               date('Y-m-d H:i:s') . " | URL genérica: $url_to_fetch\n", 
+               FILE_APPEND
+           );
+           
+           $html = @file_get_contents($url_to_fetch, false, $context, 0, 200000);
+           
+           if (!$html) {
+               file_put_contents('bot_detection.log', 
+                   date('Y-m-d H:i:s') . " | ERROR: No se pudo obtener HTML\n", 
+                   FILE_APPEND
+               );
+               return $default;
+           }
+           
+           $result = $default;
+           
+           // Extraer meta tags estándar
+           // Título
+           if (preg_match('/<meta\s+property=["\']og:title["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+               $result['title'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+           } elseif (preg_match('/<meta\s+name=["\']twitter:title["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+               $result['title'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+           } elseif (preg_match('/<title[^>]*>(.*?)<\/title>/is', $html, $matches)) {
+               $result['title'] = html_entity_decode(trim(strip_tags($matches[1])), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+           }
+           
+           // Descripción
+           if (preg_match('/<meta\s+property=["\']og:description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+               $result['description'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+           } elseif (preg_match('/<meta\s+name=["\']twitter:description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+               $result['description'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+           } elseif (preg_match('/<meta\s+name=["\']description["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+               $result['description'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+           }
+           
+           // Imagen
+           if (preg_match('/<meta\s+property=["\']og:image["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+               $result['image'] = $matches[1];
+           } elseif (preg_match('/<meta\s+name=["\']twitter:image["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+               $result['image'] = $matches[1];
+           }
+           
+           // Convertir imagen a URL absoluta si es necesario
+           if (!empty($result['image']) && !filter_var($result['image'], FILTER_VALIDATE_URL)) {
+               $parsed = parse_url($url_to_fetch);
+               $base = $parsed['scheme'] . '://' . $parsed['host'];
+               if (strpos($result['image'], '/') === 0) {
+                   $result['image'] = $base . $result['image'];
+               } else {
+                   $result['image'] = $base . '/' . $result['image'];
+               }
+           }
+           
+           // Forzar HTTPS para Twitter
+           if (!empty($result['image'])) {
+               $result['image'] = str_replace('http://', 'https://', $result['image']);
+           }
+           
+           // Nombre del sitio
+           if (preg_match('/<meta\s+property=["\']og:site_name["\']\s+content=["\'](.*?)["\']/i', $html, $matches)) {
+               $result['site_name'] = html_entity_decode($matches[1], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+           }
+           
+           // MEJORAR DESCRIPCIÓN PARA WHATSAPP - URLs GENÉRICAS
+           // Limitar descripción y agregar call to action
+           if (strlen($result['description']) > 120) {
+               $result['description'] = mb_substr($result['description'], 0, 117) . "...";
+           }
+           
+           // Agregar indicador según el tipo de sitio
+           $domain_lower = strtolower($url_to_fetch);
+           
+           // Detectar tipo de contenido por dominio/título
+           if (stripos($result['title'], 'news') !== false || 
+               stripos($result['site_name'], 'news') !== false ||
+               stripos($result['site_name'], 'times') !== false ||
+               stripos($domain_lower, 'elpais') !== false ||
+               stripos($domain_lower, 'elmundo') !== false ||
+               stripos($domain_lower, 'lavanguardia') !== false ||
+               stripos($domain_lower, 'abc.es') !== false ||
+               stripos($domain_lower, 'bbc.com') !== false ||
+               stripos($domain_lower, 'cnn.com') !== false) {
+               $result['title'] = "📰 " . $result['title'];
+               $result['description'] .= " • " . ($result['site_name'] ?: "Noticias") . " • Leer más";
+           } elseif (stripos($domain_lower, 'github.com') !== false) {
+               $result['title'] = "💻 " . $result['title'];
+               $result['description'] .= " • GitHub • Ver código";
+           } elseif (stripos($domain_lower, 'stackoverflow.com') !== false) {
+               $result['title'] = "💡 " . $result['title'];
+               $result['description'] .= " • Stack Overflow • Ver respuesta";
+           } elseif (stripos($domain_lower, 'wikipedia.org') !== false) {
+               $result['title'] = "📚 " . $result['title'];
+               $result['description'] .= " • Wikipedia • Leer artículo";
+           } elseif (stripos($domain_lower, 'reddit.com') !== false) {
+               $result['title'] = "🗨️ " . $result['title'];
+               $result['description'] .= " • Reddit • Ver discusión";
+           } elseif (stripos($domain_lower, 'medium.com') !== false || 
+                    stripos($domain_lower, 'blog') !== false ||
+                    stripos($result['title'], 'blog') !== false) {
+               $result['title'] = "📝 " . $result['title'];
+               $result['description'] .= " • " . ($result['site_name'] ?: "Blog") . " • Leer artículo";
+           } elseif (stripos($domain_lower, 'amazon') !== false ||
+                    stripos($domain_lower, 'ebay') !== false ||
+                    stripos($domain_lower, 'aliexpress') !== false ||
+                    stripos($domain_lower, 'mercadolibre') !== false) {
+               $result['title'] = "🛒 " . $result['title'];
+               $result['description'] .= " • " . ($result['site_name'] ?: "Tienda") . " • Ver producto";
+           } elseif (!empty($result['site_name'])) {
+               $result['description'] .= " • " . $result['site_name'] . " • Toca para ver";
+           } else {
+               $result['description'] .= " • Toca para leer más";
+           }
+           
+           // Limitar longitudes para Twitter
+           if (strlen($result['title']) > 70) {
+               // Preservar emoji si existe
+               if (preg_match('/^([\x{1F300}-\x{1F9FF}])/u', $result['title'], $emoji_match)) {
+                   $emoji = $emoji_match[1];
+                   $title_without_emoji = trim(str_replace($emoji, '', $result['title']));
+                   $result['title'] = $emoji . ' ' . mb_substr($title_without_emoji, 0, 64) . '...';
+               } else {
+                   $result['title'] = mb_substr($result['title'], 0, 67) . '...';
+               }
+           }
+           
+           file_put_contents('bot_detection.log', 
+               date('Y-m-d H:i:s') . " | Meta tags extraídos: " . json_encode($result) . "\n", 
+               FILE_APPEND
+           );
+           
+           return $result;
+       }
+       
+       // Intentar obtener meta tags con manejo de errores
+       try {
+           file_put_contents('bot_detection.log', 
+               "$timestamp | Llamando a getMetaTags...\n", 
+               FILE_APPEND
+           );
+           
+           $meta_tags = getMetaTags($url['original_url']);
+           
+           file_put_contents('bot_detection.log', 
+               "$timestamp | getMetaTags completado exitosamente\n", 
+               FILE_APPEND
+           );
+           
+           // Debug - guardar qué meta tags estamos enviando
+           $debug_data = [
+               'timestamp' => date('Y-m-d H:i:s'),
+               'url_original' => $url['original_url'],
+               'short_code' => $short_code,
+               'meta_tags' => $meta_tags,
+               'user_agent' => $user_agent,
+               'is_bot' => $is_bot,
+               'is_twitter' => stripos($user_agent, 'Twitter') !== false,
+               'is_whatsapp' => stripos($user_agent, 'WhatsApp') !== false,
+               'video_platform' => $video_platform,
+               'video_id' => $video_id,
+               'spotify_type' => $spotify_type
+           ];
+           
+           $json_result = file_put_contents('twitter_meta_debug.json', json_encode($debug_data, JSON_PRETTY_PRINT));
+           
+           file_put_contents('bot_detection.log', 
+               "$timestamp | twitter_meta_debug.json escrito: " . ($json_result !== false ? "OK ($json_result bytes)" : "FALLO") . "\n", 
+               FILE_APPEND
+           );
+           
+       } catch (Exception $e) {
+           file_put_contents('error_log.txt', 
+               "$timestamp | Error en getMetaTags: " . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n", 
+               FILE_APPEND
+           );
+           
+           file_put_contents('bot_detection.log', 
+               "$timestamp | EXCEPCIÓN en getMetaTags: " . $e->getMessage() . "\n", 
+               FILE_APPEND
+           );
+           
+           // Usar valores por defecto si hay error
+           $meta_tags = [
+               'title' => 'Ver contenido',
+               'description' => 'Haz clic para ver el contenido completo',
+               'image' => '',
+               'type' => 'website',
+               'site_name' => '',
+               'author' => ''
+           ];
+       }
+       
+       // Construir la URL corta completa
+       $short_url = 'https://' . $current_domain . '/' . $short_code;
+       
+       // Headers importantes
+       header('Content-Type: text/html; charset=utf-8');
+       header('Cache-Control: no-cache, no-store, must-revalidate');
+       header('Pragma: no-cache');
+       header('Expires: 0');
+       
+       file_put_contents('bot_detection.log', 
+           "$timestamp | Generando HTML con meta tags...\n", 
+           FILE_APPEND
+       );
+       
+       // IMPORTANTE: No debe haber NADA antes de <!DOCTYPE html>
 ?><!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Twitter Card - TIPO PLAYER PARA VIDEOS -->
-    <?php if ($video_platform === 'dailymotion' && $video_id): ?>
-        <!-- Dailymotion Player Card -->
-        <meta name="twitter:card" content="player" />
-        <meta name="twitter:player" content="https://www.dailymotion.com/embed/video/<?php echo htmlspecialchars($video_id); ?>?autoplay=1" />
-        <meta name="twitter:player:width" content="640" />
-        <meta name="twitter:player:height" content="360" />
-    <?php elseif ($video_platform === 'youtube' && $video_id): ?>
-        <!-- YouTube Player Card -->
-        <meta name="twitter:card" content="player" />
-        <meta name="twitter:player" content="https://www.youtube.com/embed/<?php echo htmlspecialchars($video_id); ?>?autoplay=1" />
-        <meta name="twitter:player:width" content="640" />
-        <meta name="twitter:player:height" content="360" />
-    <?php elseif ($video_platform === 'tiktok' && $video_id): ?>
-        <!-- TikTok Player Card - URL del player directo -->
-<meta name="twitter:card" content="player" />
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+   <!-- WHATSAPP TAGS PRIMERO -->
+   <meta property="og:title" content="<?php echo htmlspecialchars($meta_tags['title']); ?>" />
+   <meta property="og:description" content="<?php echo htmlspecialchars($meta_tags['description']); ?>" />
+   <?php if (!empty($meta_tags['image'])): ?>
+   <meta property="og:image" content="<?php echo htmlspecialchars($meta_tags['image']); ?>" />
+   <meta property="og:image:width" content="1200" />
+   <meta property="og:image:height" content="630" />
+   <?php endif; ?>
+   <meta property="og:url" content="<?php echo htmlspecialchars($short_url); ?>" />
+   <meta property="og:type" content="<?php echo ($video_platform && !in_array($video_platform, ['pinterest', 'discord']) ? ($video_platform === 'spotify' ? 'music.song' : 'video.other') : 'website'); ?>" />
+   <?php if (!empty($meta_tags['site_name'])): ?>
+   <meta property="og:site_name" content="<?php echo htmlspecialchars($meta_tags['site_name']); ?>" />
+   <?php endif; ?>
+   
+   <!-- Twitter Card - TIPO PLAYER PARA VIDEOS -->
+   <?php if ($video_platform === 'dailymotion' && $video_id): ?>
+       <!-- Dailymotion Player Card -->
+       <meta name="twitter:card" content="player" />
+       <meta name="twitter:player" content="https://www.dailymotion.com/embed/video/<?php echo htmlspecialchars($video_id); ?>?autoplay=1" />
+       <meta name="twitter:player:width" content="640" />
+       <meta name="twitter:player:height" content="360" />
+   <?php elseif ($video_platform === 'youtube' && $video_id): ?>
+       <!-- YouTube Player Card -->
+       <meta name="twitter:card" content="player" />
+       <meta name="twitter:player" content="https://www.youtube.com/embed/<?php echo htmlspecialchars($video_id); ?>?autoplay=1" />
+       <meta name="twitter:player:width" content="640" />
+       <meta name="twitter:player:height" content="360" />
+   <?php elseif ($video_platform === 'tiktok' && $video_id): ?>
+       <!-- TikTok Player Card - URL del player directo -->
+       <meta name="twitter:card" content="player" />
        <meta name="twitter:player" content="https://www.tiktok.com/player/v1/<?php echo htmlspecialchars($video_id); ?>?music_info=1&description=1&autoplay=1" />
        <meta name="twitter:player:width" content="325" />
        <meta name="twitter:player:height" content="575" />
@@ -1252,58 +1484,53 @@ if ($url) {
    <meta name="twitter:domain" content="<?php echo htmlspecialchars($current_domain); ?>" />
    <meta name="twitter:url" content="<?php echo htmlspecialchars($short_url); ?>" />
    
-   <!-- Open Graph -->
-   <meta property="og:type" content="<?php echo ($video_platform && !in_array($video_platform, ['pinterest', 'discord']) ? ($video_platform === 'spotify' ? 'music.song' : 'video.other') : 'website'); ?>" />
-   <meta property="og:url" content="<?php echo htmlspecialchars($short_url); ?>" />
-   <meta property="og:title" content="<?php echo htmlspecialchars($meta_tags['title']); ?>" />
-   <meta property="og:description" content="<?php echo htmlspecialchars($meta_tags['description']); ?>" />
-   <?php if (!empty($meta_tags['image'])): ?>
-   <meta property="og:image" content="<?php echo htmlspecialchars($meta_tags['image']); ?>" />
-   <?php endif; ?>
-   <?php if (!empty($meta_tags['site_name'])): ?>
-   <meta property="og:site_name" content="<?php echo htmlspecialchars($meta_tags['site_name']); ?>" />
-   <?php endif; ?>
+   <!-- WhatsApp específico -->
+   <meta property="og:image:type" content="image/jpeg" />
+   <meta property="og:locale" content="es_ES" />
    
-   <?php if ($video_platform === 'dailymotion' && $video_id): ?>
-   <meta property="og:video" content="https://www.dailymotion.com/embed/video/<?php echo htmlspecialchars($video_id); ?>" />
-   <meta property="og:video:secure_url" content="https://www.dailymotion.com/embed/video/<?php echo htmlspecialchars($video_id); ?>" />
-   <meta property="og:video:type" content="text/html" />
-   <meta property="og:video:width" content="640" />
-   <meta property="og:video:height" content="360" />
-   <?php elseif ($video_platform === 'youtube' && $video_id): ?>
-   <meta property="og:video" content="https://www.youtube.com/embed/<?php echo htmlspecialchars($video_id); ?>" />
-   <meta property="og:video:secure_url" content="https://www.youtube.com/embed/<?php echo htmlspecialchars($video_id); ?>" />
-   <meta property="og:video:type" content="text/html" />
-   <meta property="og:video:width" content="640" />
-   <meta property="og:video:height" content="360" />
-   <?php elseif ($video_platform === 'tiktok' && $video_id): ?>
-   <meta property="og:video" content="https://www.tiktok.com/player/v1/<?php echo htmlspecialchars($video_id); ?>?music_info=1&description=1&autoplay=1" />
-   <meta property="og:video:secure_url" content="https://www.tiktok.com/player/v1/<?php echo htmlspecialchars($video_id); ?>?music_info=1&description=1&autoplay=1" />
-   <meta property="og:video:type" content="text/html" />
-   <meta property="og:video:width" content="325" />
-   <meta property="og:video:height" content="575" />
-   <?php elseif ($video_platform === 'instagram' && $video_id): ?>
-   <meta property="og:video" content="https://www.instagram.com/p/<?php echo htmlspecialchars($video_id); ?>/embed/" />
-   <meta property="og:video:secure_url" content="https://www.instagram.com/p/<?php echo htmlspecialchars($video_id); ?>/embed/" />
-   <meta property="og:video:type" content="text/html" />
-   <meta property="og:video:width" content="400" />
-   <meta property="og:video:height" content="500" />
-   <?php elseif ($video_platform === 'vimeo' && $video_id): ?>
-   <meta property="og:video" content="https://player.vimeo.com/video/<?php echo htmlspecialchars($video_id); ?>" />
-   <meta property="og:video:secure_url" content="https://player.vimeo.com/video/<?php echo htmlspecialchars($video_id); ?>" />
-   <meta property="og:video:type" content="text/html" />
-   <meta property="og:video:width" content="640" />
-   <meta property="og:video:height" content="360" />
+   <!-- Video tags adicionales para WhatsApp si es video -->
+   <?php if ($video_platform && $video_id && !in_array($video_platform, ['pinterest', 'discord', 'spotify'])): ?>
+       <?php if ($video_platform === 'dailymotion'): ?>
+       <meta property="og:video" content="https://www.dailymotion.com/embed/video/<?php echo htmlspecialchars($video_id); ?>" />
+       <meta property="og:video:secure_url" content="https://www.dailymotion.com/embed/video/<?php echo htmlspecialchars($video_id); ?>" />
+       <meta property="og:video:type" content="text/html" />
+       <meta property="og:video:width" content="640" />
+       <meta property="og:video:height" content="360" />
+       <?php elseif ($video_platform === 'youtube'): ?>
+       <meta property="og:video" content="https://www.youtube.com/embed/<?php echo htmlspecialchars($video_id); ?>" />
+       <meta property="og:video:secure_url" content="https://www.youtube.com/embed/<?php echo htmlspecialchars($video_id); ?>" />
+       <meta property="og:video:type" content="text/html" />
+       <meta property="og:video:width" content="640" />
+       <meta property="og:video:height" content="360" />
+       <?php elseif ($video_platform === 'tiktok'): ?>
+       <meta property="og:video" content="https://www.tiktok.com/player/v1/<?php echo htmlspecialchars($video_id); ?>?music_info=1&description=1&autoplay=1" />
+       <meta property="og:video:secure_url" content="https://www.tiktok.com/player/v1/<?php echo htmlspecialchars($video_id); ?>?music_info=1&description=1&autoplay=1" />
+       <meta property="og:video:type" content="text/html" />
+       <meta property="og:video:width" content="325" />
+       <meta property="og:video:height" content="575" />
+       <?php elseif ($video_platform === 'instagram'): ?>
+       <meta property="og:video" content="https://www.instagram.com/p/<?php echo htmlspecialchars($video_id); ?>/embed/" />
+       <meta property="og:video:secure_url" content="https://www.instagram.com/p/<?php echo htmlspecialchars($video_id); ?>/embed/" />
+       <meta property="og:video:type" content="text/html" />
+       <meta property="og:video:width" content="400" />
+       <meta property="og:video:height" content="500" />
+       <?php elseif ($video_platform === 'vimeo'): ?>
+       <meta property="og:video" content="https://player.vimeo.com/video/<?php echo htmlspecialchars($video_id); ?>" />
+       <meta property="og:video:secure_url" content="https://player.vimeo.com/video/<?php echo htmlspecialchars($video_id); ?>" />
+       <meta property="og:video:type" content="text/html" />
+       <meta property="og:video:width" content="640" />
+       <meta property="og:video:height" content="360" />
+       <?php endif; ?>
    <?php elseif ($video_platform === 'spotify' && $video_id): ?>
-   <!-- Spotify optimizado con metadata adicional -->
-   <meta property="og:audio" content="<?php echo htmlspecialchars($url['original_url']); ?>" />
-   <meta property="og:audio:type" content="audio/vnd.facebook.bridge" />
-   <?php if (!empty($meta_tags['author'])): ?>
-   <meta property="music:musician" content="<?php echo htmlspecialchars($meta_tags['author']); ?>" />
-   <?php endif; ?>
-   <?php if ($spotify_type === 'album'): ?>
-   <meta property="music:album" content="<?php echo htmlspecialchars($meta_tags['title']); ?>" />
-   <?php endif; ?>
+       <!-- Spotify optimizado con metadata adicional -->
+       <meta property="og:audio" content="<?php echo htmlspecialchars($url['original_url']); ?>" />
+       <meta property="og:audio:type" content="audio/vnd.facebook.bridge" />
+       <?php if (!empty($meta_tags['author'])): ?>
+       <meta property="music:musician" content="<?php echo htmlspecialchars($meta_tags['author']); ?>" />
+       <?php endif; ?>
+       <?php if ($spotify_type === 'album'): ?>
+       <meta property="music:album" content="<?php echo htmlspecialchars($meta_tags['title']); ?>" />
+       <?php endif; ?>
    <?php endif; ?>
    
    <title><?php echo htmlspecialchars($meta_tags['title']); ?></title>
@@ -1404,6 +1631,14 @@ if ($url) {
            border-radius: 5px;
            margin: 10px 0;
            font-size: 14px;
+       }
+       .whatsapp-notice {
+           background: #d4edda;
+           color: #155724;
+           padding: 15px;
+           border-radius: 8px;
+           border: 1px solid #c3e6cb;
+           margin: 20px 0;
        }
        /* Estilos para preview de video */
        .video-preview {
@@ -1525,9 +1760,17 @@ if ($url) {
 </head>
 <body>
    <div class="container">
-       <?php if (isset($_GET['debug_meta'])): ?>
+       <?php if (isset($_GET['debug_meta']) || isset($_GET['whatsapp'])): ?>
            <!-- Modo DEBUG - Mostrar toda la información -->
            <h1>🔍 Modo Debug - Meta Tags</h1>
+           
+           <?php if (stripos($user_agent, 'WhatsApp') !== false || isset($_GET['whatsapp'])): ?>
+           <div class="whatsapp-notice">
+               <h3>✅ WhatsApp Detectado</h3>
+               <p>Los meta tags están optimizados para WhatsApp. La imagen debe ser de al menos 300x200px.</p>
+           </div>
+           <?php endif; ?>
+           
            <div class="debug-info">
                <h3>Meta Tags Extraídos:</h3>
                <pre><?php echo htmlspecialchars(json_encode($meta_tags, JSON_PRETTY_PRINT)); ?></pre>
@@ -1539,7 +1782,7 @@ if ($url) {
                <p><strong>Spotify ID:</strong> <?php echo htmlspecialchars($video_id); ?></p>
                <p><strong>Tipo:</strong> <?php echo htmlspecialchars($spotify_type ?? 'track'); ?></p>
                <div class="platform-notice">
-                   🎵 Spotify: X/Twitter mostrará imagen grande con descripciones enriquecidas.
+                   🎵 Spotify: WhatsApp y Twitter mostrarán imagen grande con descripciones enriquecidas.
                </div>
                <?php elseif ($video_id && $video_platform === 'tiktok'): ?>
                <p><strong>TikTok ID:</strong> <?php echo htmlspecialchars($video_id); ?></p>
@@ -1551,6 +1794,7 @@ if ($url) {
                <h3>Información de la petición:</h3>
                <p><strong>User Agent:</strong> <?php echo htmlspecialchars($user_agent); ?></p>
                <p><strong>Es Bot:</strong> <?php echo $is_bot ? 'SÍ' : 'NO'; ?></p>
+               <p><strong>Es WhatsApp:</strong> <?php echo (stripos($user_agent, 'WhatsApp') !== false) ? 'SÍ' : 'NO'; ?></p>
                <p><strong>URL Original:</strong> <?php echo htmlspecialchars($url['original_url']); ?></p>
                <p><strong>URL Corta:</strong> <?php echo htmlspecialchars($short_url); ?></p>
                <p><strong>Tiempo de redirección:</strong> <?php echo ($video_platform && !in_array($video_platform, ['discord'])) ? '2 segundos (video/música)' : '0 segundos (INMEDIATA)'; ?></p>
@@ -1558,11 +1802,17 @@ if ($url) {
            
            <?php if ($video_platform && $video_id): ?>
            <div class="video-info">
-               <h3>✅ <?php echo in_array($video_platform, ['discord']) ? 'Contenido' : 'Video/Media'; ?> detectado - Twitter Card activo</h3>
+               <h3>✅ <?php echo in_array($video_platform, ['discord']) ? 'Contenido' : 'Video/Media'; ?> detectado - Cards activas</h3>
                <?php if ($video_platform === 'spotify'): ?>
-               <p><strong>Spotify:</strong> Mostrará imagen grande con título y descripción mejorados.</p>
+               <p><strong>Spotify:</strong> WhatsApp mostrará imagen grande con título y descripción mejorados.</p>
                <?php elseif ($video_platform === 'tiktok'): ?>
-               <p><strong>TikTok:</strong> Intentando embed con player. Múltiples fuentes de miniatura configuradas.</p>
+               <p><strong>TikTok:</strong> WhatsApp mostrará la miniatura del video con emojis.</p>
+               <?php elseif ($video_platform === 'youtube'): ?>
+               <p><strong>YouTube:</strong> Twitter mostrará player card, WhatsApp mostrará miniatura con emoji ▶️.</p>
+               <?php elseif ($video_platform === 'dailymotion'): ?>
+               <p><strong>Dailymotion:</strong> Twitter mostrará player card, WhatsApp mostrará miniatura con emoji ▶️.</p>
+               <?php elseif ($video_platform === 'vimeo'): ?>
+               <p><strong>Vimeo:</strong> Twitter mostrará player card, WhatsApp mostrará miniatura con emoji ▶️.</p>
                <?php endif; ?>
                <?php if (!in_array($video_platform, ['discord'])): ?>
                <p>Redirección en 2 segundos para permitir carga del contenido.</p>
@@ -1675,7 +1925,7 @@ if ($url) {
 </html><?php
        
        file_put_contents('bot_detection.log', 
-           "$timestamp | HTML generado y enviado | Tipo: " . ($video_platform ? "PLATAFORMA ($video_platform)" : "URL NORMAL") . "\n", 
+           "$timestamp | HTML generado y enviado | Tipo: " . ($video_platform ? "PLATAFORMA ($video_platform)" : "URL NORMAL") . " | WhatsApp: " . (stripos($user_agent, 'WhatsApp') !== false ? 'SÍ' : 'NO') . "\n", 
            FILE_APPEND
        );
        
