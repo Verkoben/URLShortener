@@ -1,8 +1,24 @@
 RewriteEngine On
+RewriteRule ^test123$ index.php [L,R=302]
+# ==============================================
+# CONFIGURACIÓN PRINCIPAL
+# ==============================================
+RewriteEngine On
+Options -Indexes
 
-# Manejar todos los dominios
-RewriteCond %{REQUEST_FILENAME} !-d
+# ==============================================
+# FORZAR HTTPS (debe ir primero)
+# ==============================================
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# ==============================================
+# REDIRECCIÓN DE URLs CORTAS
+# ==============================================
+# No redirigir archivos y carpetas reales
 RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# No redirigir rutas del sistema
 RewriteCond %{REQUEST_URI} !^/admin/
 RewriteCond %{REQUEST_URI} !^/marcadores/
 RewriteCond %{REQUEST_URI} !^/assets/
@@ -11,13 +27,17 @@ RewriteCond %{REQUEST_URI} !^/redirect\.php
 RewriteCond %{REQUEST_URI} !^/index\.php
 RewriteCond %{REQUEST_URI} !^/stats\.php
 RewriteCond %{REQUEST_URI} !^/qr\.php
-RewriteRule ^([a-zA-Z0-9_-]+)/?$ redirect.php?code=$1 [L,QSA]
+# Redirigir códigos cortos a redirect.php SIN ?code=
+RewriteRule ^([a-zA-Z0-9_-]+)/?$ redirect.php [L,QSA]
 
-# Sitemap
+# ==============================================
+# SITEMAP
+# ==============================================
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
-# Configuración de seguridad
-Options -Indexes
+# ==============================================
+# SEGURIDAD - BLOQUEAR ARCHIVOS SENSIBLES
+# ==============================================
 <FilesMatch "\.(env|json|lock|gitignore|htaccess|sql)$">
     Order allow,deny
     Deny from all
@@ -29,25 +49,9 @@ Options -Indexes
     Allow from all
 </Files>
 
-# Headers de seguridad
-<IfModule mod_headers.c>
-    Header always set X-Frame-Options "SAMEORIGIN"
-    Header always set X-Content-Type-Options "nosniff"
-    Header always set X-XSS-Protection "1; mode=block"
-    Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
-</IfModule>
-# Headers de seguridad
-<IfModule mod_headers.c>
-    Header always set X-Frame-Options "SAMEORIGIN"
-    Header always set X-Content-Type-Options "nosniff"
-    Header always set X-XSS-Protection "1; mode=block"
-    Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
-    # AGREGAR ESTA LÍNEA:
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-</IfModule>
-# Headers de seguridad
+# ==============================================
+# HEADERS DE SEGURIDAD (una sola vez)
+# ==============================================
 <IfModule mod_headers.c>
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-Content-Type-Options "nosniff"
@@ -55,6 +59,5 @@ Options -Indexes
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
     Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-    # AGREGAR ESTA LÍNEA (TODO EN UNA LÍNEA):
     Header always set Content-Security-Policy "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' https: data:; font-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https:; frame-ancestors 'self'"
 </IfModule>
