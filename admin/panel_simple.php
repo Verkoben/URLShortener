@@ -11,11 +11,11 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 }
 
 // VERIFICACIÓN CRÍTICA: Asegurar que tenemos user_id
-//if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-//    session_destroy();
-//    header('Location: login.php?error=invalid_session');
-//    exit;
-//}
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    session_destroy();
+    header('Location: login.php?error=invalid_session');
+    exit;
+}
 
 // Incluir configuración
 $config_file = '../conf.php';
@@ -74,7 +74,7 @@ if ($section === 'tokens') {
             
             $stmt = $db->prepare("
                 INSERT INTO api_tokens (user_id, token, name, permissions, is_active) 
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, 1)
             ");
             $stmt->execute([$user_id, $token, $token_name, 'read', 1]);
             
@@ -1695,1208 +1695,1245 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                     <?php else: ?>
                     <div class="empty-state">
                         <span style="font-size: 4em;">🔗</span>
-                        <h4>No hay URLs todavía</h4>
-                        <p>Crea tu primera URL corta</p>
-                        <a href="../" class="btn btn-primary">
-                            ➕ Crear URL
-                        </a>
-                    </div>
-                    <?php endif; ?>
-                </div>
-                
-            <!-- Tokens API -->
-            <?php elseif ($section === 'tokens'): ?>
-                <?php
-                // Obtener tokens del usuario
-                $stmt = $db->prepare("
-                    SELECT * FROM api_tokens 
-                    WHERE user_id = ? 
-                    ORDER BY is_active DESC, created_at DESC
-                ");
-                $stmt->execute([$user_id]);
-                $tokens = $stmt->fetchAll();
-                ?>
-                
-                <?php if ($new_token_created): ?>
-                <div class="new-token-display">
-                    <h4>🎉 ¡Nuevo Token Creado!</h4>
-                    <div class="token-value" id="newTokenValue">
-                        <?php echo htmlspecialchars($new_token_created); ?>
-                    </div>
-                    <div class="token-actions">
-                        <button class="btn btn-success" onclick="copyNewToken()">
-                            📋 Copiar Token
-                        </button>
-                    </div>
-                    <div class="token-warning">
-                        <span>⚠️</span>
-                        <div>
-                            <strong>¡Importante!</strong> Este es el único momento en que verás este token completo. 
-                            Cópialo ahora y guárdalo en un lugar seguro.
-                        </div>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <!-- Crear Token -->
-                <div class="token-section">
-                    <div class="token-header">
-                        <h3>🔑 Crear Nuevo Token API</h3>
-                        <span class="badge badge-info">Para extensión o API</span>
-                    </div>
-                    
-                    <form method="POST" action="">
-                        <div class="form-group">
-                            <label class="form-label">Nombre del Token:</label>
-                            <input type="text" name="token_name" class="form-control" 
-                                   placeholder="Ej: Extensión Chrome, API Personal, etc." 
-                                   maxlength="100">
-                            <small style="color: #7f8c8d;">Dale un nombre descriptivo para identificarlo después</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                <input type="checkbox" name="single_token" value="1">
-                                <span>Mantener solo un token activo (desactiva los anteriores)</span>
-                            </label>
-                        </div>
-                        
-                        <button type="submit" name="generate_token" class="btn btn-primary">
-                            🔑 Generar Nuevo Token
-                        </button>
-                    </form>
-                </div>
-                
-                <!-- Lista de Tokens -->
-                <div class="data-table">
-                    <h3>
-                        <span>📋 Mis Tokens API</span>
-                        <span class="badge badge-primary"><?php echo count($tokens); ?></span>
-                    </h3>
-                    
-                    <?php if (empty($tokens)): ?>
-                    <div class="empty-state">
-                        <span style="font-size: 4em;">🔐</span>
-                        <h4>No tienes tokens activos</h4>
-                        <p>Crea un token para usar la API o la extensión del navegador</p>
-                    </div>
-                    <?php else: ?>
-                    <div class="tokens-grid">
-                        <?php foreach ($tokens as $token): ?>
-                        <div class="token-card <?php echo $token['is_active'] ? 'active' : 'inactive'; ?>">
-                            <div class="token-status <?php echo $token['is_active'] ? 'active' : ''; ?>"></div>
-                            <div class="token-name">
-                                🔑 <?php echo htmlspecialchars($token['name']); ?>
-                            </div>
-                            <div class="token-details">
-                                <div>📅 Creado: <?php echo date('d/m/Y H:i', strtotime($token['created_at'])); ?></div>
-                                <div>🕐 Último uso: <?php echo $token['last_used'] ? date('d/m/Y H:i', strtotime($token['last_used'])) : 'Nunca'; ?></div>
-                                <div>📊 Permisos: <span class="badge badge-info"><?php echo $token['permissions']; ?></span></div>
-                                <div>✅ Estado: <span class="badge badge-<?php echo $token['is_active'] ? 'success' : 'danger'; ?>">
-                                    <?php echo $token['is_active'] ? 'Activo' : 'Inactivo'; ?>
-                                </span></div>
-                            </div>
-                            <div class="token-preview">
-                                <?php echo substr($token['token'], 0, 20); ?>...
-                            </div>
-                            <div class="token-actions">
-                                <form method="POST" style="display: inline;">
-                                    <input type="hidden" name="token_id" value="<?php echo $token['id']; ?>">
-                                    <button type="submit" name="toggle_token" 
-                                            class="btn btn-sm btn-<?php echo $token['is_active'] ? 'warning' : 'success'; ?>">
-                                        <?php echo $token['is_active'] ? '⏸️ Desactivar' : '▶️ Activar'; ?>
-                                    </button>
-                                </form>
-                                <form method="POST" style="display: inline;" 
-                                      onsubmit="return confirm('¿Eliminar este token? Esta acción no se puede deshacer.');">
-                                    <input type="hidden" name="token_id" value="<?php echo $token['id']; ?>">
-                                    <button type="submit" name="delete_token" class="btn btn-sm btn-danger">
-                                        🗑️ Eliminar
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Instrucciones de Uso -->
-                <div class="token-info">
-                    <h4>📖 Cómo usar los tokens API</h4>
-                    
-                    <h5 style="margin-top: 20px;">🧩 En la extensión del navegador:</h5>
-                    <ol>
-                        <li>Instala la extensión "URL Shortener" desde Chrome Web Store</li>
-                        <li>Haz clic en el icono de la extensión</li>
-                        <li>Ve a configuración y pega tu token</li>
-                        <li>¡Listo! Ya puedes acortar URLs desde cualquier página</li>
-                    </ol>
-                    
-                    <h5 style="margin-top: 20px;">💻 En peticiones HTTP:</h5>
-                    <div class="code-example">
-                        <pre>// Opción 1: Authorization Header (Recomendado)
+<h4>No hay URLs todavía</h4>
+                       <p>Crea tu primera URL corta</p>
+                       <a href="../" class="btn btn-primary">
+                           ➕ Crear URL
+                       </a>
+                   </div>
+                   <?php endif; ?>
+               </div>
+               
+           <!-- Tokens API -->
+           <?php elseif ($section === 'tokens'): ?>
+               <?php
+               // Obtener tokens del usuario
+               $stmt = $db->prepare("
+                   SELECT * FROM api_tokens 
+                   WHERE user_id = ? 
+                   ORDER BY is_active DESC, created_at DESC
+               ");
+               $stmt->execute([$user_id]);
+               $tokens = $stmt->fetchAll();
+               ?>
+               
+               <?php if ($new_token_created): ?>
+               <div class="new-token-display">
+                   <h4>🎉 ¡Nuevo Token Creado!</h4>
+                   <div class="token-value" id="newTokenValue">
+                       <?php echo htmlspecialchars($new_token_created); ?>
+                   </div>
+                   <div class="token-actions">
+                       <button class="btn btn-success" onclick="copyNewToken()">
+                           📋 Copiar Token
+                       </button>
+                   </div>
+                   <div class="token-warning">
+                       <span>⚠️</span>
+                       <div>
+                           <strong>¡Importante!</strong> Este es el único momento en que verás este token completo. 
+                           Cópialo ahora y guárdalo en un lugar seguro.
+                       </div>
+                   </div>
+               </div>
+               <?php endif; ?>
+               
+               <!-- Crear Token -->
+               <div class="token-section">
+                   <div class="token-header">
+                       <h3>🔑 Crear Nuevo Token API</h3>
+                       <span class="badge badge-info">Para extensión o API</span>
+                   </div>
+                   
+                   <form method="POST" action="">
+                       <div class="form-group">
+                           <label class="form-label">Nombre del Token:</label>
+                           <input type="text" name="token_name" class="form-control" 
+                                  placeholder="Ej: Extensión Chrome, API Personal, etc." 
+                                  maxlength="100">
+                           <small style="color: #7f8c8d;">Dale un nombre descriptivo para identificarlo después</small>
+                       </div>
+                       
+                       <div class="form-group">
+                           <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                               <input type="checkbox" name="single_token" value="1">
+                               <span>Mantener solo un token activo (desactiva los anteriores)</span>
+                           </label>
+                       </div>
+                       
+                       <button type="submit" name="generate_token" class="btn btn-primary">
+                           🔑 Generar Nuevo Token
+                       </button>
+                   </form>
+               </div>
+               
+               <!-- Lista de Tokens -->
+               <div class="data-table">
+                   <h3>
+                       <span>📋 Mis Tokens API</span>
+                       <span class="badge badge-primary"><?php echo count($tokens); ?></span>
+                   </h3>
+                   
+                   <?php if (empty($tokens)): ?>
+                   <div class="empty-state">
+                       <span style="font-size: 4em;">🔐</span>
+                       <h4>No tienes tokens activos</h4>
+                       <p>Crea un token para usar la API o la extensión del navegador</p>
+                   </div>
+                   <?php else: ?>
+                   <div class="tokens-grid">
+                       <?php foreach ($tokens as $token): ?>
+                       <div class="token-card <?php echo $token['is_active'] ? 'active' : 'inactive'; ?>">
+                           <div class="token-status <?php echo $token['is_active'] ? 'active' : ''; ?>"></div>
+                           <div class="token-name">
+                               🔑 <?php echo htmlspecialchars($token['name']); ?>
+                           </div>
+                           <div class="token-details">
+                               <div>📅 Creado: <?php echo date('d/m/Y H:i', strtotime($token['created_at'])); ?></div>
+                               <div>🕐 Último uso: <?php echo $token['last_used'] ? date('d/m/Y H:i', strtotime($token['last_used'])) : 'Nunca'; ?></div>
+                               <div>📊 Permisos: <span class="badge badge-info"><?php echo $token['permissions']; ?></span></div>
+                               <div>✅ Estado: <span class="badge badge-<?php echo $token['is_active'] ? 'success' : 'danger'; ?>">
+                                   <?php echo $token['is_active'] ? 'Activo' : 'Inactivo'; ?>
+                               </span></div>
+                           </div>
+                           <div class="token-preview">
+                               <?php echo substr($token['token'], 0, 20); ?>...
+                           </div>
+                           <div class="token-actions">
+                               <form method="POST" style="display: inline;">
+                                   <input type="hidden" name="token_id" value="<?php echo $token['id']; ?>">
+                                   <button type="submit" name="toggle_token" 
+                                           class="btn btn-sm btn-<?php echo $token['is_active'] ? 'warning' : 'success'; ?>">
+                                       <?php echo $token['is_active'] ? '⏸️ Desactivar' : '▶️ Activar'; ?>
+                                   </button>
+                               </form>
+                               <form method="POST" style="display: inline;" 
+                                     onsubmit="return confirm('¿Eliminar este token? Esta acción no se puede deshacer.');">
+                                   <input type="hidden" name="token_id" value="<?php echo $token['id']; ?>">
+                                   <button type="submit" name="delete_token" class="btn btn-sm btn-danger">
+                                       🗑️ Eliminar
+                                   </button>
+                               </form>
+                           </div>
+                       </div>
+                       <?php endforeach; ?>
+                   </div>
+                   <?php endif; ?>
+               </div>
+               
+               <!-- Instrucciones de Uso -->
+               <div class="token-info">
+                   <h4>📖 Cómo usar los tokens API</h4>
+                   
+                   <h5 style="margin-top: 20px;">🧩 En la extensión del navegador:</h5>
+                   <ol>
+                       <li>Instala la extensión "URL Shortener" desde Chrome Web Store</li>
+                       <li>Haz clic en el icono de la extensión</li>
+                       <li>Ve a configuración y pega tu token</li>
+                       <li>¡Listo! Ya puedes acortar URLs desde cualquier página</li>
+                   </ol>
+                   
+                   <h5 style="margin-top: 20px;">💻 En peticiones HTTP:</h5>
+                   <div class="code-example">
+                       <pre>// Opción 1: Authorization Header (Recomendado)
 Authorization: Bearer TU_TOKEN_AQUI
 
 // Opción 2: Custom Header
 X-API-Token: TU_TOKEN_AQUI</pre>
-                    </div>
-                    
-                    <h5 style="margin-top: 20px;">📡 Ejemplos de uso:</h5>
-                    <div class="code-example">
-                        <pre>// JavaScript/Fetch
+                   </div>
+                   
+                   <h5 style="margin-top: 20px;">📡 Ejemplos de uso:</h5>
+                   <div class="code-example">
+                       <pre>// JavaScript/Fetch
 fetch('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-urls.php', {
-    headers: {
-        'Authorization': 'Bearer TU_TOKEN_AQUI'
-    }
+   headers: {
+       'Authorization': 'Bearer TU_TOKEN_AQUI'
+   }
 })
 .then(response => response.json())
 .then(data => console.log(data));
 
 // cURL
 curl -H "Authorization: Bearer TU_TOKEN_AQUI" \
-     https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-urls.php
+    https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-urls.php
 
 // Python
 import requests
 headers = {'Authorization': 'Bearer TU_TOKEN_AQUI'}
 response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-urls.php', headers=headers)</pre>
-                    </div>
-                </div>
-                
-                <!-- Información de la API -->
-                <div class="data-table" style="margin-top: 30px;">
-                    <h3>🔌 Endpoints de la API</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Endpoint</th>
-                                <th>Método</th>
-                                <th>Descripción</th>
-                                <th>Respuesta</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>/api/my-urls.php</code></td>
-                                <td><span class="badge badge-success">GET</span></td>
-                                <td>Obtener todas tus URLs</td>
-                                <td>Array de URLs en JSON</td>
-                            </tr>
-                            <tr>
-                                <td><code>/api/shorten.php</code></td>
-                                <td><span class="badge badge-warning">POST</span></td>
-                                <td>Crear nueva URL corta</td>
-                                <td>Objeto con URL creada</td>
-                            </tr>
-                            <tr>
-                                <td><code>/api/delete-url.php</code></td>
-                                <td><span class="badge badge-danger">DELETE</span></td>
-                                <td>Eliminar una URL</td>
-                                <td>Confirmación de éxito</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <script>
-                function copyNewToken() {
-                    const tokenElement = document.getElementById('newTokenValue');
-                    const token = tokenElement.textContent.trim();
-                    
-                    if (navigator.clipboard && window.isSecureContext) {
-                        navigator.clipboard.writeText(token).then(function() {
-                            showToast('✅ Token copiado al portapapeles');
-                        });
-                    } else {
-                        // Fallback
-                        const textArea = document.createElement('textarea');
-                        textArea.value = token;
-                        textArea.style.position = 'fixed';
-                        textArea.style.left = '-999999px';
-                        document.body.appendChild(textArea);
-                        textArea.select();
-                        try {
-                            document.execCommand('copy');
-                            showToast('✅ Token copiado al portapapeles');
-                        } catch (err) {
-                            alert('Error al copiar. Selecciona y copia manualmente.');
-                        }
-                        document.body.removeChild(textArea);
-                    }
-                }
-                
-                function showToast(message) {
-                    const toast = document.createElement('div');
-                    toast.className = 'alert alert-success';
-                    toast.style.position = 'fixed';
-                    toast.style.top = '20px';
-                    toast.style.right = '20px';
-                    toast.style.zIndex = '9999';
-                    toast.style.minWidth = '300px';
-                    toast.innerHTML = message;
-                    document.body.appendChild(toast);
-                    
-                    setTimeout(() => {
-                        toast.style.opacity = '0';
-                        toast.style.transform = 'translateY(-20px)';
-                        setTimeout(() => toast.remove(), 300);
-                    }, 3000);
-                }
-                </script>
+                   </div>
+               </div>
+               
+               <!-- Información de la API -->
+               <div class="data-table" style="margin-top: 30px;">
+                   <h3>🔌 Endpoints de la API</h3>
+                   <table>
+                       <thead>
+                           <tr>
+                               <th>Endpoint</th>
+                               <th>Método</th>
+                               <th>Descripción</th>
+                               <th>Respuesta</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <tr>
+                               <td><code>/api/my-urls.php</code></td>
+                               <td><span class="badge badge-success">GET</span></td>
+                               <td>Obtener todas tus URLs</td>
+                               <td>Array de URLs en JSON</td>
+                           </tr>
+                           <tr>
+                               <td><code>/api/shorten.php</code></td>
+                               <td><span class="badge badge-warning">POST</span></td>
+                               <td>Crear nueva URL corta</td>
+                               <td>Objeto con URL creada</td>
+                           </tr>
+                           <tr>
+                               <td><code>/api/delete-url.php</code></td>
+                               <td><span class="badge badge-danger">DELETE</span></td>
+                               <td>Eliminar una URL</td>
+                               <td>Confirmación de éxito</td>
+                           </tr>
+                       </tbody>
+                   </table>
+               </div>
+               
+               <script>
+               function copyNewToken() {
+                   const tokenElement = document.getElementById('newTokenValue');
+                   const token = tokenElement.textContent.trim();
+                   
+                   if (navigator.clipboard && window.isSecureContext) {
+                       navigator.clipboard.writeText(token).then(function() {
+                           showToast('✅ Token copiado al portapapeles');
+                       });
+                   } else {
+                       // Fallback
+                       const textArea = document.createElement('textarea');
+                       textArea.value = token;
+                       textArea.style.position = 'fixed';
+                       textArea.style.left = '-999999px';
+                       document.body.appendChild(textArea);
+                       textArea.select();
+                       try {
+                           document.execCommand('copy');
+                           showToast('✅ Token copiado al portapapeles');
+                       } catch (err) {
+                           alert('Error al copiar. Selecciona y copia manualmente.');
+                       }
+                       document.body.removeChild(textArea);
+                   }
+               }
+               
+               function showToast(message) {
+                   const toast = document.createElement('div');
+                   toast.className = 'alert alert-success';
+                   toast.style.position = 'fixed';
+                   toast.style.top = '20px';
+                   toast.style.right = '20px';
+                   toast.style.zIndex = '9999';
+                   toast.style.minWidth = '300px';
+                   toast.innerHTML = message;
+                   document.body.appendChild(toast);
+                   
+                   setTimeout(() => {
+                       toast.style.opacity = '0';
+                       toast.style.transform = 'translateY(-20px)';
+                       setTimeout(() => toast.remove(), 300);
+                   }, 3000);
+               }
+               </script>
+           
+           <!-- Gestión de URLs CON BUSCADOR -->
+           <?php elseif ($section === 'urls'): ?>
+               <?php
+               // CONSULTA MODIFICADA: Solo mostrar dominios disponibles para el usuario actual
+               $available_domains = [];
+               try {
+                   if ($is_superadmin) {
+                       // El superadmin ve todos los dominios activos
+                       $stmt = $db->query("SELECT id, domain FROM custom_domains WHERE status = 'active' ORDER BY domain");
+                   } else {
+                       // Los demás usuarios solo ven dominios asignados a ellos o sin asignar
+                       $stmt = $db->prepare("
+                           SELECT id, domain 
+                           FROM custom_domains 
+                           WHERE status = 'active' 
+                           AND (user_id = ? OR user_id IS NULL) 
+                           ORDER BY domain
+                       ");
+                       $stmt->execute([$user_id]);
+                   }
+                   $available_domains = $stmt->fetchAll();
+               } catch (Exception $e) {
+                   // Ignorar si no existe la tabla
+               }
+               ?>
+               
+               <!-- NUEVO: Buscador de URLs -->
+               <div class="data-table" style="margin-bottom: 30px;">
+                   <h3>🔍 Buscar URLs</h3>
+                   <form method="GET" action="" class="search-form">
+                       <input type="hidden" name="section" value="urls">
+                       <div class="input-group">
+                           <input type="text" 
+                                  name="search" 
+                                  class="form-control" 
+                                  placeholder="Buscar por URL original, código corto o dominio..." 
+                                  value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>"
+                                  style="flex: 1;">
+                           <button type="submit" class="btn btn-primary">
+                               🔍 Buscar
+                           </button>
+                           <?php if (isset($_GET['search']) && !empty($_GET['search'])): ?>
+                           <a href="?section=urls" class="btn btn-secondary">
+                               ❌ Limpiar
+                           </a>
+                           <?php endif; ?>
+                       </div>
+                       <?php if (isset($_GET['search']) && !empty($_GET['search'])): ?>
+                       <div style="margin-top: 10px; color: #6c757d;">
+                           Buscando: "<strong><?php echo htmlspecialchars($_GET['search']); ?></strong>"
+                       </div>
+                       <?php endif; ?>
+                   </form>
+               </div>
+               
+               <!-- Formulario para crear nueva URL -->
+               <div class="data-table" style="margin-bottom: 30px;">
+                   <h3>➕ Crear nueva URL</h3>
+                   <form method="POST" action="">
+                       <input type="hidden" name="create_url" value="1">
+                       <div class="form-group">
+                           <label class="form-label">URL Original:</label>
+                           <input type="url" name="original_url" class="form-control" 
+                                  placeholder="https://ejemplo.com/pagina-muy-larga" required>
+                       </div>
+                       <div class="form-group">
+                           <label class="form-label">Código personalizado (opcional):</label>
+                           <input type="text" name="custom_code" class="form-control" 
+                                  placeholder="mi-codigo" 
+                                  pattern="[a-zA-Z0-9-_]+"
+                                  maxlength="100">
+                           <small style="color: #7f8c8d;">Deja vacío para generar automáticamente (máximo 100 caracteres)</small>
+                       </div>
+                       <?php if (!empty($available_domains)): ?>
+                       <div class="form-group">
+                           <label class="form-label">Dominio:</label>
+                           <select name="domain_id" class="form-select">
+                               <option value="">Dominio principal (<?php echo parse_url(BASE_URL, PHP_URL_HOST); ?>)</option>
+                               <?php foreach ($available_domains as $domain): ?>
+                               <option value="<?php echo $domain['id']; ?>">
+                                   <?php echo htmlspecialchars($domain['domain']); ?>
+                               </option>
+                               <?php endforeach; ?>
+                           </select>
+                       </div>
+                       <?php endif; ?>
+                       <button type="submit" class="btn btn-primary">
+                           ➕ Crear URL
+                       </button>
+                   </form>
+               </div>
+               
+               <?php
+               // Obtener URLs CON BÚSQUEDA - MODIFICADO PARA QUE SOLO SUPERADMIN VEA TODO
+               $search_term = $_GET['search'] ?? '';
+               $urls = [];
+               $total_results = 0;
+               
+               try {
+                   if ($is_superadmin) {  // CAMBIO IMPORTANTE: Solo el superadmin ve todas las URLs
+                       if (!empty($search_term)) {
+                           // Búsqueda para superadmin - ve todo
+                           $search_param = '%' . $search_term . '%';
+                           $stmt = $db->prepare("
+                               SELECT u.*, users.username, cd.domain as custom_domain,
+                                      COUNT(*) OVER() as total_count
+                               FROM urls u
+                               LEFT JOIN users ON u.user_id = users.id
+                               LEFT JOIN custom_domains cd ON u.domain_id = cd.id
+                               WHERE u.original_url LIKE ? 
+                                  OR u.short_code LIKE ?
+                                  OR cd.domain LIKE ?
+                               ORDER BY u.created_at DESC 
+                               LIMIT 100
+                           ");
+                           $stmt->execute([$search_param, $search_param, $search_param]);
+                       } else {
+                           // Sin búsqueda - mostrar todas
+                           $stmt = $db->query("
+                               SELECT u.*, users.username, cd.domain as custom_domain
+                               FROM urls u
+                               LEFT JOIN users ON u.user_id = users.id
+                               LEFT JOIN custom_domains cd ON u.domain_id = cd.id
+                               ORDER BY u.created_at DESC 
+                               LIMIT 100
+                           ");
+                       }
+                   } else {
+                       // TODOS LOS DEMÁS (incluidos admins normales) solo ven SUS URLs
+                       if (!empty($search_term)) {
+                           // Búsqueda para usuarios y admins normales
+                           $search_param = '%' . $search_term . '%';
+                           $stmt = $db->prepare("
+                               SELECT u.*, users.username, cd.domain as custom_domain,
+                                      COUNT(*) OVER() as total_count
+                               FROM urls u
+                               LEFT JOIN users ON u.user_id = users.id
+                               LEFT JOIN custom_domains cd ON u.domain_id = cd.id
+                               WHERE u.user_id = ?
+                                 AND (u.original_url LIKE ? 
+                                      OR u.short_code LIKE ?
+                                      OR cd.domain LIKE ?)
+                               ORDER BY u.created_at DESC 
+                               LIMIT 100
+                           ");
+                           $stmt->execute([$user_id, $search_param, $search_param, $search_param]);
+                       } else {
+                           // Sin búsqueda - mostrar solo las del usuario
+                           $stmt = $db->prepare("
+                               SELECT u.*, users.username, cd.domain as custom_domain
+                               FROM urls u
+                               LEFT JOIN users ON u.user_id = users.id
+                               LEFT JOIN custom_domains cd ON u.domain_id = cd.id
+                               WHERE u.user_id = ?
+                               ORDER BY u.created_at DESC 
+                               LIMIT 100
+                           ");
+                           $stmt->execute([$user_id]);
+                       }
+                   }
+                   $urls = $stmt->fetchAll();
+                   
+                   // Obtener el total de resultados si hay búsqueda
+                   if (!empty($search_term) && !empty($urls)) {
+                       $total_results = $urls[0]['total_count'] ?? count($urls);
+                   }
+               } catch (Exception $e) {
+                   $urls = [];
+                   $message = "Error en la búsqueda: " . $e->getMessage();
+                   $messageType = 'danger';
+               }
+               ?>
+               
+               <div class="data-table">
+                   <h3>
+                       <span>🔗 <?php echo $is_superadmin ? 'Todas las URLs' : 'Mis URLs'; ?></span>
+                       <?php if (!empty($search_term)): ?>
+                           <span class="badge badge-info"><?php echo $total_results; ?> resultados</span>
+                       <?php else: ?>
+                           <span class="badge badge-primary"><?php echo count($urls); ?></span>
+                       <?php endif; ?>
+                   </h3>
+                   
+                   <?php if ($urls): ?>
+                   <table>
+                       <thead>
+                           <tr>
+                               <th>ID</th>
+                               <th>URL Original</th>
+                               <th>URL Corta</th>
+                               <th>Dominio</th>
+                               <?php if ($is_superadmin): ?>  <!-- SOLO EL SUPERADMIN VE LA COLUMNA USUARIO -->
+                               <th>Usuario</th>
+                               <?php endif; ?>
+                               <th>Clicks</th>
+                               <th>Creada</th>
+                               <th>Acciones</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <?php foreach ($urls as $url): ?>
+                           <?php
+                           // Determinar la URL corta completa basándose en el dominio
+                           if (!empty($url['custom_domain'])) {
+                               $short_url = "https://" . $url['custom_domain'] . "/" . $url['short_code'];
+                               $domain_display = $url['custom_domain'];
+                               $domain_badge_class = 'badge-success';
+                           } else {
+                               $short_url = rtrim(BASE_URL, '/') . '/' . $url['short_code'];
+                               $domain_display = parse_url(BASE_URL, PHP_URL_HOST);
+                               $domain_badge_class = 'badge-secondary';
+                           }
+                           
+                           // RESALTAR coincidencias de búsqueda
+                           if (!empty($search_term)) {
+                               $highlighted_url = str_ireplace(
+                                   $search_term, 
+                                   '<mark style="background: yellow; padding: 0 2px;">' . htmlspecialchars($search_term) . '</mark>', 
+                                   htmlspecialchars($url['original_url'])
+                               );
+                               $highlighted_code = str_ireplace(
+                                   $search_term, 
+                                   '<mark style="background: yellow; padding: 0 2px;">' . htmlspecialchars($search_term) . '</mark>', 
+                                   htmlspecialchars($url['short_code'])
+                               );
+                           } else {
+                               $highlighted_url = htmlspecialchars($url['original_url']);
+                               $highlighted_code = htmlspecialchars($url['short_code']);
+                           }
+                           ?>
+                           <tr>
+                               <td><?php echo $url['id']; ?></td>
+                               <td>
+                                   <a href="<?php echo htmlspecialchars($url['original_url']); ?>" 
+                                      target="_blank" 
+                                      style="color: #667eea; text-decoration: none; display: block; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                      title="<?php echo htmlspecialchars($url['original_url']); ?>">
+                                       <?php echo $highlighted_url; ?>
+                                   </a>
+                               </td>
+                               <td>
+                                   <div class="url-display">
+                                       <input type="text" value="<?php echo $short_url; ?>" 
+                                              id="url-<?php echo $url['id']; ?>" readonly>
+                                       <button class="copy-btn" onclick="copyUrl('url-<?php echo $url['id']; ?>', this)">
+                                           📋
+                                       </button>
+                                   </div>
+                               </td>
+                               <td>
+                                   <span class="badge <?php echo $domain_badge_class; ?>">
+                                       🌐 <?php echo $domain_display; ?>
+                                   </span>
+                               </td>
+                               <?php if ($is_superadmin): ?>  <!-- SOLO EL SUPERADMIN VE EL USUARIO -->
+                               <td>
+                                   <span class="badge badge-secondary">
+                                       👤 <?php echo $url['username'] ?? 'Sistema'; ?>
+                                   </span>
+                               </td>
+                               <?php endif; ?>
+                               <td>
+                                   <span class="badge badge-success">
+                                       👆 <?php echo number_format($url['clicks'] ?? 0); ?>
+                                   </span>
+                               </td>
+                               <td>
+                                   <small><?php echo date('d/m/Y H:i', strtotime($url['created_at'])); ?></small>
+                               </td>
+                               <td>
+                                   <a href="../stats.php?code=<?php echo $url['short_code']; ?>" 
+                                      class="btn btn-sm btn-info tooltip">
+                                       📊
+                                       <span class="tooltiptext">Estadísticas</span>
+                                   </a>
+                                   <a href="<?php echo $short_url; ?>" 
+                                      target="_blank" 
+                                      class="btn btn-sm btn-success tooltip">
+                                       🔗
+                                       <span class="tooltiptext">Abrir</span>
+                                   </a>
+                                   <form method="POST" style="display: inline;" 
+                                         onsubmit="return confirm('¿Eliminar esta URL?');">
+                                       <input type="hidden" name="delete_url_id" value="<?php echo $url['id']; ?>">
+                                       <button type="submit" class="btn btn-sm btn-danger tooltip">
+                                           🗑️
+                                           <span class="tooltiptext">Eliminar</span>
+                                       </button>
+                                   </form>
+                               </td>
+                           </tr>
+                           <?php endforeach; ?>
+                       </tbody>
+                   </table>
+                   
+                   <?php if (!empty($search_term) && $total_results > 100): ?>
+                   <div class="alert alert-info" style="margin-top: 20px;">
+                       ℹ️ Mostrando los primeros 100 resultados de <?php echo $total_results; ?> encontrados. 
+                       Refina tu búsqueda para ver resultados más específicos.
+                   </div>
+                   <?php endif; ?>
+                   
+                   <?php else: ?>
+                   <div class="empty-state">
+                       <span style="font-size: 4em;">
+                           <?php echo !empty($search_term) ? '🔍' : '🔗'; ?>
+                       </span>
+                       <h4>
+                           <?php echo !empty($search_term) 
+                               ? 'No se encontraron URLs que coincidan con "' . htmlspecialchars($search_term) . '"' 
+                               : 'No hay URLs registradas'; ?>
+                       </h4>
+                       <p>
+                           <?php echo !empty($search_term) 
+                               ? 'Intenta con otros términos de búsqueda' 
+                               : 'Crea tu primera URL corta usando el formulario de arriba'; ?>
+                       </p>
+                       <?php if (!empty($search_term)): ?>
+                       <a href="?section=urls" class="btn btn-primary" style="margin-top: 20px;">
+                           ← Volver a todas las URLs
+                       </a>
+                       <?php endif; ?>
+                   </div>
+                   <?php endif; ?>
+               </div>
+           
+           <!-- Estadísticas -->
+           <?php elseif ($section === 'stats'): ?>
+               <?php
+               // Estadísticas por día - MODIFICADO PARA QUE ADMINS SOLO VEAN SUS DATOS
+               try {
+                   if ($is_superadmin) {
+                       $stmt = $db->query("
+                           SELECT DATE(clicked_at) as date, COUNT(*) as clicks
+                           FROM click_stats
+                           WHERE clicked_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                           GROUP BY DATE(clicked_at)
+                           ORDER BY date DESC
+                       ");
+                   } else {
+                       // Admins y usuarios solo ven SUS estadísticas
+                       $stmt = $db->prepare("
+                           SELECT DATE(cs.clicked_at) as date, COUNT(*) as clicks
+                           FROM click_stats cs
+                           INNER JOIN urls u ON cs.url_id = u.id
+                           WHERE u.user_id = ? AND cs.clicked_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                           GROUP BY DATE(cs.clicked_at)
+                           ORDER BY date DESC
+                       ");
+                       $stmt->execute([$user_id]);
+                   }
+                   $daily_stats = $stmt->fetchAll();
+               } catch (Exception $e) {
+                   $daily_stats = [];
+               }
+               ?>
+               
+               <div class="data-table">
+                   <h3>📈 Clicks últimos 7 días</h3>
+                   <?php if ($daily_stats): ?>
+                   <table>
+                       <thead>
+                           <tr>
+                               <th>Fecha</th>
+                               <th>Clicks</th>
+                               <th>Gráfico</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <?php
+                           $max_clicks = max(array_column($daily_stats, 'clicks'));
+                           foreach ($daily_stats as $stat):
+                               $percentage = $max_clicks > 0 ? ($stat['clicks'] / $max_clicks) * 100 : 0;
+                           ?>
+                           <tr>
+                               <td>
+                                   📅 <?php echo date('d/m/Y', strtotime($stat['date'])); ?>
+                               </td>
+                               <td>
+                                   <span class="badge badge-primary">
+                                       <?php echo number_format($stat['clicks']); ?> clicks
+                                   </span>
+                               </td>
+                               <td>
+                                   <div style="background: #e3f2fd; height: 25px; border-radius: 12px; overflow: hidden; position: relative;">
+                                       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                                   width: <?php echo $percentage; ?>%; 
+                                                   height: 100%; 
+                                                   transition: width 0.5s;
+                                                   display: flex;
+                                                   align-items: center;
+                                                   justify-content: flex-end;
+                                                   padding-right: 10px;">
+                                           <?php if ($percentage > 20): ?>
+                                           <span style="color: white; font-size: 12px; font-weight: bold;">
+                                               <?php echo round($percentage); ?>%
+                                           </span>
+                                           <?php endif; ?>
+                                       </div>
+                                   </div>
+                               </td>
+                           </tr>
+                           <?php endforeach; ?>
+                       </tbody>
+                   </table>
+                   <?php else: ?>
+                   <div class="empty-state">
+                       <span style="font-size: 4em;">📊</span>
+                       <h4>No hay datos de los últimos 7 días</h4>
+                       <p>Las estadísticas aparecerán cuando tus URLs reciban clicks</p>
+                   </div>
+                   <?php endif; ?>
+               </div>
+               
+               <!-- Estadísticas por navegador - MODIFICADO PARA QUE ADMINS SOLO VEAN SUS DATOS -->
+               <?php
+               try {
+                   if ($is_superadmin) {
+                       $stmt = $db->query("
+                           SELECT 
+                               CASE 
+                                   WHEN user_agent LIKE '%Chrome%' THEN 'Chrome'
+                                   WHEN user_agent LIKE '%Firefox%' THEN 'Firefox'
+                                   WHEN user_agent LIKE '%Safari%' THEN 'Safari'
+                                   WHEN user_agent LIKE '%Edge%' THEN 'Edge'
+                                   ELSE 'Otro'
+                               END as browser,
+                               COUNT(*) as count
+                           FROM click_stats
+                           GROUP BY browser
+                           ORDER BY count DESC
+                       ");
+                   } else {
+                       // Admins y usuarios solo ven SUS estadísticas
+                       $stmt = $db->prepare("
+                           SELECT 
+                               CASE 
+                                   WHEN cs.user_agent LIKE '%Chrome%' THEN 'Chrome'
+                                   WHEN cs.user_agent LIKE '%Firefox%' THEN 'Firefox'
+                                   WHEN cs.user_agent LIKE '%Safari%' THEN 'Safari'
+                                   WHEN cs.user_agent LIKE '%Edge%' THEN 'Edge'
+                                   ELSE 'Otro'
+                               END as browser,
+                               COUNT(*) as count
+                           FROM click_stats cs
+                           INNER JOIN urls u ON cs.url_id = u.id
+                           WHERE u.user_id = ?
+                           GROUP BY browser
+                           ORDER BY count DESC
+                       ");
+                       $stmt->execute([$user_id]);
+                   }
+                   $browser_stats = $stmt->fetchAll();
+               } catch (Exception $e) {
+                   $browser_stats = [];
+               }
+               ?>
+               
+               <?php if ($browser_stats): ?>
+               <div class="data-table">
+                   <h3>🌐 Estadísticas por Navegador</h3>
+                   <div class="stats-grid">
+                       <?php 
+                       $browser_emojis = [
+                           'Chrome' => '🔵',
+                           'Firefox' => '🦊',
+                           'Safari' => '🧭',
+                           'Edge' => '🌊',
+                           'Otro' => '🌐'
+                       ];
+                       
+                       $browser_colors = [
+                           'Chrome' => 'blue',
+                           'Firefox' => 'orange',
+                           'Safari' => 'blue',
+                           'Edge' => 'green',
+                           'Otro' => 'purple'
+                       ];
+                       
+                       foreach ($browser_stats as $stat): 
+                       ?>
+                       <div class="stat-card">
+                           <div class="stat-icon <?php echo $browser_colors[$stat['browser']] ?? 'purple'; ?>">
+                               <?php echo $browser_emojis[$stat['browser']] ?? '🌐'; ?>
+                           </div>
+                           <div class="stat-value"><?php echo number_format($stat['count']); ?></div>
+                           <div class="stat-label"><?php echo $stat['browser']; ?></div>
+                       </div>
+                       <?php endforeach; ?>
+                   </div>
+               </div>
+               <?php endif; ?>
+           
+<!-- Geolocalización -->
+<?php elseif ($section === 'geo'): ?>
+    <?php
+    // Obtener datos con geolocalización - CORREGIDO PARA FILTRAR POR USUARIO
+    $geo_stats = [];
+    $total_countries = 0;
+    $total_cities = 0;
+    $total_clicks = 0;
+    $total_visitors = 0;
+    $top_countries = [];
+    
+    try {
+        if ($is_superadmin) {  // SOLO EL SUPERADMIN VE TODAS LAS GEOLOCALIZACIONES
+            $stmt = $db->query("
+                SELECT country, city, latitude, longitude, COUNT(*) as clicks
+                FROM click_stats 
+                WHERE country IS NOT NULL 
+                AND latitude IS NOT NULL 
+                AND longitude IS NOT NULL
+                GROUP BY country, city, latitude, longitude
+                ORDER BY clicks DESC
+                LIMIT 50
+            ");
+        } else {
+            // Admins y usuarios solo ven SUS geolocalizaciones
+            $stmt = $db->prepare("
+                SELECT cs.country, cs.city, cs.latitude, cs.longitude, COUNT(*) as clicks
+                FROM click_stats cs
+                INNER JOIN urls u ON cs.url_id = u.id
+                WHERE u.user_id = ?
+                AND cs.country IS NOT NULL 
+                AND cs.latitude IS NOT NULL 
+                AND cs.longitude IS NOT NULL
+                GROUP BY cs.country, cs.city, cs.latitude, cs.longitude
+                ORDER BY clicks DESC
+                LIMIT 50
+            ");
+            $stmt->execute([$user_id]);
+        }
+        $geo_stats = $stmt->fetchAll();
+        
+        // Calcular estadísticas
+        if (!empty($geo_stats)) {
+            $total_countries = count(array_unique(array_column($geo_stats, 'country')));
+            $total_cities = count($geo_stats);
+            $total_clicks = array_sum(array_column($geo_stats, 'clicks'));
             
-            <!-- Gestión de URLs CON BUSCADOR -->
-            <?php elseif ($section === 'urls'): ?>
-                <?php
-                // CONSULTA MODIFICADA: Solo mostrar dominios disponibles para el usuario actual
-                $available_domains = [];
-                try {
-                    if ($is_superadmin) {
-                        // El superadmin ve todos los dominios activos
-                        $stmt = $db->query("SELECT id, domain FROM custom_domains WHERE status = 'active' ORDER BY domain");
-                    } else {
-                        // Los demás usuarios solo ven dominios asignados a ellos o sin asignar
-                        $stmt = $db->prepare("
-                            SELECT id, domain 
-                            FROM custom_domains 
-                            WHERE status = 'active' 
-                            AND (user_id = ? OR user_id IS NULL) 
-                            ORDER BY domain
-                        ");
-                        $stmt->execute([$user_id]);
-                    }
-                    $available_domains = $stmt->fetchAll();
-                } catch (Exception $e) {
-                    // Ignorar si no existe la tabla
+            // Top países
+            $countries = [];
+            foreach ($geo_stats as $stat) {
+                $country = $stat['country'];
+                if (!isset($countries[$country])) {
+                    $countries[$country] = 0;
                 }
-                ?>
-                
-                <!-- NUEVO: Buscador de URLs -->
-                <div class="data-table" style="margin-bottom: 30px;">
-                    <h3>🔍 Buscar URLs</h3>
-                    <form method="GET" action="" class="search-form">
-                        <input type="hidden" name="section" value="urls">
-                        <div class="input-group">
-                            <input type="text" 
-                                   name="search" 
-                                   class="form-control" 
-                                   placeholder="Buscar por URL original, código corto o dominio..." 
-                                   value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>"
-                                   style="flex: 1;">
-                            <button type="submit" class="btn btn-primary">
-                                🔍 Buscar
-                            </button>
-                            <?php if (isset($_GET['search']) && !empty($_GET['search'])): ?>
-                            <a href="?section=urls" class="btn btn-secondary">
-                                ❌ Limpiar
-                            </a>
-                            <?php endif; ?>
-                        </div>
-                        <?php if (isset($_GET['search']) && !empty($_GET['search'])): ?>
-                        <div style="margin-top: 10px; color: #6c757d;">
-                            Buscando: "<strong><?php echo htmlspecialchars($_GET['search']); ?></strong>"
-                        </div>
-                        <?php endif; ?>
-                    </form>
-                </div>
-                
-                <!-- Formulario para crear nueva URL -->
-                <div class="data-table" style="margin-bottom: 30px;">
-                    <h3>➕ Crear nueva URL</h3>
-                    <form method="POST" action="">
-                        <input type="hidden" name="create_url" value="1">
-                        <div class="form-group">
-                            <label class="form-label">URL Original:</label>
-                            <input type="url" name="original_url" class="form-control" 
-                                   placeholder="https://ejemplo.com/pagina-muy-larga" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Código personalizado (opcional):</label>
-                            <input type="text" name="custom_code" class="form-control" 
-                                   placeholder="mi-codigo" 
-                                   pattern="[a-zA-Z0-9-_]+"
-                                   maxlength="100">
-                            <small style="color: #7f8c8d;">Deja vacío para generar automáticamente (máximo 100 caracteres)</small>
-                        </div>
-                        <?php if (!empty($available_domains)): ?>
-                        <div class="form-group">
-                            <label class="form-label">Dominio:</label>
-                            <select name="domain_id" class="form-select">
-                                <option value="">Dominio principal (<?php echo parse_url(BASE_URL, PHP_URL_HOST); ?>)</option>
-                                <?php foreach ($available_domains as $domain): ?>
-                                <option value="<?php echo $domain['id']; ?>">
-                                    <?php echo htmlspecialchars($domain['domain']); ?>
-                                </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <?php endif; ?>
-                        <button type="submit" class="btn btn-primary">
-                            ➕ Crear URL
-                        </button>
-                    </form>
-                </div>
-                
-                <?php
-                // Obtener URLs CON BÚSQUEDA - MODIFICADO PARA QUE SOLO SUPERADMIN VEA TODO
-                $search_term = $_GET['search'] ?? '';
-                $urls = [];
-                $total_results = 0;
-                
-                try {
-                    if ($is_superadmin) {  // CAMBIO IMPORTANTE: Solo el superadmin ve todas las URLs
-                        if (!empty($search_term)) {
-                            // Búsqueda para superadmin - ve todo
-                            $search_param = '%' . $search_term . '%';
-                            $stmt = $db->prepare("
-                                SELECT u.*, users.username, cd.domain as custom_domain,
-                                       COUNT(*) OVER() as total_count
-                                FROM urls u
-                                LEFT JOIN users ON u.user_id = users.id
-                                LEFT JOIN custom_domains cd ON u.domain_id = cd.id
-                                WHERE u.original_url LIKE ? 
-                                   OR u.short_code LIKE ?
-                                   OR cd.domain LIKE ?
-                                ORDER BY u.created_at DESC 
-                                LIMIT 100
-                            ");
-                            $stmt->execute([$search_param, $search_param, $search_param]);
-                        } else {
-                            // Sin búsqueda - mostrar todas
-                            $stmt = $db->query("
-                                SELECT u.*, users.username, cd.domain as custom_domain
-                                FROM urls u
-                                LEFT JOIN users ON u.user_id = users.id
-                                LEFT JOIN custom_domains cd ON u.domain_id = cd.id
-                                ORDER BY u.created_at DESC 
-                                LIMIT 100
-                            ");
-                        }
-                    } else {
-                        // TODOS LOS DEMÁS (incluidos admins normales) solo ven SUS URLs
-                        if (!empty($search_term)) {
-                            // Búsqueda para usuarios y admins normales
-                            $search_param = '%' . $search_term . '%';
-                            $stmt = $db->prepare("
-                                SELECT u.*, users.username, cd.domain as custom_domain,
-                                       COUNT(*) OVER() as total_count
-                                FROM urls u
-                                LEFT JOIN users ON u.user_id = users.id
-                                LEFT JOIN custom_domains cd ON u.domain_id = cd.id
-                                WHERE u.user_id = ?
-                                  AND (u.original_url LIKE ? 
-                                       OR u.short_code LIKE ?
-                                       OR cd.domain LIKE ?)
-                                ORDER BY u.created_at DESC 
-                                LIMIT 100
-                            ");
-                            $stmt->execute([$user_id, $search_param, $search_param, $search_param]);
-                        } else {
-                            // Sin búsqueda - mostrar solo las del usuario
-                            $stmt = $db->prepare("
-                                SELECT u.*, users.username, cd.domain as custom_domain
-                                FROM urls u
-                                LEFT JOIN users ON u.user_id = users.id
-                                LEFT JOIN custom_domains cd ON u.domain_id = cd.id
-                                WHERE u.user_id = ?
-                                ORDER BY u.created_at DESC 
-                                LIMIT 100
-                            ");
-                            $stmt->execute([$user_id]);
-                        }
-                    }
-                    $urls = $stmt->fetchAll();
-                    
-                    // Obtener el total de resultados si hay búsqueda
-                    if (!empty($search_term) && !empty($urls)) {
-                        $total_results = $urls[0]['total_count'] ?? count($urls);
-                    }
-                } catch (Exception $e) {
-                    $urls = [];
-                    $message = "Error en la búsqueda: " . $e->getMessage();
-                    $messageType = 'danger';
-                }
-                ?>
-                
-                <div class="data-table">
-                    <h3>
-                        <span>🔗 <?php echo $is_superadmin ? 'Todas las URLs' : 'Mis URLs'; ?></span>
-                        <?php if (!empty($search_term)): ?>
-                            <span class="badge badge-info"><?php echo $total_results; ?> resultados</span>
-                        <?php else: ?>
-                            <span class="badge badge-primary"><?php echo count($urls); ?></span>
-                        <?php endif; ?>
-                    </h3>
-                    
-                    <?php if ($urls): ?>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>URL Original</th>
-                                <th>URL Corta</th>
-                                <th>Dominio</th>
-                                <?php if ($is_superadmin): ?>  <!-- SOLO EL SUPERADMIN VE LA COLUMNA USUARIO -->
-                                <th>Usuario</th>
-                                <?php endif; ?>
-                                <th>Clicks</th>
-                                <th>Creada</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($urls as $url): ?>
-                            <?php
-                            // Determinar la URL corta completa basándose en el dominio
-                            if (!empty($url['custom_domain'])) {
-                                $short_url = "https://" . $url['custom_domain'] . "/" . $url['short_code'];
-                                $domain_display = $url['custom_domain'];
-                                $domain_badge_class = 'badge-success';
-                            } else {
-                                $short_url = rtrim(BASE_URL, '/') . '/' . $url['short_code'];
-                                $domain_display = parse_url(BASE_URL, PHP_URL_HOST);
-                                $domain_badge_class = 'badge-secondary';
-                            }
-                            
-                            // RESALTAR coincidencias de búsqueda
-                            if (!empty($search_term)) {
-                                $highlighted_url = str_ireplace(
-                                    $search_term, 
-                                    '<mark style="background: yellow; padding: 0 2px;">' . htmlspecialchars($search_term) . '</mark>', 
-                                    htmlspecialchars($url['original_url'])
-                                );
-                                $highlighted_code = str_ireplace(
-                                    $search_term, 
-                                    '<mark style="background: yellow; padding: 0 2px;">' . htmlspecialchars($search_term) . '</mark>', 
-                                    htmlspecialchars($url['short_code'])
-                                );
-                            } else {
-                                $highlighted_url = htmlspecialchars($url['original_url']);
-                                $highlighted_code = htmlspecialchars($url['short_code']);
-                            }
-                            ?>
-                            <tr>
-                                <td><?php echo $url['id']; ?></td>
-                                <td>
-                                    <a href="<?php echo htmlspecialchars($url['original_url']); ?>" 
-                                       target="_blank" 
-                                       style="color: #667eea; text-decoration: none; display: block; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
-                                       title="<?php echo htmlspecialchars($url['original_url']); ?>">
-                                        <?php echo $highlighted_url; ?>
-                                    </a>
-                                </td>
-                                <td>
-                                    <div class="url-display">
-                                        <input type="text" value="<?php echo $short_url; ?>" 
-                                               id="url-<?php echo $url['id']; ?>" readonly>
-                                        <button class="copy-btn" onclick="copyUrl('url-<?php echo $url['id']; ?>', this)">
-                                            📋
-                                        </button>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge <?php echo $domain_badge_class; ?>">
-                                        🌐 <?php echo $domain_display; ?>
-                                    </span>
-                                </td>
-                                <?php if ($is_superadmin): ?>  <!-- SOLO EL SUPERADMIN VE EL USUARIO -->
-                                <td>
-                                    <span class="badge badge-secondary">
-                                        👤 <?php echo $url['username'] ?? 'Sistema'; ?>
-                                    </span>
-                                </td>
-                                <?php endif; ?>
-                                <td>
-                                    <span class="badge badge-success">
-                                        👆 <?php echo number_format($url['clicks'] ?? 0); ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <small><?php echo date('d/m/Y H:i', strtotime($url['created_at'])); ?></small>
-                                </td>
-                                <td>
-                                    <a href="../stats.php?code=<?php echo $url['short_code']; ?>" 
-                                       class="btn btn-sm btn-info tooltip">
-                                        📊
-                                        <span class="tooltiptext">Estadísticas</span>
-                                    </a>
-                                    <a href="<?php echo $short_url; ?>" 
-                                       target="_blank" 
-                                       class="btn btn-sm btn-success tooltip">
-                                        🔗
-                                        <span class="tooltiptext">Abrir</span>
-                                    </a>
-                                    <form method="POST" style="display: inline;" 
-                                          onsubmit="return confirm('¿Eliminar esta URL?');">
-                                        <input type="hidden" name="delete_url_id" value="<?php echo $url['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-danger tooltip">
-                                            🗑️
-                                            <span class="tooltiptext">Eliminar</span>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    
-                    <?php if (!empty($search_term) && $total_results > 100): ?>
-                    <div class="alert alert-info" style="margin-top: 20px;">
-                        ℹ️ Mostrando los primeros 100 resultados de <?php echo $total_results; ?> encontrados. 
-                        Refina tu búsqueda para ver resultados más específicos.
-                    </div>
-                    <?php endif; ?>
-                    
-                    <?php else: ?>
-                    <div class="empty-state">
-                        <span style="font-size: 4em;">
-                            <?php echo !empty($search_term) ? '🔍' : '🔗'; ?>
-                        </span>
-                        <h4>
-                            <?php echo !empty($search_term) 
-                                ? 'No se encontraron URLs que coincidan con "' . htmlspecialchars($search_term) . '"' 
-                                : 'No hay URLs registradas'; ?>
-                        </h4>
-                        <p>
-                            <?php echo !empty($search_term) 
-                                ? 'Intenta con otros términos de búsqueda' 
-                                : 'Crea tu primera URL corta usando el formulario de arriba'; ?>
-                        </p>
-                        <?php if (!empty($search_term)): ?>
-                        <a href="?section=urls" class="btn btn-primary" style="margin-top: 20px;">
-                            ← Volver a todas las URLs
-                        </a>
-                        <?php endif; ?>
-                    </div>
-                    <?php endif; ?>
-                </div>
-            
-            <!-- Estadísticas -->
-            <?php elseif ($section === 'stats'): ?>
-                <?php
-                // Estadísticas por día - MODIFICADO PARA QUE ADMINS SOLO VEAN SUS DATOS
-                try {
-                    if ($is_superadmin) {
-                        $stmt = $db->query("
-                            SELECT DATE(clicked_at) as date, COUNT(*) as clicks
-                            FROM click_stats
-                            WHERE clicked_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-                            GROUP BY DATE(clicked_at)
-                            ORDER BY date DESC
-                        ");
-                    } else {
-                        // Admins y usuarios solo ven SUS estadísticas
-                        $stmt = $db->prepare("
-                            SELECT DATE(cs.clicked_at) as date, COUNT(*) as clicks
-                            FROM click_stats cs
-                            INNER JOIN urls u ON cs.url_id = u.id
-                            WHERE u.user_id = ? AND cs.clicked_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-                            GROUP BY DATE(cs.clicked_at)
-                            ORDER BY date DESC
-                        ");
-                        $stmt->execute([$user_id]);
-                    }
-                    $daily_stats = $stmt->fetchAll();
-                } catch (Exception $e) {
-                    $daily_stats = [];
-                }
-                ?>
-                
-                <div class="data-table">
-                    <h3>📈 Clicks últimos 7 días</h3>
-                    <?php if ($daily_stats): ?>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Clicks</th>
-                                <th>Gráfico</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $max_clicks = max(array_column($daily_stats, 'clicks'));
-                            foreach ($daily_stats as $stat):
-                                $percentage = $max_clicks > 0 ? ($stat['clicks'] / $max_clicks) * 100 : 0;
-                            ?>
-                            <tr>
-                                <td>
-                                    📅 <?php echo date('d/m/Y', strtotime($stat['date'])); ?>
-                                </td>
-                                <td>
-                                    <span class="badge badge-primary">
-                                        <?php echo number_format($stat['clicks']); ?> clicks
-                                    </span>
-                                </td>
-                                <td>
-                                    <div style="background: #e3f2fd; height: 25px; border-radius: 12px; overflow: hidden; position: relative;">
-                                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                                                    width: <?php echo $percentage; ?>%; 
-                                                    height: 100%; 
-                                                    transition: width 0.5s;
-                                                    display: flex;
-                                                    align-items: center;
-                                                    justify-content: flex-end;
-                                                    padding-right: 10px;">
-                                            <?php if ($percentage > 20): ?>
-                                            <span style="color: white; font-size: 12px; font-weight: bold;">
-                                                <?php echo round($percentage); ?>%
-                                            </span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    <?php else: ?>
-                    <div class="empty-state">
-                        <span style="font-size: 4em;">📊</span>
-                        <h4>No hay datos de los últimos 7 días</h4>
-                        <p>Las estadísticas aparecerán cuando tus URLs reciban clicks</p>
-                    </div>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Estadísticas por navegador - MODIFICADO PARA QUE ADMINS SOLO VEAN SUS DATOS -->
-                <?php
-                try {
-                    if ($is_superadmin) {
-                        $stmt = $db->query("
-                            SELECT 
-                                CASE 
-                                    WHEN user_agent LIKE '%Chrome%' THEN 'Chrome'
-                                    WHEN user_agent LIKE '%Firefox%' THEN 'Firefox'
-                                    WHEN user_agent LIKE '%Safari%' THEN 'Safari'
-                                    WHEN user_agent LIKE '%Edge%' THEN 'Edge'
-                                    ELSE 'Otro'
-                                END as browser,
-                                COUNT(*) as count
-                            FROM click_stats
-                            GROUP BY browser
-                            ORDER BY count DESC
-                        ");
-                    } else {
-                        // Admins y usuarios solo ven SUS estadísticas
-                        $stmt = $db->prepare("
-                            SELECT 
-                                CASE 
-                                    WHEN cs.user_agent LIKE '%Chrome%' THEN 'Chrome'
-                                    WHEN cs.user_agent LIKE '%Firefox%' THEN 'Firefox'
-                                    WHEN cs.user_agent LIKE '%Safari%' THEN 'Safari'
-                                    WHEN cs.user_agent LIKE '%Edge%' THEN 'Edge'
-                                    ELSE 'Otro'
-                                END as browser,
-                                COUNT(*) as count
-                            FROM click_stats cs
-                            INNER JOIN urls u ON cs.url_id = u.id
-                            WHERE u.user_id = ?
-                            GROUP BY browser
-                            ORDER BY count DESC
-                        ");
-                        $stmt->execute([$user_id]);
-                    }
-                    $browser_stats = $stmt->fetchAll();
-                } catch (Exception $e) {
-                    $browser_stats = [];
-                }
-                ?>
-                
-                <?php if ($browser_stats): ?>
-                <div class="data-table">
-                    <h3>🌐 Estadísticas por Navegador</h3>
-                    <div class="stats-grid">
-                        <?php 
-                        $browser_emojis = [
-                            'Chrome' => '🔵',
-                            'Firefox' => '🦊',
-                            'Safari' => '🧭',
-                            'Edge' => '🌊',
-                            'Otro' => '🌐'
-                        ];
-                        
-                        $browser_colors = [
-                            'Chrome' => 'blue',
-                            'Firefox' => 'orange',
-                            'Safari' => 'blue',
-                            'Edge' => 'green',
-                            'Otro' => 'purple'
-                        ];
-                        
-                        foreach ($browser_stats as $stat): 
-                        ?>
-                        <div class="stat-card">
-                            <div class="stat-icon <?php echo $browser_colors[$stat['browser']] ?? 'purple'; ?>">
-                                <?php echo $browser_emojis[$stat['browser']] ?? '🌐'; ?>
-                            </div>
-                            <div class="stat-value"><?php echo number_format($stat['count']); ?></div>
-                            <div class="stat-label"><?php echo $stat['browser']; ?></div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <?php endif; ?>
-            
-            <!-- Geolocalización -->
-            <?php elseif ($section === 'geo'): ?>
-                <!-- IMPORTANTE: Cargar Leaflet AL PRINCIPIO de la sección -->
-                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-                <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-                
-                <?php
-                // Obtener datos con geolocalización - CORREGIDO PARA FILTRAR POR USUARIO
-                $geo_stats = [];
-                $total_countries = 0;
-                $total_cities = 0;
-                $total_clicks = 0;
-                $total_visitors = 0;
-                $top_countries = [];
-                
-                try {
-                    if ($is_superadmin) {  // SOLO EL SUPERADMIN VE TODAS LAS GEOLOCALIZACIONES
-                        $stmt = $db->query("
-                            SELECT country, city, latitude, longitude, COUNT(*) as clicks
-                            FROM click_stats 
-                            WHERE country IS NOT NULL 
-                            AND latitude IS NOT NULL 
-                            AND longitude IS NOT NULL
-                            GROUP BY country, city, latitude, longitude
-                            ORDER BY clicks DESC
-                            LIMIT 50
-                        ");
-                    } else {
-                        // Admins y usuarios solo ven SUS geolocalizaciones
-                        $stmt = $db->prepare("
-                            SELECT cs.country, cs.city, cs.latitude, cs.longitude, COUNT(*) as clicks
-                            FROM click_stats cs
-                            INNER JOIN urls u ON cs.url_id = u.id
-                            WHERE u.user_id = ?
-                            AND cs.country IS NOT NULL 
-                            AND cs.latitude IS NOT NULL 
-                            AND cs.longitude IS NOT NULL
-                            GROUP BY cs.country, cs.city, cs.latitude, cs.longitude
-                            ORDER BY clicks DESC
-                            LIMIT 50
-                        ");
-                        $stmt->execute([$user_id]);
-                    }
-                    $geo_stats = $stmt->fetchAll();
-                    
-                    // Calcular estadísticas
-                    if (!empty($geo_stats)) {
-                        $total_countries = count(array_unique(array_column($geo_stats, 'country')));
-                        $total_cities = count($geo_stats);
-                        $total_clicks = array_sum(array_column($geo_stats, 'clicks'));
-                        
-                        // Top países
-                        $countries = [];
-                        foreach ($geo_stats as $stat) {
-                            $country = $stat['country'];
-                            if (!isset($countries[$country])) {
-                                $countries[$country] = 0;
-                            }
-                            $countries[$country] += $stat['clicks'];
-                        }
-                        arsort($countries);
-                        $top_countries = array_slice($countries, 0, 5, true);
-                    }
-                } catch (Exception $e) {
-                    echo "<div class='alert alert-danger'>Error: " . $e->getMessage() . "</div>";
-                }
-                ?>
-                
-                <!-- Estadísticas generales -->
-                <div class="geo-stats">
-                    <div class="geo-stat-card">
-                        <div class="geo-stat-value"><?php echo number_format($total_countries); ?></div>
-                        <div class="geo-stat-label">🌍 Países</div>
-                    </div>
-                    <div class="geo-stat-card">
-                        <div class="geo-stat-value"><?php echo number_format($total_cities); ?></div>
-                        <div class="geo-stat-label">🏙️ Ciudades</div>
-                    </div>
-                    <div class="geo-stat-card">
-                        <div class="geo-stat-value"><?php echo number_format($total_clicks); ?></div>
-                        <div class="geo-stat-label">👆 Clicks Totales</div>
-                    </div>
-                    <div class="geo-stat-card">
-                        <div class="geo-stat-value"><?php echo count($geo_stats); ?></div>
-                        <div class="geo-stat-label">📍 Ubicaciones</div>
-                    </div>
-                </div>
-                
-                <div class="data-table">
-                    <h3>🗺️ Mapa de Geolocalización</h3>
-                    
-                    <!-- Debug info -->
-                    <div class="debug-info">
-                        <strong>Debug:</strong> Encontradas <?php echo count($geo_stats); ?> ubicaciones<br>
-                        <small>Si no ves el mapa, revisa la consola del navegador (F12)</small>
-                    </div>
-                    
-                    <!-- Contenedor del mapa con altura inline para asegurar -->
-                    <div id="geo-map" style="height: 500px; width: 100%; border-radius: 10px; margin-top: 20px; background: #f0f0f0;"></div>
-                </div>
-                
-                <!-- Script del mapa INMEDIATAMENTE después del contenedor -->
-                <script>
-                    // Usar setTimeout para asegurar que el DOM está listo
-                    setTimeout(function() {
-                        console.log('Inicializando mapa...');
-                        
-                        try {
-                            // Verificar que Leaflet está cargado
-                            if (typeof L === 'undefined') {
-                                console.error('Leaflet no está cargado!');
-                                return;
-                            }
-                            
-                            // Verificar que el contenedor existe
-                            var container = document.getElementById('geo-map');
-                            if (!container) {
-                                console.error('Contenedor del mapa no encontrado!');
-                                return;
-                            }
-                            
-                            // Inicializar mapa
-                            var map = L.map('geo-map').setView([20, 0], 2);
-                            console.log('Mapa creado correctamente');
-                            
-                            // Añadir capa de tiles
-                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                attribution: '© OpenStreetMap contributors',
-                                maxZoom: 18
-                            }).addTo(map);
-                            console.log('Tiles añadidos');
-                            
-                            <?php if (!empty($geo_stats)): ?>
-                            // Añadir marcadores
-                            var markers = [];
-                            <?php foreach ($geo_stats as $stat): ?>
-                            <?php if ($stat['latitude'] && $stat['longitude']): ?>
-                            var marker = L.marker([<?php echo $stat['latitude']; ?>, <?php echo $stat['longitude']; ?>])
-                                .addTo(map)
-                                .bindPopup('<b><?php echo addslashes($stat['city'] . ', ' . $stat['country']); ?></b><br>Clicks: <?php echo $stat['clicks']; ?>');
-                            markers.push(marker);
-                            <?php endif; ?>
-                            <?php endforeach; ?>
-                            console.log('Marcadores añadidos: ' + markers.length);
-                            
-                            // Ajustar vista para mostrar todos los marcadores
-                            if (markers.length > 0) {
-                                var group = new L.featureGroup(markers);
-                                map.fitBounds(group.getBounds().pad(0.1));
-                            }
-                            <?php else: ?>
-                            console.log('No hay datos de geolocalización');
-                            
-                            // Añadir algunos marcadores de ejemplo
-                            L.marker([40.416775, -3.703790]).addTo(map).bindPopup('Madrid, España');
-                            L.marker([48.8566, 2.3522]).addTo(map).bindPopup('París, Francia');
-                            L.marker([51.5074, -0.1278]).addTo(map).bindPopup('Londres, UK');
-                            <?php endif; ?>
-                            
-                            // Forzar redimensionamiento del mapa
-                            setTimeout(function() {
-                                map.invalidateSize();
-                            }, 100);
-                            
-                        } catch (error) {
-                            console.error('Error al inicializar el mapa:', error);
-                        }
-                    }, 100);
-                </script>
-                
-                <!-- Top países -->
-                <?php if (!empty($top_countries)): ?>
-                <div class="data-table" style="margin-top: 20px;">
-                    <h3>🏆 Top 5 Países por Clicks</h3>
-                    <div class="stats-grid">
-                        <?php 
-                        $position = 1;
-                        foreach ($top_countries as $country => $clicks): 
-                        ?>
-                        <div class="stat-card">
-                            <div class="stat-icon blue">
-                                <?php echo $position; ?>°
-                            </div>
-                            <div class="stat-value"><?php echo number_format($clicks); ?></div>
-                            <div class="stat-label"><?php echo $country; ?></div>
-                        </div>
-                        <?php 
-                        $position++;
-                        endforeach; 
-                        ?>
-                    </div>
-                </div>
-                <?php endif; ?>
-                
-                <!-- Tabla de datos -->
-                <div class="data-table" style="margin-top: 20px;">
-                    <h3>📊 Datos de Geolocalización (Top 10)</h3>
-                    <?php if (!empty($geo_stats)): ?>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>País</th>
-                                <th>Ciudad</th>
-                                <th>Coordenadas</th>
-                                <th>Clicks</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach (array_slice($geo_stats, 0, 10) as $stat): ?>
-                            <tr>
-                                <td>🌍 <?php echo $stat['country']; ?></td>
-                                <td>📍 <?php echo $stat['city']; ?></td>
-                                <td>
-                                    <small style="font-family: monospace;">
-                                        <?php echo round($stat['latitude'], 4); ?>, <?php echo round($stat['longitude'], 4); ?>
-                                    </small>
-                                </td>
-                                <td><span class="badge badge-primary"><?php echo $stat['clicks']; ?> clicks</span></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    <?php else: ?>
-                    <div class="empty-state">
-                        <span style="font-size: 4em;">📍</span>
-                        <h4>No hay datos de geolocalización disponibles</h4>
-                        <p>Los datos aparecerán cuando tus URLs reciban clicks con IPs válidas</p>
-                    </div>
-                    <?php endif; ?>
-                </div>
-            
-            <!-- Gestión de Dominios - SOLO SUPERADMIN -->
-            <?php elseif ($section === 'domains' && $is_superadmin): ?>
-                <!-- Información sobre asignación de dominios -->
-                <div class="domain-assignment-info">
-                    <h3>📌 Reglas de Asignación de Dominios</h3>
-                    <div class="assignment-rule">
-                        <span class="icon">👥</span>
-                        <span><strong>Sin usuario asignado:</strong> El dominio está disponible para TODOS los usuarios</span>
-                    </div>
-                    <div class="assignment-rule">
-                        <span class="icon">👤</span>
-                        <span><strong>Con usuario asignado:</strong> SOLO ese usuario puede usar el dominio</span>
-                    </div>
-                    <div class="assignment-rule">
-                        <span class="icon">👑</span>
-                        <span><strong>Superadmin:</strong> Siempre puede usar todos los dominios</span>
-                    </div>
-                </div>
-                
-                <!-- Formulario para añadir dominio -->
-                <div class="data-table" style="margin-bottom: 30px;">
-                    <h3>➕ Añadir nuevo dominio</h3>
-                    <form method="POST" action="">
-                        <input type="hidden" name="domain_action" value="add">
-                        <div class="domain-form">
-                            <div class="form-group">
-                                <label class="form-label">Dominio:</label>
-                                <input type="text" name="domain" class="form-control" 
-                                       placeholder="ejemplo.com" 
-                                       pattern="^([a-zA-Z0-9][a-zA-Z0-9-]*\.)+[a-zA-Z]{2,}$"
-                                       required>
-                                <small style="color: #7f8c8d;">Sin http:// ni https://</small>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Asignar a usuario:</label>
-                                <select name="user_id" class="form-select">
-                                    <option value="">👥 Disponible para todos</option>
-                                    <?php
-                                    try {
-                                        $stmt = $db->query("SELECT id, username FROM users WHERE status = 'active' ORDER BY username");
-                                        $users = $stmt->fetchAll();
-                                        foreach ($users as $user):
-                                    ?>
-                                    <option value="<?php echo $user['id']; ?>">
-                                        👤 <?php echo htmlspecialchars($user['username']); ?> (solo este usuario)
-                                    </option>
-                                    <?php 
-                                        endforeach;
-                                    } catch (Exception $e) {
-                                        // Ignorar
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="form-group" style="align-self: flex-end;">
-                                <button type="submit" class="btn btn-primary">
-                                    ➕ Añadir Dominio
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                
-                <!-- Instrucciones de configuración -->
-                <div class="alert alert-info">
-                    <strong>📝 Configuración necesaria:</strong><br>
-                    1. Apunta el dominio a la IP del servidor: <code><?php echo $_SERVER['SERVER_ADDR'] ?? 'tu-servidor-ip'; ?></code><br>
-                    2. Configura el archivo <code>.htaccess</code> o nginx para redirigir los dominios personalizados<br>
-                    3. Opcionalmente, configura SSL para cada dominio
-                </div>
-                
-                <!-- Lista de dominios -->
-                <?php
-                try {
-                    $stmt = $db->query("
-                        SELECT cd.*, users.username,
-                        (SELECT COUNT(*) FROM urls WHERE domain_id = cd.id) as url_count
-                        FROM custom_domains cd
-                        LEFT JOIN users ON cd.user_id = users.id
-                        ORDER BY cd.created_at DESC
-                    ");
-                    $domains = $stmt->fetchAll();
-                } catch (Exception $e) {
-                    $domains = [];
-                }
-                ?>
-                
-                <div class="data-table">
-                    <h3>
-                        <span>🌐 Dominios Personalizados</span>
-                        <span class="badge badge-primary"><?php echo count($domains); ?></span>
-                    </h3>
-                    
-                    <?php if ($domains): ?>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Dominio</th>
-                                <th>Estado</th>
-                                <th>Asignado a</th>
-                                <th>URLs</th>
-                                <th>Creado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($domains as $domain): ?>
-                            <tr>
-                                <td>
-                                    <a href="https://<?php echo htmlspecialchars($domain['domain']); ?>" 
-                                       target="_blank" 
-                                       style="color: #667eea; text-decoration: none;">
-                                        🌐 <?php echo htmlspecialchars($domain['domain']); ?>
-                                    </a>
-                                </td>
-                                <td>
-                                    <div class="domain-status">
-                                        <span class="status-dot <?php echo $domain['status']; ?>"></span>
-                                        <span class="badge badge-<?php echo $domain['status'] === 'active' ? 'success' : 'danger'; ?>">
-                                            <?php echo $domain['status'] === 'active' ? 'Activo' : 'Inactivo'; ?>
-                                        </span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <?php if ($domain['username']): ?>
-                                        <span class="badge badge-warning">
-                                            👤 <?php echo htmlspecialchars($domain['username']); ?>
-                                        </span>
-                                        <small style="color: #856404; display: block; font-size: 0.75em;">
-                                            Solo este usuario
-                                        </small>
-                                    <?php else: ?>
-                                        <span class="badge badge-info">
-                                            👥 Todos los usuarios
-                                        </span>
-                                    <?php endif; ?>
-                                    
-                                    <!-- Mini formulario para cambiar asignación -->
-                                    <form method="POST" class="mini-form" style="margin-top: 5px;">
-                                        <input type="hidden" name="domain_action" value="update_user">
-                                        <input type="hidden" name="domain_id" value="<?php echo $domain['id']; ?>">
-                                        <select name="new_user_id" class="mini-select" onchange="this.form.submit()">
-                                            <option value="">Cambiar a...</option>
-                                            <option value="">👥 Todos</option>
-                                            <?php foreach ($users as $user): ?>
-                                            <option value="<?php echo $user['id']; ?>">
-                                                👤 <?php echo htmlspecialchars($user['username']); ?>
-                                            </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </form>
-                                </td>
-                                <td>
-                                    <span class="badge badge-primary">
-                                        🔗 <?php echo number_format($domain['url_count']); ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <small><?php echo date('d/m/Y', strtotime($domain['created_at'])); ?></small>
-                                </td>
-                                <td>
-                                    <form method="POST" style="display: inline;">
-                                        <input type="hidden" name="domain_action" value="toggle">
-                                        <input type="hidden" name="domain_id" value="<?php echo $domain['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-<?php echo $domain['status'] === 'active' ? 'warning' : 'success'; ?> tooltip">
-                                            <?php echo $domain['status'] === 'active' ? '⏸️' : '▶️'; ?>
-                                            <span class="tooltiptext">
-                                                <?php echo $domain['status'] === 'active' ? 'Desactivar' : 'Activar'; ?>
-                                            </span>
-                                        </button>
-                                    </form>
-                                    <form method="POST" style="display: inline;" 
-                                          onsubmit="return confirm('¿Eliminar este dominio? Las URLs volverán al dominio principal.');">
-                                        <input type="hidden" name="domain_action" value="delete">
-                                        <input type="hidden" name="domain_id" value="<?php echo $domain['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-danger tooltip">
-                                            🗑️
-                                            <span class="tooltiptext">Eliminar</span>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    <?php else: ?>
-                    <div class="empty-state">
-                        <span style="font-size: 4em;">🌐</span>
-                        <h4>No hay dominios personalizados</h4>
-                        <p>Añade tu primer dominio usando el formulario de arriba</p>
-                    </div>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-        </main>
+                $countries[$country] += $stat['clicks'];
+            }
+            arsort($countries);
+            $top_countries = array_slice($countries, 0, 5, true);
+        }
+    } catch (Exception $e) {
+        echo "<div class='alert alert-danger'>Error: " . $e->getMessage() . "</div>";
+    }
+    ?>
+    
+    <!-- Cargar Leaflet desde múltiples CDNs -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    
+    <!-- Estadísticas generales -->
+    <div class="geo-stats">
+        <div class="geo-stat-card">
+            <div class="geo-stat-value"><?php echo number_format($total_countries); ?></div>
+            <div class="geo-stat-label">🌍 Países</div>
+        </div>
+        <div class="geo-stat-card">
+            <div class="geo-stat-value"><?php echo number_format($total_cities); ?></div>
+            <div class="geo-stat-label">🏙️ Ciudades</div>
+        </div>
+        <div class="geo-stat-card">
+            <div class="geo-stat-value"><?php echo number_format($total_clicks); ?></div>
+            <div class="geo-stat-label">👆 Clicks Totales</div>
+        </div>
+        <div class="geo-stat-card">
+            <div class="geo-stat-value"><?php echo count($geo_stats); ?></div>
+            <div class="geo-stat-label">📍 Ubicaciones</div>
+        </div>
     </div>
     
+    <div class="data-table">
+        <h3>🗺️ Mapa de Geolocalización</h3>
+        
+        <!-- Contenedor del mapa -->
+        <div id="geo-map" style="height: 500px; width: 100%; border-radius: 10px; margin-top: 20px; background: #f0f0f0; position: relative;">
+            <div id="map-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 1000;">
+                <div class="loading"></div>
+                <p>Cargando mapa...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Script simplificado del mapa -->
     <script>
-    // Toggle sidebar mobile
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
+    // Función para inicializar el mapa
+    function initGeoMap() {
+        // Ocultar loading
+        var loadingDiv = document.getElementById('map-loading');
+        if (loadingDiv) {
+            loadingDiv.style.display = 'none';
+        }
+        
+        // Verificar si Leaflet está disponible
+        if (typeof L === 'undefined') {
+            document.getElementById('geo-map').innerHTML = 
+                '<div style="text-align: center; padding: 50px;">' +
+                '<h4>⚠️ No se pudo cargar el mapa</h4>' +
+                '<p>Posibles soluciones:</p>' +
+                '<ul style="list-style: none; padding: 0;">' +
+                '<li>• Verifica tu conexión a internet</li>' +
+                '<li>• Desactiva bloqueadores de anuncios</li>' +
+                '<li>• Intenta con otro navegador</li>' +
+                '</ul>' +
+                '<button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">Recargar página</button>' +
+                '</div>';
+            return;
+        }
+        
+        try {
+            // Crear mapa
+            var map = L.map('geo-map').setView([20, 0], 2);
+            
+            // Añadir tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            <?php if (!empty($geo_stats)): ?>
+            // Añadir marcadores
+            var markers = [];
+            <?php foreach ($geo_stats as $stat): ?>
+            <?php if ($stat['latitude'] && $stat['longitude']): ?>
+            var marker = L.marker([<?php echo $stat['latitude']; ?>, <?php echo $stat['longitude']; ?>]).addTo(map);
+            marker.bindPopup(
+                '<strong><?php echo addslashes($stat['city']); ?></strong><br>' +
+                '<?php echo addslashes($stat['country']); ?><br>' +
+                '<span style="color: #667eea; font-weight: bold;"><?php echo $stat['clicks']; ?> clicks</span>'
+            );
+            markers.push([<?php echo $stat['latitude']; ?>, <?php echo $stat['longitude']; ?>]);
+            <?php endif; ?>
+            <?php endforeach; ?>
+            
+            // Ajustar vista
+            if (markers.length > 0) {
+                if (markers.length === 1) {
+                    map.setView(markers[0], 10);
+                } else {
+                    map.fitBounds(markers);
+                }
+            }
+            <?php else: ?>
+            // Sin datos
+            L.popup()
+                .setLatLng([20, 0])
+                .setContent('<div style="text-align: center; padding: 10px;">' +
+                           '<strong>No hay datos de geolocalización</strong><br>' +
+                           'Los datos aparecerán cuando tus URLs<br>reciban clicks con IPs válidas</div>')
+                .openOn(map);
+            <?php endif; ?>
+            
+            // Invalidar tamaño
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 100);
+            
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('geo-map').innerHTML = 
+                '<div style="text-align: center; padding: 50px;">' +
+                '<h4>Error al crear el mapa</h4>' +
+                '<p>' + error.message + '</p>' +
+                '</div>';
+        }
     }
     
-    // Copy URL function
-    function copyUrl(inputId, button) {
-        const input = document.getElementById(inputId);
-        input.select();
-        document.execCommand('copy');
-        
-        // Visual feedback
-        button.classList.add('copied');
-        button.innerHTML = '✅';
-        
-        setTimeout(() => {
-            button.classList.remove('copied');
-            button.innerHTML = '📋';
-        }, 2000);
-    }
-    
-    // Auto-hide alerts
-    setTimeout(() => {
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => {
-            alert.style.opacity = '0';
-            alert.style.transform = 'translateY(-10px)';
-            setTimeout(() => alert.remove(), 300);
+    // Intentar cargar el mapa cuando todo esté listo
+    if (document.readyState === 'complete') {
+        setTimeout(initGeoMap, 500);
+    } else {
+        window.addEventListener('load', function() {
+            setTimeout(initGeoMap, 500);
         });
+    }
+    
+    // Backup: si no se carga en 5 segundos, mostrar alternativa
+    setTimeout(function() {
+        if (document.getElementById('map-loading') && document.getElementById('map-loading').style.display !== 'none') {
+            initGeoMap();
+        }
     }, 5000);
     </script>
+    
+    <!-- Alternativa: Mostrar datos sin mapa si falla -->
+    <noscript>
+        <div class="alert alert-warning">
+            ⚠️ JavaScript está desactivado. El mapa interactivo no se puede mostrar.
+        </div>
+    </noscript>
+    
+    <!-- Top países -->
+    <?php if (!empty($top_countries)): ?>
+    <div class="data-table" style="margin-top: 20px;">
+        <h3>🏆 Top 5 Países por Clicks</h3>
+        <div class="stats-grid">
+            <?php 
+            $position = 1;
+            foreach ($top_countries as $country => $clicks): 
+            ?>
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <?php echo $position; ?>°
+                </div>
+                <div class="stat-value"><?php echo number_format($clicks); ?></div>
+                <div class="stat-label"><?php echo htmlspecialchars($country); ?></div>
+            </div>
+            <?php 
+            $position++;
+            endforeach; 
+            ?>
+        </div>
+    </div>
+    <?php endif; ?>
+    
+    <!-- Tabla de datos -->
+    <div class="data-table" style="margin-top: 20px;">
+        <h3>📊 Datos de Geolocalización (Top 10)</h3>
+        <?php if (!empty($geo_stats)): ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>País</th>
+                    <th>Ciudad</th>
+                    <th>Coordenadas</th>
+                    <th>Clicks</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach (array_slice($geo_stats, 0, 10) as $stat): ?>
+                <tr>
+                    <td>🌍 <?php echo htmlspecialchars($stat['country']); ?></td>
+                    <td>📍 <?php echo htmlspecialchars($stat['city']); ?></td>
+                    <td>
+                        <small style="font-family: monospace;">
+                            <?php echo round($stat['latitude'], 4); ?>, <?php echo round($stat['longitude'], 4); ?>
+                        </small>
+                    </td>
+                    <td><span class="badge badge-primary"><?php echo $stat['clicks']; ?> clicks</span></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php else: ?>
+        <div class="empty-state">
+            <span style="font-size: 4em;">📍</span>
+            <h4>No hay datos de geolocalización disponibles</h4>
+            <p>Los datos aparecerán cuando tus URLs reciban clicks con IPs válidas</p>
+        </div>
+        <?php endif; ?>
+    </div>
+
+           <!-- Gestión de Dominios - SOLO SUPERADMIN -->
+           <?php elseif ($section === 'domains' && $is_superadmin): ?>
+               <!-- Información sobre asignación de dominios -->
+               <div class="domain-assignment-info">
+                   <h3>📌 Reglas de Asignación de Dominios</h3>
+                   <div class="assignment-rule">
+                       <span class="icon">👥</span>
+                       <span><strong>Sin usuario asignado:</strong> El dominio está disponible para TODOS los usuarios</span>
+                   </div>
+                   <div class="assignment-rule">
+                       <span class="icon">👤</span>
+                       <span><strong>Con usuario asignado:</strong> SOLO ese usuario puede usar el dominio</span>
+                   </div>
+                   <div class="assignment-rule">
+                       <span class="icon">👑</span>
+                       <span><strong>Superadmin:</strong> Siempre puede usar todos los dominios</span>
+                   </div>
+               </div>
+               
+               <!-- Formulario para añadir dominio -->
+               <div class="data-table" style="margin-bottom: 30px;">
+                   <h3>➕ Añadir nuevo dominio</h3>
+                   <form method="POST" action="">
+                       <input type="hidden" name="domain_action" value="add">
+                       <div class="domain-form">
+                           <div class="form-group">
+                               <label class="form-label">Dominio:</label>
+                               <input type="text" name="domain" class="form-control" 
+                                      placeholder="ejemplo.com" 
+                                      pattern="^([a-zA-Z0-9][a-zA-Z0-9-]*\.)+[a-zA-Z]{2,}$"
+                                      required>
+                               <small style="color: #7f8c8d;">Sin http:// ni https://</small>
+                           </div>
+                           <div class="form-group">
+                               <label class="form-label">Asignar a usuario:</label>
+                               <select name="user_id" class="form-select">
+                                   <option value="">👥 Disponible para todos</option>
+                                   <?php
+                                   try {
+                                       $stmt = $db->query("SELECT id, username FROM users WHERE status = 'active' ORDER BY username");
+                                       $users = $stmt->fetchAll();
+                                       foreach ($users as $user):
+                                   ?>
+                                   <option value="<?php echo $user['id']; ?>">
+                                       👤 <?php echo htmlspecialchars($user['username']); ?> (solo este usuario)
+                                   </option>
+                                   <?php 
+                                       endforeach;
+                                   } catch (Exception $e) {
+                                       // Ignorar
+                                   }
+                                   ?>
+                               </select>
+                           </div>
+                           <div class="form-group" style="align-self: flex-end;">
+                               <button type="submit" class="btn btn-primary">
+                                   ➕ Añadir Dominio
+                               </button>
+                           </div>
+                       </div>
+                   </form>
+               </div>
+               
+               <!-- Instrucciones de configuración -->
+               <div class="alert alert-info">
+                   <strong>📝 Configuración necesaria:</strong><br>
+                   1. Apunta el dominio a la IP del servidor: <code><?php echo $_SERVER['SERVER_ADDR'] ?? 'tu-servidor-ip'; ?></code><br>
+                   2. Configura el archivo <code>.htaccess</code> o nginx para redirigir los dominios personalizados<br>
+                   3. Opcionalmente, configura SSL para cada dominio
+               </div>
+               
+               <!-- Lista de dominios -->
+               <?php
+               try {
+                   $stmt = $db->query("
+                       SELECT cd.*, users.username,
+                       (SELECT COUNT(*) FROM urls WHERE domain_id = cd.id) as url_count
+                       FROM custom_domains cd
+                       LEFT JOIN users ON cd.user_id = users.id
+                       ORDER BY cd.created_at DESC
+                   ");
+                   $domains = $stmt->fetchAll();
+               } catch (Exception $e) {
+                   $domains = [];
+               }
+               ?>
+               
+               <div class="data-table">
+                   <h3>
+                       <span>🌐 Dominios Personalizados</span>
+                       <span class="badge badge-primary"><?php echo count($domains); ?></span>
+                   </h3>
+                   
+                   <?php if ($domains): ?>
+                   <table>
+                       <thead>
+                           <tr>
+                               <th>Dominio</th>
+                               <th>Estado</th>
+                               <th>Asignado a</th>
+                               <th>URLs</th>
+                               <th>Creado</th>
+                               <th>Acciones</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <?php foreach ($domains as $domain): ?>
+                           <tr>
+                               <td>
+                                   <a href="https://<?php echo htmlspecialchars($domain['domain']); ?>" 
+                                      target="_blank" 
+                                      style="color: #667eea; text-decoration: none;">
+                                       🌐 <?php echo htmlspecialchars($domain['domain']); ?>
+                                   </a>
+                               </td>
+                               <td>
+                                   <div class="domain-status">
+                                       <span class="status-dot <?php echo $domain['status']; ?>"></span>
+                                       <span class="badge badge-<?php echo $domain['status'] === 'active' ? 'success' : 'danger'; ?>">
+                                           <?php echo $domain['status'] === 'active' ? 'Activo' : 'Inactivo'; ?>
+                                       </span>
+                                   </div>
+                               </td>
+                               <td>
+                                   <?php if ($domain['username']): ?>
+                                       <span class="badge badge-warning">
+                                           👤 <?php echo htmlspecialchars($domain['username']); ?>
+                                       </span>
+                                       <small style="color: #856404; display: block; font-size: 0.75em;">
+                                           Solo este usuario
+                                       </small>
+                                   <?php else: ?>
+                                       <span class="badge badge-info">
+                                           👥 Todos los usuarios
+                                       </span>
+                                   <?php endif; ?>
+                                   
+                                   <!-- Mini formulario para cambiar asignación -->
+                                   <form method="POST" class="mini-form" style="margin-top: 5px;">
+                                       <input type="hidden" name="domain_action" value="update_user">
+                                       <input type="hidden" name="domain_id" value="<?php echo $domain['id']; ?>">
+                                       <select name="new_user_id" class="mini-select" onchange="this.form.submit()">
+                                           <option value="">Cambiar a...</option>
+                                           <option value="">👥 Todos</option>
+                                           <?php foreach ($users as $user): ?>
+                                           <option value="<?php echo $user['id']; ?>">
+                                               👤 <?php echo htmlspecialchars($user['username']); ?>
+                                           </option>
+                                           <?php endforeach; ?>
+                                       </select>
+                                   </form>
+                               </td>
+                               <td>
+                                   <span class="badge badge-primary">
+                                       🔗 <?php echo number_format($domain['url_count']); ?>
+                                   </span>
+                               </td>
+                               <td>
+                                   <small><?php echo date('d/m/Y', strtotime($domain['created_at'])); ?></small>
+                               </td>
+                               <td>
+                                   <form method="POST" style="display: inline;">
+                                       <input type="hidden" name="domain_action" value="toggle">
+                                       <input type="hidden" name="domain_id" value="<?php echo $domain['id']; ?>">
+                                       <button type="submit" class="btn btn-sm btn-<?php echo $domain['status'] === 'active' ? 'warning' : 'success'; ?> tooltip">
+                                           <?php echo $domain['status'] === 'active' ? '⏸️' : '▶️'; ?>
+                                           <span class="tooltiptext">
+                                               <?php echo $domain['status'] === 'active' ? 'Desactivar' : 'Activar'; ?>
+                                           </span>
+                                       </button>
+                                   </form>
+                                   <form method="POST" style="display: inline;" 
+                                         onsubmit="return confirm('¿Eliminar este dominio? Las URLs volverán al dominio principal.');">
+                                       <input type="hidden" name="domain_action" value="delete">
+                                       <input type="hidden" name="domain_id" value="<?php echo $domain['id']; ?>">
+                                       <button type="submit" class="btn btn-sm btn-danger tooltip">
+                                           🗑️
+                                           <span class="tooltiptext">Eliminar</span>
+                                       </button>
+                                   </form>
+                               </td>
+                           </tr>
+                           <?php endforeach; ?>
+                       </tbody>
+                   </table>
+                   <?php else: ?>
+                   <div class="empty-state">
+                       <span style="font-size: 4em;">🌐</span>
+                       <h4>No hay dominios personalizados</h4>
+                       <p>Añade tu primer dominio usando el formulario de arriba</p>
+                   </div>
+                   <?php endif; ?>
+               </div>
+           <?php endif; ?>
+       </main>
+   </div>
+   
+   <script>
+   // Toggle sidebar mobile
+   function toggleSidebar() {
+       document.getElementById('sidebar').classList.toggle('active');
+   }
+   
+   // Copy URL function
+   function copyUrl(inputId, button) {
+       const input = document.getElementById(inputId);
+       input.select();
+       document.execCommand('copy');
+       
+       // Visual feedback
+       button.classList.add('copied');
+       button.innerHTML = '✅';
+       
+       setTimeout(() => {
+           button.classList.remove('copied');
+           button.innerHTML = '📋';
+       }, 2000);
+   }
+   
+   // Auto-hide alerts
+   setTimeout(() => {
+       const alerts = document.querySelectorAll('.alert');
+       alerts.forEach(alert => {
+           alert.style.opacity = '0';
+           alert.style.transform = 'translateY(-10px)';
+           setTimeout(() => alert.remove(), 300);
+       });
+   }, 5000);
+   </script>
 </body>
 </html>
