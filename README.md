@@ -776,6 +776,11 @@ sqlCREATE TABLE IF NOT EXISTS login_logs (
     FOREIGN KEY (user_id) REFERENCES users(id),
     INDEX idx_user_login (user_id, login_time)
 );
+-------------------------------------------
+Usuarios activos
+-------------------------------------------
+ALTER TABLE users ADD COLUMN last_activity TIMESTAMP NULL DEFAULT NULL;
+
 
 # 🔗 URLShortener - Acortador de URLs Profesional
 
