@@ -55,6 +55,13 @@ if ($section == 'domains' && !$is_superadmin) {
     $section = 'dashboard'; // Redirigir al dashboard
 }
 
+// Verificar acceso a usuarios conectados - SOLO SUPERADMIN
+if ($section == 'online' && !$is_superadmin) {
+    $message = "⛔ Acceso denegado. Solo el superadministrador puede ver usuarios conectados.";
+    $messageType = 'danger';
+    $section = 'dashboard'; // Redirigir al dashboard
+}
+
 // Variable para el token recién creado
 $new_token_created = null;
 
@@ -166,6 +173,19 @@ function logActivity($db, $user_id, $action, $details) {
         // Si no existe la tabla, ignorar
     }
 }
+
+// Función para actualizar última actividad del usuario
+function updateUserActivity($db, $user_id) {
+    try {
+        $stmt = $db->prepare("UPDATE users SET last_activity = NOW() WHERE id = ?");
+        $stmt->execute([$user_id]);
+    } catch (Exception $e) {
+        // Ignorar si no existe la columna
+    }
+}
+
+// Actualizar actividad del usuario actual
+updateUserActivity($db, $user_id);
 
 // Función optimizada para geolocalización con caché
 function getGeoLocation($ip, $db) {
@@ -1158,6 +1178,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
             to { opacity: 1; transform: translateY(0); }
         }
         
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+            }
+        }
+        
         /* Responsive */
         .mobile-toggle {
             display: none;
@@ -1384,6 +1416,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
         .input-group .form-control {
             flex: 1;
         }
+        
+        /* Table responsive */
+        .table-responsive {
+            overflow-x: auto;
+            margin: -25px;
+            padding: 25px;
+        }
+        
+        .table-responsive table {
+            min-width: 600px;
+        }
     </style>
 </head>
 <body>
@@ -1424,6 +1467,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                     <span class="nav-icon">🌍</span> Geolocalización
                 </a>
                 
+                <?php if ($is_superadmin): ?>
+                <!-- SOLO EL SUPERADMIN VE USUARIOS ACTIVOS -->
+                <a href="?section=online" class="nav-item <?php echo $section === 'online' ? 'active' : ''; ?>">
+                    <span class="nav-icon">🟢</span> Usuarios Conectados
+                    <span class="superadmin-badge" style="margin-left: auto;">SUPER</span>
+                </a>
+                <?php endif; ?>
+                
                 <div class="nav-divider"></div>
                 
                 <?php if ($is_superadmin): ?>
@@ -1462,6 +1513,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                         case 'tokens': echo '🔑 Tokens API'; break;
                         case 'stats': echo '📈 Estadísticas'; break;
                         case 'geo': echo '🌍 Geolocalización'; break;
+                        case 'online': echo '🟢 Usuarios Conectados'; break;
                         case 'domains': echo '🌐 Gestión de Dominios'; break;
                         default: echo '📊 Dashboard';
                     }
@@ -1650,52 +1702,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['domain_action'])) {
                             <tr>
                                 <th>URL Original</th>
                                 <th>URL Corta</th>
-                                <th>Clicks</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($top_urls as $url): ?>
-                            <?php
-                            // Determinar URL correcta
-                            if (!empty($url['custom_domain'])) {
-                                $short_url_display = "https://" . $url['custom_domain'] . "/" . $url['short_code'];
-                            } else {
-                                $short_url_display = rtrim(BASE_URL, '/') . '/' . $url['short_code'];
-                            }
-                            ?>
-                            <tr>
-                                <td>
-                                    <a href="<?php echo htmlspecialchars($url['original_url']); ?>" 
-                                       target="_blank" style="color: #667eea; text-decoration: none;">
-                                        <?php echo htmlspecialchars(substr($url['original_url'], 0, 50)) . '...'; ?>
-                                    </a>
-                                </td>
-                                <td>
-                                    <code style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">
-                                        <?php echo $short_url_display; ?>
-                                    </code>
-                                </td>
-                                <td>
-                                    <span class="badge badge-primary">
-                                        👆 <?php echo number_format($url['clicks']); ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="../stats.php?code=<?php echo $url['short_code']; ?>" 
-                                       class="btn btn-sm btn-info tooltip">
-                                        📊
-                                        <span class="tooltiptext">Ver estadísticas</span>
-                                    </a>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    <?php else: ?>
-                    <div class="empty-state">
-                        <span style="font-size: 4em;">🔗</span>
-<h4>No hay URLs todavía</h4>
+<th>Clicks</th>
+                               <th>Acciones</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <?php foreach ($top_urls as $url): ?>
+                           <?php
+                           // Determinar URL correcta
+                           if (!empty($url['custom_domain'])) {
+                               $short_url_display = "https://" . $url['custom_domain'] . "/" . $url['short_code'];
+                           } else {
+                               $short_url_display = rtrim(BASE_URL, '/') . '/' . $url['short_code'];
+                           }
+                           ?>
+                           <tr>
+                               <td>
+                                   <a href="<?php echo htmlspecialchars($url['original_url']); ?>" 
+                                      target="_blank" style="color: #667eea; text-decoration: none;">
+                                       <?php echo htmlspecialchars(substr($url['original_url'], 0, 50)) . '...'; ?>
+                                   </a>
+                               </td>
+                               <td>
+                                   <code style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">
+                                       <?php echo $short_url_display; ?>
+                                   </code>
+                               </td>
+                               <td>
+                                   <span class="badge badge-primary">
+                                       👆 <?php echo number_format($url['clicks']); ?>
+                                   </span>
+                               </td>
+                               <td>
+                                   <a href="../stats.php?code=<?php echo $url['short_code']; ?>" 
+                                      class="btn btn-sm btn-info tooltip">
+                                       📊
+                                       <span class="tooltiptext">Ver estadísticas</span>
+                                   </a>
+                               </td>
+                           </tr>
+                           <?php endforeach; ?>
+                       </tbody>
+                   </table>
+                   <?php else: ?>
+                   <div class="empty-state">
+                       <span style="font-size: 4em;">🔗</span>
+                       <h4>No hay URLs todavía</h4>
                        <p>Crea tu primera URL corta</p>
                        <a href="../" class="btn btn-primary">
                            ➕ Crear URL
@@ -2438,274 +2490,523 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                </div>
                <?php endif; ?>
            
-<!-- Geolocalización -->
-<?php elseif ($section === 'geo'): ?>
-    <?php
-    // Obtener datos con geolocalización - CORREGIDO PARA FILTRAR POR USUARIO
-    $geo_stats = [];
-    $total_countries = 0;
-    $total_cities = 0;
-    $total_clicks = 0;
-    $total_visitors = 0;
-    $top_countries = [];
-    
-    try {
-        if ($is_superadmin) {  // SOLO EL SUPERADMIN VE TODAS LAS GEOLOCALIZACIONES
-            $stmt = $db->query("
-                SELECT country, city, latitude, longitude, COUNT(*) as clicks
-                FROM click_stats 
-                WHERE country IS NOT NULL 
-                AND latitude IS NOT NULL 
-                AND longitude IS NOT NULL
-                GROUP BY country, city, latitude, longitude
-                ORDER BY clicks DESC
-                LIMIT 50
-            ");
-        } else {
-            // Admins y usuarios solo ven SUS geolocalizaciones
-            $stmt = $db->prepare("
-                SELECT cs.country, cs.city, cs.latitude, cs.longitude, COUNT(*) as clicks
-                FROM click_stats cs
-                INNER JOIN urls u ON cs.url_id = u.id
-                WHERE u.user_id = ?
-                AND cs.country IS NOT NULL 
-                AND cs.latitude IS NOT NULL 
-                AND cs.longitude IS NOT NULL
-                GROUP BY cs.country, cs.city, cs.latitude, cs.longitude
-                ORDER BY clicks DESC
-                LIMIT 50
-            ");
-            $stmt->execute([$user_id]);
-        }
-        $geo_stats = $stmt->fetchAll();
-        
-        // Calcular estadísticas
-        if (!empty($geo_stats)) {
-            $total_countries = count(array_unique(array_column($geo_stats, 'country')));
-            $total_cities = count($geo_stats);
-            $total_clicks = array_sum(array_column($geo_stats, 'clicks'));
-            
-            // Top países
-            $countries = [];
-            foreach ($geo_stats as $stat) {
-                $country = $stat['country'];
-                if (!isset($countries[$country])) {
-                    $countries[$country] = 0;
-                }
-                $countries[$country] += $stat['clicks'];
-            }
-            arsort($countries);
-            $top_countries = array_slice($countries, 0, 5, true);
-        }
-    } catch (Exception $e) {
-        echo "<div class='alert alert-danger'>Error: " . $e->getMessage() . "</div>";
-    }
-    ?>
-    
-    <!-- Cargar Leaflet desde múltiples CDNs -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    
-    <!-- Estadísticas generales -->
-    <div class="geo-stats">
-        <div class="geo-stat-card">
-            <div class="geo-stat-value"><?php echo number_format($total_countries); ?></div>
-            <div class="geo-stat-label">🌍 Países</div>
-        </div>
-        <div class="geo-stat-card">
-            <div class="geo-stat-value"><?php echo number_format($total_cities); ?></div>
-            <div class="geo-stat-label">🏙️ Ciudades</div>
-        </div>
-        <div class="geo-stat-card">
-            <div class="geo-stat-value"><?php echo number_format($total_clicks); ?></div>
-            <div class="geo-stat-label">👆 Clicks Totales</div>
-        </div>
-        <div class="geo-stat-card">
-            <div class="geo-stat-value"><?php echo count($geo_stats); ?></div>
-            <div class="geo-stat-label">📍 Ubicaciones</div>
-        </div>
-    </div>
-    
-    <div class="data-table">
-        <h3>🗺️ Mapa de Geolocalización</h3>
-        
-        <!-- Contenedor del mapa -->
-        <div id="geo-map" style="height: 500px; width: 100%; border-radius: 10px; margin-top: 20px; background: #f0f0f0; position: relative;">
-            <div id="map-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 1000;">
-                <div class="loading"></div>
-                <p>Cargando mapa...</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Script simplificado del mapa -->
-    <script>
-    // Función para inicializar el mapa
-    function initGeoMap() {
-        // Ocultar loading
-        var loadingDiv = document.getElementById('map-loading');
-        if (loadingDiv) {
-            loadingDiv.style.display = 'none';
-        }
-        
-        // Verificar si Leaflet está disponible
-        if (typeof L === 'undefined') {
-            document.getElementById('geo-map').innerHTML = 
-                '<div style="text-align: center; padding: 50px;">' +
-                '<h4>⚠️ No se pudo cargar el mapa</h4>' +
-                '<p>Posibles soluciones:</p>' +
-                '<ul style="list-style: none; padding: 0;">' +
-                '<li>• Verifica tu conexión a internet</li>' +
-                '<li>• Desactiva bloqueadores de anuncios</li>' +
-                '<li>• Intenta con otro navegador</li>' +
-                '</ul>' +
-                '<button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">Recargar página</button>' +
-                '</div>';
-            return;
-        }
-        
-        try {
-            // Crear mapa
-            var map = L.map('geo-map').setView([20, 0], 2);
-            
-            // Añadir tiles
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-            
-            <?php if (!empty($geo_stats)): ?>
-            // Añadir marcadores
-            var markers = [];
-            <?php foreach ($geo_stats as $stat): ?>
-            <?php if ($stat['latitude'] && $stat['longitude']): ?>
-            var marker = L.marker([<?php echo $stat['latitude']; ?>, <?php echo $stat['longitude']; ?>]).addTo(map);
-            marker.bindPopup(
-                '<strong><?php echo addslashes($stat['city']); ?></strong><br>' +
-                '<?php echo addslashes($stat['country']); ?><br>' +
-                '<span style="color: #667eea; font-weight: bold;"><?php echo $stat['clicks']; ?> clicks</span>'
-            );
-            markers.push([<?php echo $stat['latitude']; ?>, <?php echo $stat['longitude']; ?>]);
-            <?php endif; ?>
-            <?php endforeach; ?>
-            
-            // Ajustar vista
-            if (markers.length > 0) {
-                if (markers.length === 1) {
-                    map.setView(markers[0], 10);
-                } else {
-                    map.fitBounds(markers);
-                }
-            }
-            <?php else: ?>
-            // Sin datos
-            L.popup()
-                .setLatLng([20, 0])
-                .setContent('<div style="text-align: center; padding: 10px;">' +
-                           '<strong>No hay datos de geolocalización</strong><br>' +
-                           'Los datos aparecerán cuando tus URLs<br>reciban clicks con IPs válidas</div>')
-                .openOn(map);
-            <?php endif; ?>
-            
-            // Invalidar tamaño
-            setTimeout(function() {
-                map.invalidateSize();
-            }, 100);
-            
-        } catch (error) {
-            console.error('Error:', error);
-            document.getElementById('geo-map').innerHTML = 
-                '<div style="text-align: center; padding: 50px;">' +
-                '<h4>Error al crear el mapa</h4>' +
-                '<p>' + error.message + '</p>' +
-                '</div>';
-        }
-    }
-    
-    // Intentar cargar el mapa cuando todo esté listo
-    if (document.readyState === 'complete') {
-        setTimeout(initGeoMap, 500);
-    } else {
-        window.addEventListener('load', function() {
-            setTimeout(initGeoMap, 500);
-        });
-    }
-    
-    // Backup: si no se carga en 5 segundos, mostrar alternativa
-    setTimeout(function() {
-        if (document.getElementById('map-loading') && document.getElementById('map-loading').style.display !== 'none') {
-            initGeoMap();
-        }
-    }, 5000);
-    </script>
-    
-    <!-- Alternativa: Mostrar datos sin mapa si falla -->
-    <noscript>
-        <div class="alert alert-warning">
-            ⚠️ JavaScript está desactivado. El mapa interactivo no se puede mostrar.
-        </div>
-    </noscript>
-    
-    <!-- Top países -->
-    <?php if (!empty($top_countries)): ?>
-    <div class="data-table" style="margin-top: 20px;">
-        <h3>🏆 Top 5 Países por Clicks</h3>
-        <div class="stats-grid">
-            <?php 
-            $position = 1;
-            foreach ($top_countries as $country => $clicks): 
-            ?>
-            <div class="stat-card">
-                <div class="stat-icon blue">
-                    <?php echo $position; ?>°
-                </div>
-                <div class="stat-value"><?php echo number_format($clicks); ?></div>
-                <div class="stat-label"><?php echo htmlspecialchars($country); ?></div>
-            </div>
-            <?php 
-            $position++;
-            endforeach; 
-            ?>
-        </div>
-    </div>
-    <?php endif; ?>
-    
-    <!-- Tabla de datos -->
-    <div class="data-table" style="margin-top: 20px;">
-        <h3>📊 Datos de Geolocalización (Top 10)</h3>
-        <?php if (!empty($geo_stats)): ?>
-        <table>
-            <thead>
-                <tr>
-                    <th>País</th>
-                    <th>Ciudad</th>
-                    <th>Coordenadas</th>
-                    <th>Clicks</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach (array_slice($geo_stats, 0, 10) as $stat): ?>
-                <tr>
-                    <td>🌍 <?php echo htmlspecialchars($stat['country']); ?></td>
-                    <td>📍 <?php echo htmlspecialchars($stat['city']); ?></td>
-                    <td>
-                        <small style="font-family: monospace;">
-                            <?php echo round($stat['latitude'], 4); ?>, <?php echo round($stat['longitude'], 4); ?>
-                        </small>
-                    </td>
-                    <td><span class="badge badge-primary"><?php echo $stat['clicks']; ?> clicks</span></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        <?php else: ?>
-        <div class="empty-state">
-            <span style="font-size: 4em;">📍</span>
-            <h4>No hay datos de geolocalización disponibles</h4>
-            <p>Los datos aparecerán cuando tus URLs reciban clicks con IPs válidas</p>
-        </div>
-        <?php endif; ?>
-    </div>
-
+           <!-- Geolocalización -->
+           <?php elseif ($section === 'geo'): ?>
+               <?php
+               // Obtener datos con geolocalización - CORREGIDO PARA FILTRAR POR USUARIO
+               $geo_stats = [];
+               $total_countries = 0;
+               $total_cities = 0;
+               $total_clicks = 0;
+               $total_visitors = 0;
+               $top_countries = [];
+               
+               try {
+                   if ($is_superadmin) {  // SOLO EL SUPERADMIN VE TODAS LAS GEOLOCALIZACIONES
+                       $stmt = $db->query("
+                           SELECT country, city, latitude, longitude, COUNT(*) as clicks
+                           FROM click_stats 
+                           WHERE country IS NOT NULL 
+                           AND latitude IS NOT NULL 
+                           AND longitude IS NOT NULL
+                           GROUP BY country, city, latitude, longitude
+                           ORDER BY clicks DESC
+                           LIMIT 50
+                       ");
+                   } else {
+                       // Admins y usuarios solo ven SUS geolocalizaciones
+                       $stmt = $db->prepare("
+                           SELECT cs.country, cs.city, cs.latitude, cs.longitude, COUNT(*) as clicks
+                           FROM click_stats cs
+                           INNER JOIN urls u ON cs.url_id = u.id
+                           WHERE u.user_id = ?
+                           AND cs.country IS NOT NULL 
+                           AND cs.latitude IS NOT NULL 
+                           AND cs.longitude IS NOT NULL
+                           GROUP BY cs.country, cs.city, cs.latitude, cs.longitude
+                           ORDER BY clicks DESC
+                           LIMIT 50
+                       ");
+                       $stmt->execute([$user_id]);
+                   }
+                   $geo_stats = $stmt->fetchAll();
+                   
+                   // Calcular estadísticas
+                   if (!empty($geo_stats)) {
+                       $total_countries = count(array_unique(array_column($geo_stats, 'country')));
+                       $total_cities = count($geo_stats);
+                       $total_clicks = array_sum(array_column($geo_stats, 'clicks'));
+                       
+                       // Top países
+                       $countries = [];
+                       foreach ($geo_stats as $stat) {
+                           $country = $stat['country'];
+                           if (!isset($countries[$country])) {
+                               $countries[$country] = 0;
+                           }
+                           $countries[$country] += $stat['clicks'];
+                       }
+                       arsort($countries);
+                       $top_countries = array_slice($countries, 0, 5, true);
+                   }
+               } catch (Exception $e) {
+                   echo "<div class='alert alert-danger'>Error: " . $e->getMessage() . "</div>";
+               }
+               ?>
+               
+               <!-- Cargar Leaflet desde múltiples CDNs -->
+               <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+               <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+               
+               <!-- Estadísticas generales -->
+               <div class="geo-stats">
+                   <div class="geo-stat-card">
+                       <div class="geo-stat-value"><?php echo number_format($total_countries); ?></div>
+                       <div class="geo-stat-label">🌍 Países</div>
+                   </div>
+                   <div class="geo-stat-card">
+                       <div class="geo-stat-value"><?php echo number_format($total_cities); ?></div>
+                       <div class="geo-stat-label">🏙️ Ciudades</div>
+                   </div>
+                   <div class="geo-stat-card">
+                       <div class="geo-stat-value"><?php echo number_format($total_clicks); ?></div>
+                       <div class="geo-stat-label">👆 Clicks Totales</div>
+                   </div>
+                   <div class="geo-stat-card">
+                       <div class="geo-stat-value"><?php echo count($geo_stats); ?></div>
+                       <div class="geo-stat-label">📍 Ubicaciones</div>
+                   </div>
+               </div>
+               
+               <div class="data-table">
+                   <h3>🗺️ Mapa de Geolocalización</h3>
+                   
+                   <!-- Contenedor del mapa -->
+                   <div id="geo-map" style="height: 500px; width: 100%; border-radius: 10px; margin-top: 20px; background: #f0f0f0; position: relative;">
+                       <div id="map-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 1000;">
+                           <div class="loading"></div>
+                           <p>Cargando mapa...</p>
+                       </div>
+                   </div>
+               </div>
+               
+               <!-- Script simplificado del mapa -->
+               <script>
+               // Función para inicializar el mapa
+               function initGeoMap() {
+                   // Ocultar loading
+                   var loadingDiv = document.getElementById('map-loading');
+                   if (loadingDiv) {
+                       loadingDiv.style.display = 'none';
+                   }
+                   
+                   // Verificar si Leaflet está disponible
+                   if (typeof L === 'undefined') {
+                       document.getElementById('geo-map').innerHTML = 
+                           '<div style="text-align: center; padding: 50px;">' +
+                           '<h4>⚠️ No se pudo cargar el mapa</h4>' +
+                           '<p>Posibles soluciones:</p>' +
+                           '<ul style="list-style: none; padding: 0;">' +
+                           '<li>• Verifica tu conexión a internet</li>' +
+                           '<li>• Desactiva bloqueadores de anuncios</li>' +
+                           '<li>• Intenta con otro navegador</li>' +
+                           '</ul>' +
+                           '<button onclick="location.reload()" class="btn btn-primary" style="margin-top: 20px;">Recargar página</button>' +
+                           '</div>';
+                       return;
+                   }
+                   
+                   try {
+                       // Crear mapa
+                       var map = L.map('geo-map').setView([20, 0], 2);
+                       
+                       // Añadir tiles
+                       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                           attribution: '© OpenStreetMap contributors'
+                       }).addTo(map);
+                       
+                       <?php if (!empty($geo_stats)): ?>
+                       // Añadir marcadores
+                       var markers = [];
+                       <?php foreach ($geo_stats as $stat): ?>
+                       <?php if ($stat['latitude'] && $stat['longitude']): ?>
+                       var marker = L.marker([<?php echo $stat['latitude']; ?>, <?php echo $stat['longitude']; ?>]).addTo(map);
+                       marker.bindPopup(
+                           '<strong><?php echo addslashes($stat['city']); ?></strong><br>' +
+                           '<?php echo addslashes($stat['country']); ?><br>' +
+                           '<span style="color: #667eea; font-weight: bold;"><?php echo $stat['clicks']; ?> clicks</span>'
+                       );
+                       markers.push([<?php echo $stat['latitude']; ?>, <?php echo $stat['longitude']; ?>]);
+                       <?php endif; ?>
+                       <?php endforeach; ?>
+                       
+                       // Ajustar vista
+                       if (markers.length > 0) {
+                           if (markers.length === 1) {
+                               map.setView(markers[0], 10);
+                           } else {
+                               map.fitBounds(markers);
+                           }
+                       }
+                       <?php else: ?>
+                       // Sin datos
+                       L.popup()
+                           .setLatLng([20, 0])
+                           .setContent('<div style="text-align: center; padding: 10px;">' +
+                                      '<strong>No hay datos de geolocalización</strong><br>' +
+                                      'Los datos aparecerán cuando tus URLs<br>reciban clicks con IPs válidas</div>')
+                           .openOn(map);
+                       <?php endif; ?>
+                       
+                       // Invalidar tamaño
+                       setTimeout(function() {
+                           map.invalidateSize();
+                       }, 100);
+                       
+                   } catch (error) {
+                       console.error('Error:', error);
+                       document.getElementById('geo-map').innerHTML = 
+                           '<div style="text-align: center; padding: 50px;">' +
+                           '<h4>Error al crear el mapa</h4>' +
+                           '<p>' + error.message + '</p>' +
+                           '</div>';
+                   }
+               }
+               
+               // Intentar cargar el mapa cuando todo esté listo
+               if (document.readyState === 'complete') {
+                   setTimeout(initGeoMap, 500);
+               } else {
+                   window.addEventListener('load', function() {
+                       setTimeout(initGeoMap, 500);
+                   });
+               }
+               
+               // Backup: si no se carga en 5 segundos, mostrar alternativa
+               setTimeout(function() {
+                   if (document.getElementById('map-loading') && document.getElementById('map-loading').style.display !== 'none') {
+                       initGeoMap();
+                   }
+               }, 5000);
+               </script>
+               
+               <!-- Alternativa: Mostrar datos sin mapa si falla -->
+               <noscript>
+                   <div class="alert alert-warning">
+                       ⚠️ JavaScript está desactivado. El mapa interactivo no se puede mostrar.
+                   </div>
+               </noscript>
+               
+               <!-- Top países -->
+               <?php if (!empty($top_countries)): ?>
+               <div class="data-table" style="margin-top: 20px;">
+                   <h3>🏆 Top 5 Países por Clicks</h3>
+                   <div class="stats-grid">
+                       <?php 
+                       $position = 1;
+                       foreach ($top_countries as $country => $clicks): 
+                       ?>
+                       <div class="stat-card">
+                           <div class="stat-icon blue">
+                               <?php echo $position; ?>°
+                           </div>
+                           <div class="stat-value"><?php echo number_format($clicks); ?></div>
+                           <div class="stat-label"><?php echo htmlspecialchars($country); ?></div>
+                       </div>
+                       <?php 
+                       $position++;
+                       endforeach; 
+                       ?>
+                   </div>
+               </div>
+               <?php endif; ?>
+               
+               <!-- Tabla de datos -->
+               <div class="data-table" style="margin-top: 20px;">
+                   <h3>📊 Datos de Geolocalización (Top 10)</h3>
+                   <?php if (!empty($geo_stats)): ?>
+                   <table>
+                       <thead>
+                           <tr>
+                               <th>País</th>
+                               <th>Ciudad</th>
+                               <th>Coordenadas</th>
+                               <th>Clicks</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           <?php foreach (array_slice($geo_stats, 0, 10) as $stat): ?>
+                           <tr>
+                               <td>🌍 <?php echo htmlspecialchars($stat['country']); ?></td>
+                               <td>📍 <?php echo htmlspecialchars($stat['city']); ?></td>
+                               <td>
+                                   <small style="font-family: monospace;">
+                                       <?php echo round($stat['latitude'], 4); ?>, <?php echo round($stat['longitude'], 4); ?>
+                                   </small>
+                               </td>
+                               <td><span class="badge badge-primary"><?php echo $stat['clicks']; ?> clicks</span></td>
+                           </tr>
+                           <?php endforeach; ?>
+                       </tbody>
+                   </table>
+                   <?php else: ?>
+                   <div class="empty-state">
+                       <span style="font-size: 4em;">📍</span>
+                       <h4>No hay datos de geolocalización disponibles</h4>
+                       <p>Los datos aparecerán cuando tus URLs reciban clicks con IPs válidas</p>
+                   </div>
+                   <?php endif; ?>
+               </div>
+           
+           <!-- Usuarios Conectados - SOLO SUPERADMIN -->
+           <?php elseif ($section === 'online' && $is_superadmin): ?>
+               <?php
+               // Obtener usuarios activos en los últimos 10 minutos
+               try {
+                   $stmt = $db->query("
+                       SELECT 
+                           u.id,
+                           u.username,
+                           u.email,
+                           u.role,
+                           u.last_activity,
+                           u.status,
+                           TIMESTAMPDIFF(MINUTE, u.last_activity, NOW()) as minutes_ago,
+                           (SELECT COUNT(*) FROM urls WHERE user_id = u.id) as total_urls,
+                           (SELECT COUNT(*) FROM api_tokens WHERE user_id = u.id AND is_active = 1) as active_tokens
+                       FROM users u
+                       WHERE u.last_activity >= DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+                       ORDER BY u.last_activity DESC
+                   ");
+                   $online_users = $stmt->fetchAll();
+                   
+                   // Contar total de usuarios
+                   $stmt = $db->query("SELECT COUNT(*) as total FROM users");
+                   $total_users = $stmt->fetch()['total'];
+                   
+                   // Usuarios activos hoy
+                   $stmt = $db->query("
+                       SELECT COUNT(DISTINCT id) as total 
+                       FROM users 
+                       WHERE DATE(last_activity) = CURDATE()
+                   ");
+                   $today_active = $stmt->fetch()['total'];
+                   
+               } catch (Exception $e) {
+                   $online_users = [];
+                   $total_users = 0;
+                   $today_active = 0;
+               }
+               ?>
+               
+               <!-- Estadísticas de actividad -->
+               <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                   <div class="stat-card">
+                       <div class="stat-icon green">
+                           🟢
+                       </div>
+                       <div class="stat-value"><?php echo count($online_users); ?></div>
+                       <div class="stat-label">En línea ahora</div>
+                       <small style="color: #7f8c8d;">Últimos 10 minutos</small>
+                   </div>
+                   
+                   <div class="stat-card">
+                       <div class="stat-icon blue">
+                           📅
+                       </div>
+                       <div class="stat-value"><?php echo $today_active; ?></div>
+                       <div class="stat-label">Activos hoy</div>
+                       <small style="color: #7f8c8d;">Usuarios únicos</small>
+                   </div>
+                   
+                   <div class="stat-card">
+                       <div class="stat-icon purple">
+                           👥
+                       </div>
+                       <div class="stat-value"><?php echo $total_users; ?></div>
+                       <div class="stat-label">Total usuarios</div>
+                       <small style="color: #7f8c8d;">Registrados</small>
+                   </div>
+               </div>
+               
+               <!-- Lista de usuarios conectados -->
+               <div class="data-table">
+                   <h3>
+                       <span>🟢 Usuarios Conectados</span>
+                       <span class="badge badge-success"><?php echo count($online_users); ?> en línea</span>
+                   </h3>
+                   
+                   <?php if ($online_users): ?>
+                   <div class="table-responsive">
+                       <table>
+                           <thead>
+                               <tr>
+                                   <th>Usuario</th>
+                                   <th>Email</th>
+                                   <th>Rol</th>
+                                   <th>Última actividad</th>
+                                   <th>URLs</th>
+                                   <th>Tokens</th>
+                                   <th>Estado</th>
+                               </tr>
+                           </thead>
+                           <tbody>
+                               <?php foreach ($online_users as $user): ?>
+                               <tr>
+                                   <td>
+                                       <div style="display: flex; align-items: center; gap: 10px;">
+                                           <span style="display: inline-block; width: 10px; height: 10px; background: #4caf50; border-radius: 50%; animation: pulse 2s infinite;"></span>
+                                           <strong><?php echo htmlspecialchars($user['username']); ?></strong>
+                                           <?php if ($user['id'] == $user_id): ?>
+                                           <span class="badge badge-info">Tú</span>
+                                           <?php endif; ?>
+                                           <?php if ($user['id'] == 1): ?>
+                                           <span class="superadmin-badge">SUPER</span>
+                                           <?php endif; ?>
+                                       </div>
+                                   </td>
+                                   <td>
+                                       <small><?php echo htmlspecialchars($user['email']); ?></small>
+                                   </td>
+                                   <td>
+                                       <span class="badge badge-<?php echo $user['role'] === 'admin' ? 'warning' : 'secondary'; ?>">
+                                           <?php echo $user['role'] === 'admin' ? '👑 Admin' : '👤 Usuario'; ?>
+                                       </span>
+                                   </td>
+                                   <td>
+                                       <?php if ($user['minutes_ago'] == 0): ?>
+                                           <span class="badge badge-success">Ahora mismo</span>
+                                       <?php elseif ($user['minutes_ago'] == 1): ?>
+                                           <span class="badge badge-success">Hace 1 minuto</span>
+                                       <?php else: ?>
+                                           <span class="badge badge-info">Hace <?php echo $user['minutes_ago']; ?> minutos</span>
+                                       <?php endif; ?>
+                                       <br>
+                                       <small class="text-muted">
+                                           <?php echo date('H:i:s', strtotime($user['last_activity'])); ?>
+                                       </small>
+                                   </td>
+                                   <td>
+                                       <span class="badge badge-primary">
+                                           🔗 <?php echo number_format($user['total_urls']); ?>
+                                       </span>
+                                   </td>
+                                   <td>
+                                       <?php if ($user['active_tokens'] > 0): ?>
+                                       <span class="badge badge-success">
+                                           🔑 <?php echo $user['active_tokens']; ?> activo<?php echo $user['active_tokens'] > 1 ? 's' : ''; ?>
+                                       </span>
+                                       <?php else: ?>
+                                       <span class="badge badge-secondary">
+                                           🔑 0
+                                       </span>
+                                       <?php endif; ?>
+                                   </td>
+                                   <td>
+                                       <span class="badge badge-<?php echo $user['status'] === 'active' ? 'success' : 'danger'; ?>">
+                                           <?php echo $user['status'] === 'active' ? '✅ Activo' : '❌ Inactivo'; ?>
+                                       </span>
+                                   </td>
+                               </tr>
+                               <?php endforeach; ?>
+                           </tbody>
+                       </table>
+                   </div>
+                   
+                   <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                       <small class="text-muted">
+                           <strong>💡 Nota:</strong> Se muestran usuarios con actividad en los últimos 10 minutos. 
+                           La actividad se actualiza cuando navegan por el panel.
+                       </small>
+                   </div>
+                   <?php else: ?>
+                   <div class="empty-state">
+                       <span style="font-size: 4em;">😴</span>
+                       <h4>No hay usuarios activos en este momento</h4>
+                       <p>Los usuarios aparecerán aquí cuando estén navegando por el panel</p>
+                   </div>
+                   <?php endif; ?>
+               </div>
+               
+               <!-- Historial de actividad reciente -->
+               <div class="data-table" style="margin-top: 30px;">
+                   <h3>📊 Actividad Reciente (Últimas 24 horas)</h3>
+                   <?php
+                   try {
+                       $stmt = $db->query("
+                           SELECT 
+                               al.user_id,
+                               u.username,
+                               al.action,
+                               al.details,
+                               al.ip_address,
+                               al.created_at
+                           FROM activity_log al
+                           JOIN users u ON al.user_id = u.id
+                           WHERE al.created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+                           ORDER BY al.created_at DESC
+                           LIMIT 50
+                       ");
+                       $activities = $stmt->fetchAll();
+                   } catch (Exception $e) {
+                       $activities = [];
+                   }
+                   ?>
+                   
+                   <?php if ($activities): ?>
+                   <div class="table-responsive">
+                       <table>
+                           <thead>
+                               <tr>
+                                   <th>Hora</th>
+                                   <th>Usuario</th>
+                                   <th>Acción</th>
+                                   <th>Detalles</th>
+                                   <th>IP</th>
+                               </tr>
+                           </thead>
+                           <tbody>
+                               <?php foreach ($activities as $activity): ?>
+                               <tr>
+                                   <td>
+                                       <small><?php echo date('H:i:s', strtotime($activity['created_at'])); ?></small>
+                                   </td>
+                                   <td>
+                                       <strong><?php echo htmlspecialchars($activity['username']); ?></strong>
+                                   </td>
+                                   <td>
+                                       <?php
+                                       $action_icons = [
+                                           'login' => '🔓',
+                                           'logout' => '🔒',
+                                           'create_url' => '➕',
+                                           'delete_url' => '🗑️',
+                                           'create_token' => '🔑',
+                                           'delete_token' => '🔑',
+                                           'regenerate_token' => '🔄',
+                                           'add_domain' => '🌐',
+                                           'delete_domain' => '🌐'
+                                       ];
+                                       echo $action_icons[$activity['action']] ?? '📝';
+                                       echo ' ' . str_replace('_', ' ', ucfirst($activity['action']));
+                                       ?>
+                                   </td>
+                                   <td>
+                                       <small><?php echo htmlspecialchars($activity['details']); ?></small>
+                                   </td>
+                                   <td>
+                                       <small class="text-muted"><?php echo htmlspecialchars($activity['ip_address']); ?></small>
+                                   </td>
+                               </tr>
+                               <?php endforeach; ?>
+                           </tbody>
+                       </table>
+                   </div>
+                   <?php else: ?>
+                   <p class="text-center text-muted py-4">No hay actividad registrada en las últimas 24 horas</p>
+                   <?php endif; ?>
+               </div>
+           
            <!-- Gestión de Dominios - SOLO SUPERADMIN -->
            <?php elseif ($section === 'domains' && $is_superadmin): ?>
                <!-- Información sobre asignación de dominios -->
@@ -2726,7 +3027,7 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
                </div>
                
                <!-- Formulario para añadir dominio -->
-               <div class="data-table" style="margin-bottom: 30px;">
+<div class="data-table" style="margin-bottom: 30px;">
                    <h3>➕ Añadir nuevo dominio</h3>
                    <form method="POST" action="">
                        <input type="hidden" name="domain_action" value="add">
@@ -2934,6 +3235,16 @@ response = requests.get('https://<?php echo $_SERVER['HTTP_HOST']; ?>/api/my-url
            setTimeout(() => alert.remove(), 300);
        });
    }, 5000);
+   
+   // Auto-refresh para usuarios conectados (solo en esa sección)
+   <?php if ($section === 'online' && $is_superadmin): ?>
+   // Actualizar cada 30 segundos
+   setInterval(function() {
+       // Opcional: podrías hacer una petición AJAX aquí para actualizar sin recargar
+       // Por ahora, simplemente recargamos la página
+       // location.reload();
+   }, 30000);
+   <?php endif; ?>
    </script>
 </body>
 </html>

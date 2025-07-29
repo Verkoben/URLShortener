@@ -1,7 +1,8 @@
 <?php
 // stats.php - Estadísticas públicas de URLs
 session_start();
-setcookie(session_name(), session_id(), time() + 1296000, '/'); // 15 días
+//setcookie(session_name(), session_id(), time() + 1296000, '/'); // 15 días
+require_once 'config_auth.php';
 require_once 'conf.php';
 
 // Obtener el código corto
