@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aclaraciones - Gestor de URLs Cortas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.8;
+            background: #f5f6fa;
+            color: #2c3e50;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        h2 {
+            color: #333;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .important-box {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .important-box .icon {
+            font-size: 2.5em;
+            flex-shrink: 0;
+        }
+        
+        .important-box .content {
+            flex: 1;
+        }
+        
+        .important-box .content strong {
+            display: block;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+            color: #856404;
+        }
+        
+        .info-card {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .info-card h3 {
+            color: #1565c0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        ul {
+            margin-left: 25px;
+            margin-top: 15px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+        
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            margin-left: 0;
+        }
+        
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 15px;
+            padding-left: 40px;
+            position: relative;
+        }
+        
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .feature-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .date {
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 30px;
+            display: inline-block;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #667eea;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            transform: translateX(-5px);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">
+            ← Volver al inicio
+        </a>
+        
+        <h1>📋 Aclaraciones - Gestor de URLs Cortas</h1>
+        
+        <div class="important-box">
+            <div class="icon">⚠️</div>
+            <div class="content">
+                <strong>¡Importante para usuarios de la extensión!</strong>
+                Cada 15 días, si está utilizando la extensión de Chrome, debe iniciar sesión en 0ln.eu 
+                y luego puede cerrar la página. Esto mantiene activa su sesión.
+            </div>
+        </div>
+        
+        <h2>🧩 Extensión de Chrome</h2>
+        
+        <div class="info-card">
+            <h3>🔄 Renovación de sesión</h3>
+            <p>La extensión necesita que mantengas tu sesión activa. Para ello:</p>
+            <ol class="step-list">
+                <li>Abre <strong>0ln.eu</strong> en tu navegador</li>
+                <li>Inicia sesión con tus credenciales</li>
+                <li>Una vez dentro, puedes cerrar la página</li>
+                <li>La extensión funcionará correctamente por 15 días más</li>
+            </ol>
+        </div>
+        
+        <h2>🚀 Características principales</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>🔗 URLs ilimitadas</h4>
+                <p>Crea tantas URLs cortas como necesites, sin restricciones.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4>📊 Estadísticas completas</h4>
+                <p>Rastrea clicks, ubicaciones, dispositivos y más en tiempo real.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4>🔑 API REST</h4>
+                <p>Integra el acortador en tus aplicaciones con nuestra API.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4>🌐 Dominios personalizados</h4>
+                <p>Usa tu propio dominio para crear URLs más profesionales.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4>🎯 Códigos personalizados</h4>
+                <p>Elige tus propios códigos cortos memorables.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4>🌍 Geolocalización</h4>
+                <p>Visualiza en un mapa desde dónde vienen tus visitas.</p>
+            </div>
+        </div>
+        
+        <h2>❓ Preguntas frecuentes</h2>
+        
+        <div class="info-card">
+            <h3>¿Por qué debo iniciar sesión cada 15 días?</h3>
+            <p>Por seguridad, las sesiones expiran automáticamente. Esto protege tu cuenta y tus datos.</p>
+        </div>
+        
+        <div class="info-card">
+            <h3>¿Puedo usar la API sin la extensión?</h3>
+            <p>¡Por supuesto! Genera un token API desde tu panel de control y úsalo en tus aplicaciones.</p>
+        </div>
+        
+        <div class="info-card">
+            <h3>¿Mis URLs expiran?</h3>
+            <p>No, tus URLs cortas son permanentes y seguirán funcionando mientras mantengas tu cuenta activa.</p>
+        </div>
+        
+        <h2>📞 Soporte</h2>
+        
+        <p>Si tienes alguna pregunta o problema:</p>
+        <ul>
+            <li>📧 Envía un email a soporte@0ln.eu</li>
+            <li>💬 Usa el chat en vivo desde tu panel</li>
+            <li>📖 Consulta la documentación completa en el panel de usuario</li>
+        </ul>
+        
+        <div class="date">
+            📅 Última actualización: <?php echo date('d/m/Y'); ?>
+        </div>
+    </div>
+</body>
+</html>

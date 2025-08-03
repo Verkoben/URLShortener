@@ -1063,7 +1063,7 @@ if ($is_logged_in && $user_id > 1) {
                 © <?php echo date('Y'); ?> URL Shortener | 
                 <a href="/privacy" class="text-white text-decoration-none">Privacidad</a> | 
                 <a href="https://chromewebstore.google.com/search/gestor%20URLs%20cortas" class="text-white text-decoration-none">Extensión</a> |
-                <a href="https://www.youtube.com/watch?v=uaVkiKwUV38" class="text-white text-decoration-none">Demo</a> | 
+                <a href="/demo.html" class="text-white text-decoration-none">Demo</a> | 
                 <a href="/Aclaraciones" class="text-white text-decoration-none">Aclaraciones</a> |
                 <a href="<?php echo rtrim(BASE_URL, '/'); ?>/admin" class="text-white text-decoration-none">Admin</a>
             </p>
